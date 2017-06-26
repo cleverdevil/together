@@ -1,5 +1,4 @@
-Together
-========
+![together](together-logo.png)
 
 The future home of the together project: an [IndieWeb](http://indieweb.org)
 environment for reading, discovering, and interacting with content. You might
