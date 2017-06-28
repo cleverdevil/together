@@ -1,0 +1,11 @@
+.app {
+  padding: 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.timeline {
+  max-width: 30em;
+}

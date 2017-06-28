@@ -1,0 +1,11 @@
+.card__author {
+
+}
+
+.card__author img {
+  max-width: 1.5em;
+  max-height: 1.5em;
+  width: auto;
+  height: auto;
+  border-radius: 3px;
+}

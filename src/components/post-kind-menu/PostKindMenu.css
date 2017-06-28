@@ -1,0 +1,12 @@
+.post-kind-menu {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: column;
+  margin-right: 1em;
+}
+
+.post-kind-menu__post-kind {
+  font-size: 1.5em;
+  margin-bottom: .2em;
+}
