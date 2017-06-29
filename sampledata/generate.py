@@ -1,26 +1,24 @@
 '''
-Fetches h-feeds from a number of sources, then converts them to JSON, and dumps
+Fetches h-feeds from a number of sources, then converts them to JF2, and dumps
 them to disk:
 
     data/
         source.com/
-            YYYY-MM-DDTHH:MM:SS+ZZ:ZZ.js
+            <uuid>.js
             ...
 
-Each item in the feed will have a single file associated with it, named
-by the timestamp of the item, with a .js extension.
+Each item in the feed will have a single file associated with it, named with a
+random uuid and a '.js' extension.
 
-This script requires:
-
-* Python 3.6
-* mf2py
+This script requires Python 3.6.
 
 Sources are contained in the `sources` list at the top of the script.
 '''
 
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
+from urllib.request import urlopen
 
-import mf2py
+import uuid
 import json
 import os
 
@@ -29,7 +27,8 @@ sources = [
     'https://cleverdevil.io/content/all',
     'https://grant.codes',
     'http://aaronparecki.com',
-    'http://tantek.com'
+    'http://tantek.com',
+    'http://known.kevinmarks.com'
 ]
 
 
@@ -45,14 +44,20 @@ def mkdir(source):
 
 
 for source in sources:
-    data = mf2py.parse(url=source)
-    data = (d for d in data['items'] if d['type'] != ['h-card'])
+    print('Fetching', source)
 
-    directory = mkdir(source)
+    jf2_url = 'http://stream.thatmustbe.us/?' + urlencode(dict(url=source))
+    with urlopen(jf2_url) as response:
+        data = response.read()
 
-    for item in data:
-        json_item = json.dumps(item, indent=4, separators=(', ', ': '))
+        directory = mkdir(source)
 
-        filename = item['properties']['published'][0]
-        with open('data/' + directory + '/' + filename + '.js', 'w') as f:
-            f.write(json_item)
+        for item in json.loads(data)['children']:
+            if item['type'] == 'card':
+                continue
+
+            json_item = json.dumps(item, indent=4, separators=(', ', ': '))
+
+            filename = str(uuid.uuid4())
+            with open('data/' + directory + '/' + filename + '.js', 'w') as f:
+                f.write(json_item)
