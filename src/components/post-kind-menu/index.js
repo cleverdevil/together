@@ -7,6 +7,11 @@ class PostKindMenu extends React.Component {
   render() {
     const postKinds = [
       {
+        id: 'all',
+        name: 'All',
+        icon: '*',
+      },
+      {
         id: 'note',
         name: 'Notes',
         icon: '💬',
