@@ -1,11 +1,13 @@
 .app {
-  padding: 1em;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: stretch;
+  height: 100%;
+  overflow: auto;
 }
 
 .timeline {
   max-width: 30em;
+  flex-grow: 1;
 }

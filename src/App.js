@@ -34,7 +34,7 @@ class App extends Component {
       <div className="app">
         <PostKindMenu />
         <Timeline items={this.state.items.filter((item) => item.type == 'h-entry')} />
-        <form onSubmit={this.loadFeed}>
+        <form onSubmit={this.loadFeed} style={{position: 'absolute', bottom: 0, right: 0}}>
           <input
             type="url" 
             placeholder="Url to parse" 

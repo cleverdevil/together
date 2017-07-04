@@ -1,9 +1,11 @@
 .card {
   display: block;
-  background-color: #fcfcfc;
-  border-radius: 2px;
-  box-shadow: 0 0 3px rgba(0,0,0,.3);
+  background-color: var(--light-color);
+  border-radius: 3px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,.1);
+  border: 1px solid rgba(0,0,0,.2);
   margin-bottom: 1em;
+  overflow: hidden;
 }
 
 .card__header {
@@ -11,8 +13,13 @@
 }
 
 .card__footer {
-  font-size: .8em;
+  font-size: .5em;
   padding: .25rem 1rem;
-  background-color: #fafafa;
-  border-top: 1px solid #eaeaea;
+  background-color: rgba(0,0,0,.03);
+  border-top: 1px solid rgba(0,0,0,.05);
+}
+
+.card__text {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }

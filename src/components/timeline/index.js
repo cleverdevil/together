@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// import styles from './PostKindMenu.css';
+import './Timeline.css';
 import Card from '../card';
 import CardHeader from '../card-header';
 import CardFooter from '../card-footer';
@@ -45,12 +45,12 @@ class Timeline extends React.Component {
               ))
             )}
             {item.properties.summary &&
-              <p>{item.properties.summary}</p> 
+              <p className="card__text">{item.properties.summary}</p> 
             }
             {/*<div dangerouslySetInnerHTML={{__html: item.properties.content[0].html}}></div>*/}
             {/*{item.properties.category.map((category) => (<span>{category}</span>))}*/}
             <CardFooter>
-              {item.properties.published ? (<small><datetime>{item.properties.published}</datetime></small>) : null}
+              {item.properties.published ? (<datetime>{item.properties.published}</datetime>) : null}
               <button onClick={() => console.log(item)}>Log</button>
             </CardFooter>
           </Card>
