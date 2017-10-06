@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { withStyles } from 'material-ui/styles';
 import Card, { CardHeader, CardActions, CardContent, CardMedia } from 'material-ui/Card';
 import { GridList, GridListTile } from 'material-ui/GridList';
 import Tooltip from 'material-ui/Tooltip';
@@ -15,6 +16,18 @@ import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import moment from 'moment';
 
+const styles = theme => ({
+  card: {
+    marginTop: 12,
+    marginBottom: 12,
+  },
+  fullImage: {
+    display: 'block',
+    maxWidth: '100%',
+    margin: '0 auto',
+    height: 'auto',
+  }
+});
 
 class TogetherCard extends React.Component {
   constructor(props) {
@@ -68,8 +81,8 @@ class TogetherCard extends React.Component {
     if (photos.length === 1) {
       return (
         <img
+          className={this.props.classes.fullImage}  
           src={photos[0]}
-          style={{display: 'block', width: '100%', height: 'auto'}}
         />
       );
     } else if (photos.length > 1) {
@@ -104,7 +117,7 @@ class TogetherCard extends React.Component {
       }
     }
     return (
-      <Card>
+      <Card className={this.props.classes.card}>
         <CardHeader
           title={author.name}
           subheader={moment(item.properties.published[0]).fromNow()}
@@ -165,5 +178,5 @@ function mapDispatchToProps(dispatch) {
   }, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(TogetherCard);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
   

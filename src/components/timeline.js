@@ -10,11 +10,9 @@ import Card from './card';
 class Timeline extends React.Component {
   render() {
     return (
-      <Grid container direction="column" spacing={24}>
+      <Grid container direction="column">
         {this.props.items.map((item, i) => (
-          <Grid item key={'card-' + i}>
-            <Card post={item} />
-          </Grid>  
+          <Card post={item} key={'card-' + i} />
         ))}
       </Grid>
     );
