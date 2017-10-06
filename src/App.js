@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
@@ -7,19 +9,36 @@ import Button from 'material-ui/Button';
 import Input from 'material-ui/Input';
 import Timeline from './components/timeline.js';
 import PostKindMenu from './components/post-kind-menu.js';
+import { addToTimeline } from './actions';
 
 // Absolute filth but works for demo purposes
 window.parseJsonp = function(data) {
-  console.log(data);
   window.loadedItems = data.items;
 }
+
+const theme = createMuiTheme({
+  palette: {
+    type: 'light',
+  },
+});
+
+const style = theme => ({
+  root: {
+    background: theme.palette.background.default,
+  },
+  drawer: {
+    width: 50,
+  },
+  main: {
+    marginLeft: 50 + 12,
+  }
+});
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
       feedUrl: '',
-      items: [],
     };
     this.loadFeed = this.loadFeed.bind(this);
   }
@@ -30,7 +49,11 @@ class App extends Component {
     var script = document.createElement('script');
     script.src = jsonUrl + '&callback=parseJsonp';
     document.head.appendChild(script)
-    setTimeout(() => this.setState({items: window.loadedItems}), 5000);
+    setTimeout(() => {
+      window.loadedItems
+        .filter((item) => item.type == 'h-entry') // Uses == instead of === so that it matches arrays
+        .forEach(item => this.props.addToTimeline(item));
+    }, 5000);
   }
 
   render() {
@@ -42,7 +65,7 @@ class App extends Component {
           </div>
           <Grid container spacing={24} className={this.props.classes.main}>
             <Grid item xs={8}>
-              <Timeline items={this.state.items.filter((item) => item.type === 'h-entry')} />
+              <Timeline />
             </Grid>
             <Card style={{position: 'fixed', bottom: 0, right: 0, zIndex: 20}}>
               <form onSubmit={this.loadFeed}>
@@ -63,4 +86,10 @@ class App extends Component {
   }
 }
 
-export default withStyles(style)(App);
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    addToTimeline: addToTimeline,
+  }, dispatch);
+}
+
+export default connect(null, mapDispatchToProps)(withStyles(style)(App));

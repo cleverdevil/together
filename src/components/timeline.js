@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+// import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import Grid from 'material-ui/Grid';
 import Card, { CardHeader, CardActions, CardContent, CardMedia } from 'material-ui/Card';
@@ -69,12 +71,23 @@ class Timeline extends React.Component {
 }
   
 Timeline.defaultProps = {
-  items: [],    
+  items: [],
 };
 
 Timeline.propTypes = {
   items: PropTypes.array.isRequired,
 };
 
-export default Timeline;
+function mapStateToProps(state, props) {
+  return {
+      items: state.timeline.toJS(),
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Timeline);
   
