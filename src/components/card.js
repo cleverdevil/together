@@ -49,16 +49,31 @@ class TogetherCard extends React.Component {
 
   render() {
     const item = this.props.post;
+    let author = {
+      name: 'Unknown',
+      photo: null,
+      url: null,
+    };
+    if (item.properties.author && item.properties.author[0]) {
+      if (typeof item.properties.author[0] == 'string') {
+        author.name = item.properties.author[0];
+        author.url = item.properties.author[0];
+      } else if (item.properties.author[0].properties) {
+        author.name = item.properties.author[0].properties.name;
+        author.photo = item.properties.author[0].properties.photo;
+        author.url = item.properties.author[0].properties.url;
+      }
+    }
     return (
       <Card>
         <CardHeader
-          title={item.properties.author[0].properties.name[0]}
+          title={author.name}
           subheader={moment(item.properties.published[0]).fromNow()}
           avatar={
             <Avatar
-              aria-label={item.properties.author[0].properties.name[0]}
-              alt={item.properties.author[0].properties.name[0]}
-              src={item.properties.author[0].properties.photo[0]}
+              aria-label={author.name}
+              alt={author.name}
+              src={author.photo}
             />
           }  
         />
