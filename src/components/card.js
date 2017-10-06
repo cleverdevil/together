@@ -12,6 +12,7 @@ import DeveloperModeIcon from 'material-ui-icons/DeveloperMode';
 import LikeIcon from 'material-ui-icons/ThumbUp';
 import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
+import moment from 'moment';
 
 
 class TogetherCard extends React.Component {
@@ -21,7 +22,7 @@ class TogetherCard extends React.Component {
       <Card>
         <CardHeader
           title={item.properties.author[0].properties.name[0]}
-          subheader={item.properties.published[0]}
+          subheader={moment(item.properties.published[0]).fromNow()}
           avatar={
             <Avatar
               aria-label={item.properties.author[0].properties.name[0]}
