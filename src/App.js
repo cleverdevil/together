@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
-import './App.css';
-
-import Timeline from './components/timeline';
-import PostKindMenu from './components/post-kind-menu';
+import { withStyles } from 'material-ui/styles';
+import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
+import Grid from 'material-ui/Grid';
+import Card from 'material-ui/Card';
+import Button from 'material-ui/Button';
+import Input from 'material-ui/Input';
+import Timeline from './components/timeline.js';
+import PostKindMenu from './components/post-kind-menu.js';
 
 // Absolute filth but works for demo purposes
 window.parseJsonp = function(data) {
@@ -31,22 +35,32 @@ class App extends Component {
 
   render() {
     return (
-      <div className="app">
-        <PostKindMenu />
-        <Timeline items={this.state.items.filter((item) => item.type == 'h-entry')} />
-        <form onSubmit={this.loadFeed} style={{position: 'absolute', bottom: 0, right: 0}}>
-          <input
-            type="url" 
-            placeholder="Url to parse" 
-            value={this.state.feedUrl}
-            onChange={e => {this.setState({feedUrl: e.target.value})}}
-            required={true}
-          />
-          <button type="submit">Go!</button>
-        </form>
-      </div>
+      <MuiThemeProvider theme={theme}>
+        <div className={this.props.classes.root}>
+          <div className={this.props.classes.drawer}>
+            <PostKindMenu />
+          </div>
+          <Grid container spacing={24} className={this.props.classes.main}>
+            <Grid item xs={8}>
+              <Timeline items={this.state.items.filter((item) => item.type === 'h-entry')} />
+            </Grid>
+            <Card style={{position: 'fixed', bottom: 0, right: 0, zIndex: 20}}>
+              <form onSubmit={this.loadFeed}>
+                <Input
+                  type="url" 
+                  placeholder="Url to parse" 
+                  value={this.state.feedUrl}
+                  onChange={e => {this.setState({feedUrl: e.target.value})}}
+                  required={true}
+                />
+                <Button raised type="submit">Go!</Button>
+              </form>
+            </Card>
+          </Grid>
+        </div>  
+      </MuiThemeProvider>
     );
   }
 }
 
-export default App;
+export default withStyles(style)(App);

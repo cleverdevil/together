@@ -6,7 +6,9 @@
     "react-scripts": "1.0.7"
   },
   "dependencies": {
-    "prop-types": "^15.5.10",
+    "material-ui": "^1.0.0-beta.13",
+    "material-ui-icons": "^1.0.0-beta.15",
+    "prop-types": "^15.6.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1"
   },
