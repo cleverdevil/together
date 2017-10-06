@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import Card, { CardHeader, CardActions, CardContent, CardMedia } from 'material-ui/Card';
+import { GridList, GridListTile } from 'material-ui/GridList';
 import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
@@ -16,6 +17,36 @@ import moment from 'moment';
 
 
 class TogetherCard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.renderPhotos = this.renderPhotos.bind(this);
+  }
+
+  renderPhotos(photos) {
+    if (!photos) {
+      return null;
+    }
+    if (photos.length === 1) {
+      return (
+        <img
+          src={photos[0]}
+          style={{display: 'block', width: '100%', height: 'auto'}}
+        />
+      );
+    } else if (photos.length > 1) {
+      return (
+        <GridList cellHeight={160} cols={3}>
+          {photos.map(photo => (
+            <GridListTile key={photo} cols={1}>
+              <img src={photo} alt="" />
+            </GridListTile>
+          ))}
+        </GridList>
+      );
+    }
+    return null;
+  }
+
   render() {
     const item = this.props.post;
     return (
@@ -31,15 +62,7 @@ class TogetherCard extends React.Component {
             />
           }  
         />
-        {item.properties.photo && (
-          item.properties.photo.map((photo, photoIndex) => (
-            <CardMedia
-              key={`photo-${photoIndex}`}
-              image={photo}
-              style={{height: 200}}
-            />
-          ))
-        )}
+        {this.renderPhotos(item.properties.photo)}
         <CardContent>
           <Typography type="headline" component="h2">
             {item.properties.name}
