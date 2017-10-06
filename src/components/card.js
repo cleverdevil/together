@@ -14,7 +14,20 @@ import DeveloperModeIcon from 'material-ui-icons/DeveloperMode';
 import LikeIcon from 'material-ui-icons/ThumbUp';
 import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
+import { Map, Marker, TileLayer } from 'react-leaflet';
 import moment from 'moment';
+import 'leaflet/dist/leaflet.css';
+
+// Hack to fix leaflet marker
+import L from 'leaflet';
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+// End hacky times
 
 const styles = theme => ({
   card: {
@@ -26,6 +39,9 @@ const styles = theme => ({
     maxWidth: '100%',
     margin: '0 auto',
     height: 'auto',
+  },
+  map: {
+    height: 200,
   }
 });
 
@@ -33,6 +49,7 @@ class TogetherCard extends React.Component {
   constructor(props) {
     super(props);
     this.renderPhotos = this.renderPhotos.bind(this);
+    this.renderLocation = this.renderLocation.bind(this);
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
@@ -99,6 +116,40 @@ class TogetherCard extends React.Component {
     return null;
   }
 
+  renderLocation(locations) {
+    let lat = null;
+    let lng = null;
+    if (!locations) {
+      return null;
+    }
+    return locations.map((location, i) => {
+      if (location.properties && location.properties.latitude && location.properties.latitude[0] && location.properties.longitude && location.properties.longitude[0]) {
+        lat = location.properties.latitude[0];
+        lng = location.properties.longitude[0];
+      }
+
+      if (lat && lng) {
+        return (
+          <Map
+            center={[lat, lng]}
+            zoom={14}
+            scrollWheelZoom={false}
+            className={this.props.classes.map} key={'card-map-' + i}
+           >
+            <TileLayer
+              url='https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png'
+              attribution='Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	            maxZoom={18}
+            />
+            <Marker position={[lat,lng]}></Marker>
+          </Map>
+        );
+      }
+
+      return null;
+    });
+  }
+
   render() {
     const item = this.props.post;
     let author = {
@@ -135,7 +186,9 @@ class TogetherCard extends React.Component {
             {item.properties.name}
           </Typography>
           {item.properties.summary && <Typography component="p">{item.properties.summary}</Typography>}
-        </CardContent>  
+        </CardContent>
+
+        {this.renderLocation(item.properties.location)}
 
         <CardActions>
           <Tooltip title="Like" placement="top">

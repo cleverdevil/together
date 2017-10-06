@@ -906,14 +906,14 @@ babel-register@^6.24.1:
     mkdirp "^0.5.1"
     source-map-support "^0.4.2"
 
-babel-runtime@6.23.0, babel-runtime@^6.18.0, babel-runtime@^6.22.0:
+babel-runtime@6.23.0:
   version "6.23.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.23.0.tgz#0a9489f144de70efb3ce4300accdb329e2fc543b"
   dependencies:
     core-js "^2.4.0"
     regenerator-runtime "^0.10.0"
 
-babel-runtime@^6.23.0, babel-runtime@^6.26.0:
+babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.23.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   dependencies:
@@ -2393,21 +2393,9 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "^2.0.0"
 
-fbjs@^0.8.1, fbjs@^0.8.16:
+fbjs@^0.8.1, fbjs@^0.8.16, fbjs@^0.8.9:
   version "0.8.16"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.16.tgz#5e67432f550dc41b572bf55847b8aca64e5337db"
-  dependencies:
-    core-js "^1.0.0"
-    isomorphic-fetch "^2.1.1"
-    loose-envify "^1.0.0"
-    object-assign "^4.1.0"
-    promise "^7.1.1"
-    setimmediate "^1.0.5"
-    ua-parser-js "^0.7.9"
-
-fbjs@^0.8.9:
-  version "0.8.12"
-  resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.12.tgz#10b5d92f76d45575fd63a217d4ea02bea2f8ed04"
   dependencies:
     core-js "^1.0.0"
     isomorphic-fetch "^2.1.1"
@@ -3797,6 +3785,10 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
+leaflet@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.2.0.tgz#fd5d93d9cb00091f5f8a69206d0d6744c1c82697"
+
 leven@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/leven/-/leven-2.1.0.tgz#c2e7a9f772094dee9d34202ae8acce4687875580"
@@ -3853,7 +3845,7 @@ locate-path@^2.0.0:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
 
-lodash-es@^4.2.0, lodash-es@^4.2.1:
+lodash-es@^4.0.0, lodash-es@^4.2.0, lodash-es@^4.2.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.4.tgz#dcc1d7552e150a0640073ba9cb31d70f032950e7"
 
@@ -4901,14 +4893,7 @@ promise@7.1.1, promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.10:
-  version "15.5.10"
-  resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
-  dependencies:
-    fbjs "^0.8.9"
-    loose-envify "^1.3.1"
-
-prop-types@^15.5.8, prop-types@^15.6.0:
+prop-types@^15.5.10, prop-types@^15.5.8, prop-types@^15.6.0:
   version "15.6.0"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.6.0.tgz#ceaf083022fc46b4a35f69e13ef75aed0d639856"
   dependencies:
@@ -5076,6 +5061,14 @@ react-jss@^7.2.0:
     jss-preset-default "^3.0.0"
     prop-types "^15.5.8"
     theming "^1.1.0"
+
+react-leaflet@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/react-leaflet/-/react-leaflet-1.7.0.tgz#bfafc72aeb978d2e91638344b7991d2da12901ae"
+  dependencies:
+    lodash "^4.0.0"
+    lodash-es "^4.0.0"
+    warning "^3.0.0"
 
 react-popper@^0.7.3:
   version "0.7.3"
