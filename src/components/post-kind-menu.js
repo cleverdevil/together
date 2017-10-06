@@ -1,14 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
-import PhotoIcon from 'material-ui-icons/PhotoCamera';
-import AudioIcon from 'material-ui-icons/Headset';
-import CheckinIcon from 'material-ui-icons/LocationOn';
-import ArticleIcon from 'material-ui-icons/LibraryBooks';
-import NoteIcon from 'material-ui-icons/Chat';
-import AllIcon from 'material-ui-icons/Home';
+import { selectPostKind } from '../actions';
+
 
 const styles = theme => ({
   paperAnchorDockedLeft: {
@@ -17,44 +16,31 @@ const styles = theme => ({
   },
   icon: {
     color: theme.palette.shades.dark.text.icon,
+    '&:hover': {
+      color: theme.palette.secondary['200'],
+    }
+  },
+  iconSelected: {
+    color: theme.palette.secondary['500'],
+    '&:hover': {
+      color: theme.palette.secondary['500'],
+    }
   }
 });
 
 class PostKindMenu extends React.Component {
-  render() {
-    const postKinds = [
-      {
-        id: 'all',
-        name: 'All',
-        icon: <AllIcon className={this.props.classes.icon} />,
-      },
-      {
-        id: 'note',
-        name: 'Notes',
-        icon: <NoteIcon className={this.props.classes.icon} />,
-      },
-      {
-        id: 'photo',
-        name: 'Photos',
-        icon: <PhotoIcon className={this.props.classes.icon} />,
-      },
-      {
-        id: 'post',
-        name: 'Articles',
-        icon: <ArticleIcon className={this.props.classes.icon} />,
-      },
-      {
-        id: 'audio',
-        name: 'Podcasts & Music',
-        icon: <AudioIcon className={this.props.classes.icon} />,
-      },
-      {
-        id: 'checkins',
-        name: 'Checkins',
-        icon: <CheckinIcon className={this.props.classes.icon} />,
-      },
-    ];
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
 
+  handleClick(postKind) {
+    if (!postKind.selected) {
+      this.props.selectPostKind(postKind.id);
+    }
+  }
+
+  render() {
     return (
       <Drawer
         type="permanent"
@@ -62,13 +48,19 @@ class PostKindMenu extends React.Component {
           paperAnchorDockedLeft: this.props.classes.paperAnchorDockedLeft,
         }}
       >
-        {postKinds.map((postKind) => (
-          <Tooltip title={postKind.name} key={'post-kind-menu-' + postKind.id} placement="right">
-            <IconButton>
-              {postKind.icon}
-            </IconButton>
-          </Tooltip>
-        ))}
+        {this.props.postKinds.map((postKind) => {
+          const Icon = postKind.icon;
+          return (
+            <Tooltip title={postKind.name} key={'post-kind-menu-' + postKind.id} placement="right">
+              <IconButton
+                className={this.props.classes.icon + ' ' + (postKind.selected ? this.props.classes.iconSelected : '')}
+                onClick={() => this.handleClick(postKind)}
+              >
+                <Icon />
+              </IconButton>
+            </Tooltip>
+          );
+        })}
       </Drawer>
     );
   }
@@ -76,6 +68,20 @@ class PostKindMenu extends React.Component {
 
 PostKindMenu.defaultProps = {};
 
-PostKindMenu.propTypes = {};
+PostKindMenu.propTypes = {
+  postKinds: PropTypes.array.isRequired,
+};
 
-export default withStyles(styles)(PostKindMenu);
+function mapStateToProps(state, props) {
+  return {
+      postKinds: state.postKinds.toJS(),
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    selectPostKind: selectPostKind,
+  }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(PostKindMenu));

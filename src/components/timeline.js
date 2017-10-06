@@ -9,9 +9,13 @@ import Card from './card';
 
 class Timeline extends React.Component {
   render() {
+    let posts = this.props.items;
+    if (this.props.postKindFilter) {
+      posts = posts.filter(this.props.postKindFilter);
+    }
     return (
       <Grid container direction="column">
-        {this.props.items.map((item, i) => (
+        {posts.map((item, i) => (
           <Card post={item} key={'card-' + i} />
         ))}
       </Grid>
@@ -30,6 +34,7 @@ Timeline.propTypes = {
 function mapStateToProps(state, props) {
   return {
       items: state.timeline.toJS(),
+      postKindFilter: state.postKinds.find(postKind => postKind.get('selected')).get('filter'),
   };
 }
 
