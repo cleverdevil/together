@@ -50,9 +50,13 @@ class App extends Component {
     script.src = jsonUrl + '&callback=parseJsonp';
     document.head.appendChild(script)
     setTimeout(() => {
-      window.loadedItems
-        .filter((item) => item.type == 'h-entry') // Uses == instead of === so that it matches arrays
-        .forEach(item => this.props.addToTimeline(item));
+      if (window.loadedItems) {
+        window.loadedItems
+          .filter((item) => item.type == 'h-entry') // Uses == instead of === so that it matches arrays
+          .forEach(item => this.props.addToTimeline(item));
+      } else {
+        alert('Didnt load fast enough');
+      }
     }, 5000);
   }
 
