@@ -57,6 +57,7 @@ class TogetherCard extends React.Component {
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
     this.renderContent = this.renderContent.bind(this);
+    this.renderMedia = this.renderMedia.bind(this);
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
@@ -123,6 +124,18 @@ class TogetherCard extends React.Component {
             </GridListTile>
           ))}
         </GridList>
+      );
+    }
+    return null;
+  }
+
+  renderMedia(media, type) {
+    if (typeof media === 'string') {
+      return (
+        <CardMedia
+          component={type}
+          src={media}
+        />
       );
     }
     return null;
@@ -229,6 +242,8 @@ class TogetherCard extends React.Component {
             />
           }  
         />
+        {this.renderMedia(item.video, 'video')}
+        {this.renderMedia(item.audio, 'audio')}
         {this.renderPhotos(item.featured)}
         {this.renderPhotos(item.photo)}
 
