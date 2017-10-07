@@ -64,7 +64,7 @@ class TogetherCard extends React.Component {
 
   handleLike(e) {
     try {
-      const url = this.props.post.properties.url[0];
+      const url = this.props.post.url;
       const likeUrl = 'https://quill.p3k.io/favorite?url=' + encodeURIComponent(url);
       const win = window.open(likeUrl, '_blank');
       win.focus();
@@ -76,7 +76,7 @@ class TogetherCard extends React.Component {
 
   handleRepost(e) {
     try {
-      const url = this.props.post.properties.url[0];
+      const url = this.props.post.url;
       const likeUrl = 'https://quill.p3k.io/repost?url=' + encodeURIComponent(url);
       const win = window.open(likeUrl, '_blank');
       win.focus();
@@ -88,7 +88,7 @@ class TogetherCard extends React.Component {
 
   handleReply(e) {
     try {
-      const url = this.props.post.properties.url[0];
+      const url = this.props.post.url;
       const likeUrl = 'https://quill.p3k.io/new?reply=' + encodeURIComponent(url);
       const win = window.open(likeUrl, '_blank');
       win.focus();
@@ -102,14 +102,14 @@ class TogetherCard extends React.Component {
     if (!photos) {
       return null;
     }
-    if (photos.length === 1) {
+    if (typeof photos === 'string') {
       return (
         <img
           className={this.props.classes.fullImage}  
-          src={photos[0]}
+          src={photos}
         />
       );
-    } else if (photos.length > 1) {
+    } else if (Array.isArray(photos)) {
       let cellHeight = 200;
       let cardWidth = (document.getElementById('root').clientWidth - 49 - 12 - 12);
       if (cardWidth < 600) {
@@ -128,38 +128,36 @@ class TogetherCard extends React.Component {
     return null;
   }
 
-  renderLocation(locations) {
-    let lat = null;
-    let lng = null;
-    if (!locations) {
+  renderLocation(location) {
+    let lat = false;
+    let lng = false;
+    if (!location) {
       return null;
     }
-    return locations.map((location, i) => {
-      if (location.properties && location.properties.latitude && location.properties.latitude[0] && location.properties.longitude && location.properties.longitude[0]) {
-        lat = location.properties.latitude[0];
-        lng = location.properties.longitude[0];
-      }
+    if (location.latitude && location.longitude) {
+      lat = parseFloat(location.latitude);
+      lng = parseFloat(location.longitude);
+    }
 
-      if (lat && lng) {
-        return (
-          <Map
-            center={[lat, lng]}
-            zoom={14}
-            scrollWheelZoom={false}
-            className={this.props.classes.map} key={'card-map-' + i}
-           >
-            <TileLayer
-              url='https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png'
-              attribution='Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-	            maxZoom={18}
-            />
-            <Marker position={[lat,lng]}></Marker>
-          </Map>
-        );
-      }
+    if (lat !== false && lng !== false) {
+      return (
+        <Map
+          center={[lat, lng]}
+          zoom={14}
+          scrollWheelZoom={false}
+          className={this.props.classes.map}
+          >
+          <TileLayer
+            url='https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png'
+            attribution='Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            maxZoom={18}
+          />
+          <Marker position={[lat,lng]}></Marker>
+        </Map>
+      );
+    }
 
-      return null;
-    });
+    return null;
   }
 
   renderContent() {
@@ -168,18 +166,18 @@ class TogetherCard extends React.Component {
     let summary = null;
     let content = null;
     
-    if (item.properties.name) {
-      title = (<Typography type="headline" component="h2">{item.properties.name}</Typography>);
+    if (item.name) {
+      title = (<Typography type="headline" component="h2">{item.name}</Typography>);
     }
 
-    if (item.properties.summary && !item.properties.content) {
-      summary = (<Typography component="p">{item.properties.summary}</Typography>);
+    if (item.summary && !item.content) {
+      summary = (<Typography component="p">{item.summary}</Typography>);
     }
 
-    if (item.properties.content && item.properties.content[0]) {
-      const contentObject = item.properties.content[0]; 
+    if (item.content) {
+      const contentObject = item.content; 
       if (contentObject.html) {
-        content = (<div className={this.props.classes.postContent} dangerouslySetInnerHTML={{__html: contentObject.html}}></div>);
+        content = (<Typography component="div" className={this.props.classes.postContent} dangerouslySetInnerHTML={{__html: contentObject.html}}></Typography>);
       } else if (contentObject.value) {
         content = (<Typography component="p">{contentObject.value}</Typography>);
       }
@@ -202,21 +200,21 @@ class TogetherCard extends React.Component {
       photo: null,
       url: null,
     };
-    if (item.properties.author && item.properties.author[0]) {
-      if (typeof item.properties.author[0] == 'string') {
-        author.name = item.properties.author[0];
-        author.url = item.properties.author[0];
-      } else if (item.properties.author[0].properties) {
-        author.name = item.properties.author[0].properties.name;
-        author.photo = item.properties.author[0].properties.photo;
-        author.url = item.properties.author[0].properties.url;
+    if (item.author) {
+      if (typeof item.author === 'string') {
+        author.name = item.author;
+        author.url = item.author;
+      } else if (typeof item.author === 'object') {
+        author.name = item.author.name;
+        author.photo = item.author.photo;
+        author.url = item.author.url;
       }
     }
 
     // Parse published date
     let date = 'unknown';
-    if (item.properties.published && item.properties.published[0]) {
-      date = moment(item.properties.published[0]).fromNow();
+    if (item.published) {
+      date = moment(item.published).fromNow();
     }
     return (
       <Card className={this.props.classes.card}>
@@ -231,11 +229,12 @@ class TogetherCard extends React.Component {
             />
           }  
         />
-        {this.renderPhotos(item.properties.photo)}
+        {this.renderPhotos(item.featured)}
+        {this.renderPhotos(item.photo)}
 
         {this.renderContent()}
 
-        {this.renderLocation(item.properties.location)}
+        {this.renderLocation(item.location)}
 
         <CardActions>
           <Tooltip title="Like" placement="top">
