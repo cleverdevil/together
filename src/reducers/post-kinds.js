@@ -5,6 +5,10 @@ import CheckinIcon from 'material-ui-icons/LocationOn';
 import ArticleIcon from 'material-ui-icons/LibraryBooks';
 import NoteIcon from 'material-ui-icons/Chat';
 import AllIcon from 'material-ui-icons/Home';
+import LikeIcon from 'material-ui-icons/ThumbUp';
+import RepostIcon from 'material-ui-icons/Repeat';
+import EventIcon from 'material-ui-icons/Event';
+import VideoIcon from 'material-ui-icons/Movie';
 
 const postKinds = [
   {
@@ -43,11 +47,39 @@ const postKinds = [
     filter: (post) => (post.audio),
   },
   {
+    id: 'video',
+    name: 'Videos',
+    icon: VideoIcon,
+    selected: false,
+    filter: (post) => (post.video),
+  },
+  {
     id: 'checkins',
     name: 'Checkins',
     icon: CheckinIcon,
     selected: false,
     filter: (post) => (post.location),
+  },
+  {
+    id: 'event',
+    name: 'Events',
+    icon: EventIcon,
+    selected: false,
+    filter: (post) => (post.type === 'event'),
+  },
+  {
+    id: 'like',
+    name: 'Likes',
+    icon: LikeIcon,
+    selected: false,
+    filter: (post) => (post['like-of']),
+  },
+  {
+    id: 'repost',
+    name: 'Reposts',
+    icon: RepostIcon,
+    selected: false,
+    filter: (post) => (post['repost-of']),
   },
 ];
 
