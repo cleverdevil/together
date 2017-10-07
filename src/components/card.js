@@ -42,6 +42,12 @@ const styles = theme => ({
   },
   map: {
     height: 200,
+  },
+  postContent: {
+    '& img': {
+      maxWidth: '100%',
+      height: 'auto',
+    }
   }
 });
 
@@ -50,6 +56,7 @@ class TogetherCard extends React.Component {
     super(props);
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
+    this.renderContent = this.renderContent.bind(this);
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
@@ -150,6 +157,37 @@ class TogetherCard extends React.Component {
     });
   }
 
+  renderContent() {
+    const item = this.props.post;
+    let title = null;
+    let summary = null;
+    let content = null;
+    
+    if (item.properties.name) {
+      title = (<Typography type="headline" component="h2">{item.properties.name}</Typography>);
+    }
+
+    if (item.properties.summary && !item.properties.content) {
+      summary = (<Typography component="p">{item.properties.summary}</Typography>);
+    }
+
+    if (item.properties.content && item.properties.content[0]) {
+      const contentObject = item.properties.content[0]; 
+      if (contentObject.html) {
+        content = (<div className={this.props.classes.postContent} dangerouslySetInnerHTML={{__html: contentObject.html}}></div>);
+      } else if (contentObject.value) {
+        content = (<Typography component="p">{contentObject.value}</Typography>);
+      }
+    }
+    return (
+      <CardContent>
+        {title}
+        {summary}
+        {content}
+      </CardContent>
+    );
+  }
+
   render() {
     const item = this.props.post;
 
@@ -189,12 +227,8 @@ class TogetherCard extends React.Component {
           }  
         />
         {this.renderPhotos(item.properties.photo)}
-        <CardContent>
-          <Typography type="headline" component="h2">
-            {item.properties.name}
-          </Typography>
-          {item.properties.summary && <Typography component="p">{item.properties.summary}</Typography>}
-        </CardContent>
+
+        {this.renderContent()}
 
         {this.renderLocation(item.properties.location)}
 
