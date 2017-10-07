@@ -152,6 +152,8 @@ class TogetherCard extends React.Component {
 
   render() {
     const item = this.props.post;
+
+    // Parse author data
     let author = {
       name: 'Unknown',
       photo: null,
@@ -167,11 +169,17 @@ class TogetherCard extends React.Component {
         author.url = item.properties.author[0].properties.url;
       }
     }
+
+    // Parse published date
+    let date = 'unknown';
+    if (item.properties.published && item.properties.published[0]) {
+      date = moment(item.properties.published[0]).fromNow();
+    }
     return (
       <Card className={this.props.classes.card}>
         <CardHeader
           title={author.name}
-          subheader={moment(item.properties.published[0]).fromNow()}
+          subheader={date}
           avatar={
             <Avatar
               aria-label={author.name}
