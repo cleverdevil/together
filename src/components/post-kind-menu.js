@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
+import { Link } from 'react-router-dom';
 import Drawer from 'material-ui/Drawer';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
+import SettingsIcon from 'material-ui-icons/Settings';
 import { selectPostKind } from '../actions';
 
 
@@ -61,6 +63,16 @@ class PostKindMenu extends React.Component {
             </Tooltip>
           );
         })}
+        <div style={{flexGrow: 1}}></div>
+        <Link to="/settings">
+          <Tooltip title="Settings" placement="right">
+            <IconButton
+              className={this.props.classes.icon}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </Tooltip>
+        </Link>
       </Drawer>
     );
   }
