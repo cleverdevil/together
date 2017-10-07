@@ -14,7 +14,7 @@ This is a [React](https://facebook.github.io/react/) based frontend prototype. C
 
 ### Running locally
 
-Firstly you will need to have [node.js](https://nodejs.org/) and [yarn](https://yarnpkg.com/) installed locally. Then to run the app in development mode simply clone this repo and run `yarn start` in the root directory.
+Firstly you will need to have [node.js](https://nodejs.org/) and [yarn](https://yarnpkg.com/) installed locally. Then to run the app in development mode simply clone this repo and run `yarn install` and `yarn start` in the root directory.
 
 This will start a local server at `localhost:3000` and open it in your browser for you. Changes are then live injected when you save a file.
 
