@@ -3,7 +3,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
-import Grid from 'material-ui/Grid';
 import Card from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Input from 'material-ui/Input';
@@ -30,7 +29,9 @@ const style = theme => ({
     width: 50,
   },
   main: {
-    marginLeft: 50 + 12,
+    paddingLeft: 49 + 12,
+    paddingRight: 12,
+    maxWidth: 600,
   }
 });
 
@@ -67,23 +68,21 @@ class App extends Component {
           <div className={this.props.classes.drawer}>
             <PostKindMenu />
           </div>
-          <Grid container spacing={24} className={this.props.classes.main}>
-            <Grid item xs={8}>
-              <Timeline />
-            </Grid>
-            <Card style={{position: 'fixed', bottom: 0, right: 0, zIndex: 20}}>
-              <form onSubmit={this.loadFeed}>
-                <Input
-                  type="url" 
-                  placeholder="Url to parse" 
-                  value={this.state.feedUrl}
-                  onChange={e => {this.setState({feedUrl: e.target.value})}}
-                  required={true}
-                />
-                <Button raised type="submit">Go!</Button>
-              </form>
-            </Card>
-          </Grid>
+          <div className={this.props.classes.main}>
+            <Timeline />
+          </div>
+          <Card style={{position: 'fixed', bottom: 0, right: 0, zIndex: 20}}>
+            <form onSubmit={this.loadFeed}>
+              <Input
+                type="url" 
+                placeholder="Url to parse" 
+                value={this.state.feedUrl}
+                onChange={e => {this.setState({feedUrl: e.target.value})}}
+                required={true}
+              />
+              <Button raised type="submit">Go!</Button>
+            </form>
+          </Card>
         </div>  
       </MuiThemeProvider>
     );

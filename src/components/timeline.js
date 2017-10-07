@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 // import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import Grid from 'material-ui/Grid';
 import Card from './card';
 
 
@@ -14,11 +13,11 @@ class Timeline extends React.Component {
       posts = posts.filter(this.props.postKindFilter);
     }
     return (
-      <Grid container direction="column">
+      <div>
         {posts.map((item, i) => (
           <Card post={item} key={'card-' + i} />
         ))}
-      </Grid>
+      </div>
     );
   }
 }
