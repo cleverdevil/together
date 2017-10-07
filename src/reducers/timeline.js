@@ -1,6 +1,8 @@
-import { Map, List } from 'immutable';
+import { fromJS, Map, List } from 'immutable';
+import sampleData from '../sampledata';
 
-const defaultState = new List([]);
+// const defaultState = new List([]);
+const defaultState = fromJS(sampleData);
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
