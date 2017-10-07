@@ -110,8 +110,13 @@ class TogetherCard extends React.Component {
         />
       );
     } else if (photos.length > 1) {
+      let cellHeight = 200;
+      let cardWidth = (document.getElementById('root').clientWidth - 49 - 12 - 12);
+      if (cardWidth < 600) {
+        cellHeight = Math.floor(cardWidth / 3);
+      }
       return (
-        <GridList cellHeight={160} cols={3}>
+        <GridList cellHeight={cellHeight} cols={3} spacing={0}>
           {photos.map(photo => (
             <GridListTile key={photo} cols={1}>
               <img src={photo} alt="" />
