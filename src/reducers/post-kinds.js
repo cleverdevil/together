@@ -23,7 +23,7 @@ const postKinds = [
     name: 'Notes',
     icon: NoteIcon,
     selected: false,
-    filter: (post) => (post.content && !post.name && !Array.isArray(post.photo)),
+    filter: (post) => (post.content && !post.name && !Array.isArray(post.photo) && !post.checkin && !post.video && !post.audio && !post.type !== 'event'),
   },
   {
     id: 'photo',
@@ -58,7 +58,7 @@ const postKinds = [
     name: 'Checkins',
     icon: CheckinIcon,
     selected: false,
-    filter: (post) => (post.location),
+    filter: (post) => (post.checkin),
   },
   {
     id: 'event',
