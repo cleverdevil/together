@@ -56,6 +56,7 @@ class TogetherCard extends React.Component {
     super(props);
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
+    this.renderCheckin = this.renderCheckin.bind(this);
     this.renderContent = this.renderContent.bind(this);
     this.renderMedia = this.renderMedia.bind(this);
     this.handleLike = this.handleLike.bind(this);
@@ -141,7 +142,7 @@ class TogetherCard extends React.Component {
     return null;
   }
 
-  renderLocation(location) {
+  renderCheckin(location) {
     let lat = false;
     let lng = false;
     if (!location) {
@@ -168,6 +169,18 @@ class TogetherCard extends React.Component {
           <Marker position={[lat,lng]}></Marker>
         </Map>
       );
+    }
+
+    return null;
+  }
+
+  renderLocation(location) {
+    if (!location) {
+      return null;
+    }
+
+    if (location.name !== undefined) {
+      return (<CardContent>{location.name}</CardContent>);
     }
 
     return null;
@@ -250,6 +263,7 @@ class TogetherCard extends React.Component {
         {this.renderContent()}
 
         {this.renderLocation(item.location)}
+        {this.renderCheckin(item.checkin)}
 
         <CardActions>
           <Tooltip title="Like" placement="top">
