@@ -8,7 +8,8 @@ import Drawer from 'material-ui/Drawer';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 import SettingsIcon from 'material-ui-icons/Settings';
-import { selectPostKind } from '../actions';
+import ChannelsIcon from 'material-ui-icons/Menu';
+import { selectPostKind, toggleChannelsMenu } from '../actions';
 
 
 const styles = theme => ({
@@ -63,7 +64,15 @@ class PostKindMenu extends React.Component {
             </Tooltip>
           );
         })}
-        <div style={{flexGrow: 1}}></div>
+        <div style={{ flexGrow: 1 }}></div>
+        <Tooltip title="Channels" placement="right">
+          <IconButton
+            className={this.props.classes.icon}
+            onClick={this.props.toggleChannelsMenu}
+          >
+            <ChannelsIcon />
+          </IconButton>
+        </Tooltip>
         <Link to="/settings">
           <Tooltip title="Settings" placement="right">
             <IconButton
@@ -93,6 +102,7 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     selectPostKind: selectPostKind,
+    toggleChannelsMenu: toggleChannelsMenu,
   }, dispatch);
 }
 

@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Timeline from './components/timeline.js';
 import PostKindMenu from './components/post-kind-menu.js';
+import ChannelMenu from './components/channel-menu.js';
 import Settings from './components/settings';
 
 const theme = createMuiTheme({
@@ -33,6 +34,7 @@ class App extends Component {
       <Router>
         <MuiThemeProvider theme={theme}>
           <div className={this.props.classes.root}>
+            <ChannelMenu />
             <div className={this.props.classes.drawer}>
               <PostKindMenu />
             </div>
