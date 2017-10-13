@@ -22,10 +22,8 @@ const style = theme => ({
     width: 50,
   },
   main: {
-    paddingLeft: 49 + 12,
-    paddingRight: 12,
-    maxWidth: 600,
-  }
+    paddingLeft: 49,
+  },
 });
 
 class App extends Component {
@@ -40,7 +38,7 @@ class App extends Component {
             </div>
             <Route exact path="/" render={() => (
               <div className={this.props.classes.main}>
-                <Timeline />
+                <Timeline className={this.props.classes.timeline} />
               </div>
             )} />
             <Route path="/settings" component={Settings} />
