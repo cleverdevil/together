@@ -6,6 +6,7 @@ import { withStyles } from 'material-ui/styles';
 
 import Card from './card';
 import Gallery from './gallery';
+import Checkins from './checkins';
 
 const styles = theme => ({
   timeline: {
@@ -23,6 +24,8 @@ class Timeline extends React.Component {
     }
     if (this.props.postKind && this.props.postKind.id && this.props.postKind.id === 'photo') {
       return (<Gallery posts={posts} />);
+    } else if (this.props.postKind && this.props.postKind.id && this.props.postKind.id === 'checkins') {
+      return (<Checkins posts={posts} />);
     } else {
       return (
         <div className={this.props.classes.timeline}>
@@ -34,7 +37,7 @@ class Timeline extends React.Component {
     }
   }
 }
-  
+
 Timeline.defaultProps = {
   items: [],
 };

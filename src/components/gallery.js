@@ -7,6 +7,7 @@ import { withStyles } from 'material-ui/styles';
 import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
 import FullscreenPhoto from './fullscreen-photo';
+import authorToAvatarData from '../modules/author-to-avatar-data';
 
 const styles = theme => ({});
 
@@ -27,22 +28,8 @@ class Gallery extends React.Component {
       <div>
         <GridList cellHeight={cellHeight} cols={columnCount} spacing={0}>
           {this.props.posts.filter(post => post.photo).map(post => {
-            // Parse author data
-            let author = {
-              name: 'Unknown',
-              photo: null,
-              url: null,
-            };
-            if (post.author) {
-              if (typeof post.author === 'string') {
-                author.name = post.author;
-                author.url = post.author;
-              } else if (typeof post.author === 'object') {
-                author.name = post.author.name;
-                author.photo = post.author.photo;
-                author.url = post.author.url;
-              }
-            }
+            const avatarData = authorToAvatarData(post.author);
+
             if (typeof post.photo === 'string') {
               post.photo = [post.photo];
             }
@@ -51,14 +38,15 @@ class Gallery extends React.Component {
                 <img src={photo} alt="" />
                 <GridListTileBar
                   title={post.name || (post.content && post.content.text) || ''}
-                  subtitle={author.name}
+                  subtitle={avatarData.alt}
                   actionIcon={
                     <Avatar
-                      aria-label={author.name}
-                      alt={author.name}
-                      src={author.photo}
                       style={{marginRight: 14}}
-                    />
+                      {...avatarData}
+                      aria-label={avatarData.alt}
+                    >
+                      {avatarData.src ? null : avatarData.initials}
+                    </Avatar>
                   }
                 />
               </GridListTile>
@@ -70,7 +58,7 @@ class Gallery extends React.Component {
     );
   }
 }
-  
+
 Gallery.defaultProps = {
   posts: [],
 };

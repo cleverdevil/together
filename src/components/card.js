@@ -16,6 +16,7 @@ import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 import moment from 'moment';
+import authorToAvatarData from '../modules/author-to-avatar-data';
 import 'leaflet/dist/leaflet.css';
 
 // Hack to fix leaflet marker
@@ -143,6 +144,10 @@ class TogetherCard extends React.Component {
   }
 
   renderCheckin(location) {
+    if (this.props.embedMode === 'marker') {
+      return null;
+    }
+
     let lat = false;
     let lng = false;
     if (!location) {
@@ -221,21 +226,7 @@ class TogetherCard extends React.Component {
     const item = this.props.post;
 
     // Parse author data
-    let author = {
-      name: 'Unknown',
-      photo: null,
-      url: null,
-    };
-    if (item.author) {
-      if (typeof item.author === 'string') {
-        author.name = item.author;
-        author.url = item.author;
-      } else if (typeof item.author === 'object') {
-        author.name = item.author.name;
-        author.photo = item.author.photo;
-        author.url = item.author.url;
-      }
-    }
+    const avatarData = authorToAvatarData(item.author);
 
     // Parse published date
     let date = 'unknown';
@@ -244,7 +235,7 @@ class TogetherCard extends React.Component {
     }
 
     let cardStyle = {};
-    if (this.props.embedMode === 'photo') {
+    if (this.props.embedMode === 'photo' || this.props.embedMode === 'marker') {
       cardStyle = {
         boxShadow: 'none',
       };
@@ -253,15 +244,16 @@ class TogetherCard extends React.Component {
     return (
       <Card className={this.props.classes.card} style={cardStyle}>
         <CardHeader
-          title={author.name}
+          title={avatarData.alt}
           subheader={date}
           avatar={
             <Avatar
-              aria-label={author.name}
-              alt={author.name}
-              src={author.photo}
-            />
-          }  
+              {...avatarData}
+              aria-label={avatarData.alt}
+            >
+              {avatarData.src ? null : avatarData.initials}
+            </Avatar>
+          }
         />
         {this.renderMedia(item.video, 'video')}
         {this.renderMedia(item.audio, 'audio')}
@@ -284,7 +276,7 @@ class TogetherCard extends React.Component {
               <RepostIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Reply" placement="top">  
+          <Tooltip title="Reply" placement="top">
             <IconButton onClick={this.handleReply}>
               <ReplyIcon />
             </IconButton>
@@ -299,7 +291,7 @@ class TogetherCard extends React.Component {
     );
   }
 }
-  
+
 TogetherCard.defaultProps = {
   post: [],
   embedMode: '',
@@ -310,11 +302,11 @@ TogetherCard.propTypes = {
   embedMode: PropTypes.string,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
+// function mapDispatchToProps(dispatch) {
+//   return bindActionCreators({
 
-  }, dispatch);
-}
+//   }, dispatch);
+// }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
-  
+// export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
+export default withStyles(styles)(TogetherCard);
