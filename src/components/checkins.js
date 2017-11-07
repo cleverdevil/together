@@ -21,7 +21,7 @@ const styles = theme => ({
     width: markerSize,
     height: markerSize,
     fontSize: markerSize - (markerSize / 2),
-  }
+  },
 });
 
 class CheckinMap extends React.Component {

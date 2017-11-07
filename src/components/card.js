@@ -236,9 +236,11 @@ class TogetherCard extends React.Component {
 
     let cardStyle = {};
     if (this.props.embedMode === 'photo' || this.props.embedMode === 'marker') {
-      cardStyle = {
-        boxShadow: 'none',
-      };
+      cardStyle.boxShadow = 'none';
+    }
+    if (this.props.embedMode === 'marker') {
+      cardStyle.margin = '-13px -20px';
+      cardStyle.background = 'none';
     }
 
     return (
