@@ -101,7 +101,7 @@ class TogetherCard extends React.Component {
   }
 
   renderPhotos(photos) {
-    if (!photos) {
+    if (!photos || this.props.embedMode === 'photo') {
       return null;
     }
     if (typeof photos === 'string') {
@@ -242,8 +242,16 @@ class TogetherCard extends React.Component {
     if (item.published) {
       date = moment(item.published).fromNow();
     }
+
+    let cardStyle = {};
+    if (this.props.embedMode === 'photo') {
+      cardStyle = {
+        boxShadow: 'none',
+      };
+    }
+
     return (
-      <Card className={this.props.classes.card}>
+      <Card className={this.props.classes.card} style={cardStyle}>
         <CardHeader
           title={author.name}
           subheader={date}
@@ -294,10 +302,12 @@ class TogetherCard extends React.Component {
   
 TogetherCard.defaultProps = {
   post: [],
+  embedMode: '',
 };
 
 TogetherCard.propTypes = {
   post: PropTypes.object.isRequired,
+  embedMode: PropTypes.string,
 };
 
 function mapDispatchToProps(dispatch) {

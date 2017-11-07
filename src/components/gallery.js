@@ -5,44 +5,10 @@ import { connect } from 'react-redux';
 
 import { withStyles } from 'material-ui/styles';
 import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
-import Dialog from 'material-ui/Dialog';
-// import Tooltip from 'material-ui/Tooltip';
-import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
-// import Typography from 'material-ui/Typography';
-// import LikeIcon from 'material-ui-icons/ThumbUp';
-// import ReplyIcon from 'material-ui-icons/Reply';
-// import RepostIcon from 'material-ui-icons/Repeat';
-import CloseIcon from 'material-ui-icons/Close';
-import Slide from 'material-ui/transitions/Slide';
-// import moment from 'moment';
+import FullscreenPhoto from './fullscreen-photo';
 
-const styles = theme => ({
-  popup: {
-    display: 'flex',
-    width: '100%',
-    height: '100%',
-    overflow: 'hidden',
-    background: theme.palette.shades.dark.background.appBar,
-  },
-  popupImage: {
-    display: 'block',
-    margin: 'auto',
-    maxWidth: '100%',
-    maxHeight: '100%',
-    width: 'auto',
-    height: 'auto',
-    boxShadow: '0 0 3em rgba(0,0,0,.5)',
-  },
-  popupClose: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    color: 'white',
-    background: 'rgba(0,0,0,.5)',
-    borderRadius: 0,
-  }
-});
+const styles = theme => ({});
 
 class Gallery extends React.Component {
   constructor(props) {
@@ -51,71 +17,6 @@ class Gallery extends React.Component {
       selectedPost: null,
       selectedPhoto: null,
     };
-    this.renderPopup = this.renderPopup.bind(this);
-  }
-
-  handleLike(e) {
-    try {
-      const url = this.props.post.url;
-      const likeUrl = 'https://quill.p3k.io/favorite?url=' + encodeURIComponent(url);
-      const win = window.open(likeUrl, '_blank');
-      win.focus();
-    } catch (err) {
-      alert('Error liking post');
-      console.log(err);
-    }
-  }
-
-  handleRepost(e) {
-    try {
-      const url = this.props.post.url;
-      const likeUrl = 'https://quill.p3k.io/repost?url=' + encodeURIComponent(url);
-      const win = window.open(likeUrl, '_blank');
-      win.focus();
-    } catch (err) {
-      alert('Error reposting');
-      console.log(err);
-    }
-  }
-
-  handleReply(e) {
-    try {
-      const url = this.props.post.url;
-      const likeUrl = 'https://quill.p3k.io/new?reply=' + encodeURIComponent(url);
-      const win = window.open(likeUrl, '_blank');
-      win.focus();
-    } catch (err) {
-      alert('Error replying');
-      console.log(err);
-    }
-  }
-
-  renderPopup() {
-    let open = false;
-    let content = null;
-    if (this.state.selectedPost && this.state.selectedPhoto) {
-      open = true;
-      const post = this.state.selectedPost;
-      const photo = this.state.selectedPhoto;
-      content = (
-        <div className={this.props.classes.popup}>
-          <IconButton className={this.props.classes.popupClose} onClick={() => this.setState({ selectedPhoto: null })}>
-            <CloseIcon />  
-          </IconButton>  
-          <img className={this.props.classes.popupImage} src={photo} alt="" />
-        </div>
-      );
-    }
-    return (
-      <Dialog
-        fullScreen
-        open={open}
-        onRequestClose={() => this.setState({selectedPhoto: null})}
-        transition={<Slide direction="up" />}
-      >
-        {content}
-      </Dialog>
-    );
   }
 
   render() {
@@ -164,7 +65,7 @@ class Gallery extends React.Component {
             ));
           })}
         </GridList>
-        {this.renderPopup()}
+        <FullscreenPhoto photo={this.state.selectedPhoto} post={this.state.selectedPost} />
       </div>
     );
   }

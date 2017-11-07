@@ -56,4 +56,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Timeline));
-  

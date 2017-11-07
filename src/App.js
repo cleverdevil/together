@@ -23,6 +23,7 @@ const style = theme => ({
   },
   main: {
     paddingLeft: 49,
+    background: theme.palette.background.default,
   },
 });
 
