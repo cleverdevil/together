@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
-    "react-scripts": "1.0.7"
+    "react-scripts": "1.0.17"
   },
   "dependencies": {
     "immutable": "^3.8.2",
     "leaflet": "^1.2.0",
     "material-ui": "^1.0.0-beta.13",
-    "material-ui-icons": "^1.0.0-beta.15",
-    "moment": "^2.18.1",
+    "material-ui-icons": "^1.0.0-beta.17",
+    "moment": "^2.19.1",
     "prop-types": "^15.6.0",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-leaflet": "^1.7.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-leaflet": "^1.7.3",
     "react-redux": "^5.0.6",
     "react-router-dom": "^4.2.2",
     "redux": "^3.7.2"
