@@ -17,12 +17,17 @@ import Button from 'material-ui/Button';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
+import { setUserOption, logout } from '../actions';
 
 
 const styles = theme => ({
   page: {
     padding: 12,
     paddingLeft: 49+12,
+  },
+  fieldset: {
+    width: '100%',
+    maxWidth: 500,
   },
   divider: {
     marginTop: 24,
@@ -42,15 +47,19 @@ class Settings extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      me: '',
     }
     this.handleChange = this.handleChange.bind(this);
+    this.handleUserOptionChange = this.handleUserOptionChange.bind(this);
   }
 
   handleChange = name => event => {
     this.setState({
       [name]: event.target.value,
     });
+  }
+
+  handleUserOptionChange = name => event => {
+    this.props.setUserOption(name, event.target.value);
   }
 
   render() {
@@ -62,22 +71,53 @@ class Settings extends React.Component {
             <CloseIcon />
           </IconButton>
         </Link>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Just a mockup at the moment</FormLabel>
+        <FormControl component="fieldset" className={this.props.classes.fieldset}>
+          <FormLabel component="legend">User options</FormLabel>
           <FormGroup>
             <TextField
               id="me"
               label="Me"
-              value={this.state.me}
-              onChange={this.handleChange('me')}
+              value={this.props.user.me}
+              onChange={this.handleUserOptionChange('me')}
               margin="normal"
               type="url"
             />
+            <TextField
+              id="token"
+              label="Token"
+              value={this.props.user.token}
+              onChange={this.handleUserOptionChange('token')}
+              margin="normal"
+              type="text"
+            />
+            <TextField
+              id="micropub-endpoint"
+              label="Micropub Endpoint"
+              value={this.props.user.micropubEndpoint}
+              onChange={this.handleUserOptionChange('micropubEndpoint')}
+              margin="normal"
+              type="url"
+            />
+            <TextField
+              id="media-endpoint"
+              label="Media Endpoint"
+              value={this.props.user.mediaEndpoint}
+              onChange={this.handleUserOptionChange('mediaEndpoint')}
+              margin="normal"
+              type="url"
+            />
+            <TextField
+              id="token-endpoint"
+              label="Token Endpoint"
+              value={this.props.user.tokenEndpoint}
+              onChange={this.handleUserOptionChange('tokenEndpoint')}
+              margin="normal"
+              type="url"
+            />
+            <Button onClick={this.props.logout} raised>Sign Out</Button>
           </FormGroup>
-          {/* <FormHelperText>Be careful</FormHelperText> */}
         </FormControl>
         <Divider className={this.props.classes.divider} />
-        <Button raised>Sign Out</Button>
       </div>
     );
   }
@@ -91,12 +131,14 @@ Settings.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
+    user: state.user.toJS(),
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-
+    setUserOption: setUserOption,
+    logout: logout,
   }, dispatch);
 }
 

@@ -14,9 +14,11 @@ import DeveloperModeIcon from 'material-ui-icons/DeveloperMode';
 import LikeIcon from 'material-ui-icons/ThumbUp';
 import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
+import VisitIcon from 'material-ui-icons/Link';
 import { Map, Marker, TileLayer } from 'react-leaflet';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
+import * as indieActions from '../modules/indie-actions';
 import 'leaflet/dist/leaflet.css';
 
 // Hack to fix leaflet marker
@@ -63,30 +65,21 @@ class TogetherCard extends React.Component {
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
+    this.handleView = this.handleView.bind(this);
   }
 
   handleLike(e) {
-    try {
-      const url = this.props.post.url;
-      const likeUrl = 'https://quill.p3k.io/favorite?url=' + encodeURIComponent(url);
-      const win = window.open(likeUrl, '_blank');
-      win.focus();
-    } catch (err) {
-      alert('Error liking post');
-      console.log(err);
-    }
+    const url = this.props.post.url;
+    indieActions.like(url)
+      .then(() => alert('successful like'))
+      .catch(() => alert('error liking'));
   }
 
   handleRepost(e) {
-    try {
-      const url = this.props.post.url;
-      const likeUrl = 'https://quill.p3k.io/repost?url=' + encodeURIComponent(url);
-      const win = window.open(likeUrl, '_blank');
-      win.focus();
-    } catch (err) {
-      alert('Error reposting');
-      console.log(err);
-    }
+    const url = this.props.post.url;
+    indieActions.repost(url)
+      .then(() => alert('successful repost'))
+      .catch(() => alert('error repost'));
   }
 
   handleReply(e) {
@@ -97,6 +90,16 @@ class TogetherCard extends React.Component {
       win.focus();
     } catch (err) {
       alert('Error replying');
+      console.log(err);
+    }
+  }
+
+  handleView(e) {
+    try {
+      const url = this.props.post.url;
+      const win = window.open(url, '_blank');
+      win.focus();
+    } catch (err) {
       console.log(err);
     }
   }
@@ -283,11 +286,16 @@ class TogetherCard extends React.Component {
               <ReplyIcon />
             </IconButton>
           </Tooltip>
+          <Tooltip title="View Original" placement="top">
+            <IconButton onClick={this.handleView}>
+              <VisitIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Log to console" placement="top">
             <IconButton onClick={() => console.log(item)} aria-label="Log">
               <DeveloperModeIcon />
             </IconButton>
-          </Tooltip>  
+          </Tooltip>
         </CardActions>
       </Card>
     );

@@ -6,6 +6,7 @@ import Timeline from './components/timeline.js';
 import PostKindMenu from './components/post-kind-menu.js';
 import ChannelMenu from './components/channel-menu.js';
 import Settings from './components/settings';
+import Login from './components/login';
 
 const theme = createMuiTheme({
   palette: {
@@ -37,6 +38,7 @@ class App extends Component {
             <div className={this.props.classes.drawer}>
               <PostKindMenu />
             </div>
+            <Login />
             <Route exact path="/" render={() => (
               <div className={this.props.classes.main}>
                 <Timeline className={this.props.classes.timeline} />
