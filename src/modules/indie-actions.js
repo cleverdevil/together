@@ -1,13 +1,14 @@
 import micropubApi from './micropub-api';
 
-export function like(url, syndication = []) {
+export function like(url) {
   let mf = {
     type: ['h-entry'],
     properties: {
       'like-of': [url],
     },
   };
-  if (syndication.length > 0) {
+  const syndication = localStorage.getItem('together-setting-likeSyndication');
+  if (syndication && syndication.length > 0) {
     mf.properties['mp-syndicate-to'] = syndication;
   }
   return micropubApi('create', {
@@ -15,14 +16,15 @@ export function like(url, syndication = []) {
   });
 }
 
-export function repost(url, syndication = []) {
+export function repost(url) {
   let mf = {
     type: ['h-entry'],
     properties: {
       'repost-of': [url],
     },
   };
-  if (syndication.length > 0) {
+  const syndication = localStorage.getItem('together-setting-repostSyndication');
+  if (syndication && syndication.length > 0) {
     mf.properties['mp-syndicate-to'] = syndication;
   }
   return micropubApi('create', {
