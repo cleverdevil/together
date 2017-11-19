@@ -13,11 +13,13 @@ import {
   FormHelperText,
 } from 'material-ui/Form';
 import TextField from 'material-ui/TextField';
+import Checkbox from 'material-ui/Checkbox';
 import Button from 'material-ui/Button';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
-import { setUserOption, logout } from '../actions';
+import { setUserOption, setSetting, logout } from '../actions';
+import micropubApi from '../modules/micropub-api';
 
 
 const styles = theme => ({
@@ -37,6 +39,7 @@ const styles = theme => ({
     position: 'absolute',
     top: 0,
     right: 0,
+    zIndex: 10,
     '&:hover button': {
       color: theme.palette.primary['900'],
     },
@@ -50,6 +53,15 @@ class Settings extends React.Component {
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleUserOptionChange = this.handleUserOptionChange.bind(this);
+    this.getSyndicationProviders = this.getSyndicationProviders.bind(this);
+    this.handleLikeSyndicationChange = this.handleLikeSyndicationChange.bind(this);
+    this.handleRepostSyndicationChange = this.handleRepostSyndicationChange.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.settings.syndicationProviders.length < 1) {
+      this.getSyndicationProviders();
+    }
   }
 
   handleChange = name => event => {
@@ -60,6 +72,51 @@ class Settings extends React.Component {
 
   handleUserOptionChange = name => event => {
     this.props.setUserOption(name, event.target.value);
+  }
+
+  handleLikeSyndicationChange(event, checked) {
+    const provider = event.target.value;
+    let options = this.props.settings.likeSyndication;
+    const index = options.indexOf(provider);
+    if (index > -1) {
+      options.splice(index, 1);
+    } else {
+      options.push(provider);
+    }
+    this.props.setSetting('likeSyndication', options);
+    // Have to force an update for some reason
+    this.setState({ force: 'update' });
+  }
+
+  handleRepostSyndicationChange(event, checked) {
+    const provider = event.target.value;
+    let options = this.props.settings.repostSyndication;
+    const index = options.indexOf(provider);
+    if (index > -1) {
+      options.splice(index, 1);
+    } else {
+      options.push(provider);
+    }
+    this.props.setSetting('repostSyndication', options);
+    // Have to force an update for some reason
+    this.setState({ force: 'update' });
+  }
+
+  getSyndicationProviders() {
+    micropubApi('query', {
+      param: 'syndicate-to',
+    })
+      .then((syndicationProviders) => {
+        if (syndicationProviders['syndicate-to']) {
+          this.props.setSetting('syndicationProviders', syndicationProviders['syndicate-to']);
+        } else {
+          alert('Error getting your syndication options')
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        alert('Error getting your syndication options')
+      });
   }
 
   render() {
@@ -118,6 +175,60 @@ class Settings extends React.Component {
           </FormGroup>
         </FormControl>
         <Divider className={this.props.classes.divider} />
+        <FormControl component="fieldset" className={this.props.classes.fieldset}>
+          <FormLabel component="legend">Together options</FormLabel>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={this.props.settings.reactions}
+                  onChange={() => { }}
+                />
+              }
+              label="Emoji Reaction Support"
+            />
+
+            <FormControl component="div">
+              <FormLabel component="span">Like Syndication</FormLabel>
+              <FormGroup>
+                {this.props.settings.syndicationProviders.map((provider) => (
+                  <FormControlLabel
+                    key={`like-syndication-setting-${provider.uid}`}  
+                    control={
+                      <Checkbox
+                        checked={(this.props.settings.likeSyndication.indexOf(provider.uid) > -1)}
+                        value={provider.uid}
+                        onChange={this.handleLikeSyndicationChange}
+                      />
+                    }
+                    label={provider.name}
+                  />
+                ))}
+              </FormGroup>
+            </FormControl>
+
+            <FormControl component="div">
+              <FormLabel component="span">Repost Syndication</FormLabel>
+              <FormGroup>
+                {this.props.settings.syndicationProviders.map((provider) => (
+                  <FormControlLabel
+                    key={`repost-syndication-setting-${provider.uid}`}
+                    control={
+                      <Checkbox
+                        checked={(this.props.settings.repostSyndication.indexOf(provider.uid) > -1)}
+                        value={provider.uid}
+                        onChange={this.handleRepostSyndicationChange}
+                      />
+                    }
+                    label={provider.name}
+                  />
+                ))}
+              </FormGroup>
+            </FormControl>
+
+            <Button onClick={this.getSyndicationProviders} raised>Update Syndication Providers</Button>
+          </FormGroup>
+        </FormControl>
       </div>
     );
   }
@@ -132,12 +243,14 @@ Settings.propTypes = {
 function mapStateToProps(state, props) {
   return {
     user: state.user.toJS(),
+    settings: state.settings.toJS(),
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setUserOption: setUserOption,
+    setSetting: setSetting,
     logout: logout,
   }, dispatch);
 }

@@ -70,14 +70,14 @@ class TogetherCard extends React.Component {
 
   handleLike(e) {
     const url = this.props.post.url;
-    indieActions.like(url)
+    indieActions.like(url, this.props.likeSyndication)
       .then(() => alert('successful like'))
       .catch(() => alert('error liking'));
   }
 
   handleRepost(e) {
     const url = this.props.post.url;
-    indieActions.repost(url)
+    indieActions.repost(url, this.props.repostSyndication)
       .then(() => alert('successful repost'))
       .catch(() => alert('error repost'));
   }
@@ -318,5 +318,11 @@ TogetherCard.propTypes = {
 //   }, dispatch);
 // }
 
-// export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
-export default withStyles(styles)(TogetherCard);
+function mapStateToProps(state, props) {
+  return {
+    likeSyndication: state.settings.get('likeSyndication'),
+    repostSyndication: state.settings.get('repostSyndication'),
+  };
+}
+
+export default connect(mapStateToProps, null)(withStyles(styles)(TogetherCard));
