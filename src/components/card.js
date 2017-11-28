@@ -303,7 +303,7 @@ class TogetherCard extends React.Component {
 }
 
 TogetherCard.defaultProps = {
-  post: [],
+  post: {},
   embedMode: '',
 };
 

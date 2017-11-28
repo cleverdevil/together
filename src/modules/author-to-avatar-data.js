@@ -16,9 +16,11 @@ export default function (author) {
       avatar.alt = author.name;
       avatar.src = author.photo;
       avatar.href = author.url;
-      let initials = avatar.alt.match(/\b\w/g) || [];
-      initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
-      avatar.initials = initials;
+      if (author.alt) {
+        let initials = avatar.alt.match(/\b\w/g) || [];
+        initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+        avatar.initials = initials;
+      }
     }
   }
   return avatar;

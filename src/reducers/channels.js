@@ -1,17 +1,9 @@
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 
 const defaultState = fromJS([
   {
     name: 'Home',
     uid: 'default',
-  },
-  {
-    name: 'Channel #1',
-    uid: 'channel-1',
-  },
-  {
-    name: 'Channel #2',
-    uid: 'channel-2',
   },
   {
     name: 'Notifications',

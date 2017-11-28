@@ -1,31 +1,36 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const Micropub = require('micropub-helper');
+const fetch = require('isomorphic-fetch');
+const micropubRoute = require('./lib/middlewear/micropub');
+const microsubRoute = require('./lib/middlewear/microsub');
+const relScraper = require('./lib/rel-scraper');
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
-app.all('/micropub/:method', (req, res, next) => {
-  req.body.clientId = 'http://together.com';
-  let micropub = new Micropub(req.body);
-  micropub[req.params.method](req.body.param)
-    .then((result) => {
-      res.json({
-        result: result,
-        options: micropub.options,
-      });
-    })
-    .catch((err) => {
-      let status = 500;
-      if (err.status) {
-        status = err.status;
-      }
-      res.status(status);
-      res.json(err);
-    });
+app.all('/micropub/:method', micropubRoute);
+app.all('/microsub/:method', microsubRoute);
+
+app.post('/rels', (req, res, next) => {
+  if (!req.body.url) {
+    res.status(400);
+    res.json({ error: 'missing url' });
+  } else {
+    fetch(req.body.url)
+      .then(result => result.text())
+      .then((html) => {
+        res.json({
+          rels: relScraper(html, req.body.url),
+        });
+      })
+      .catch((err) => {
+        res.status(500);
+        res.json({ error: 'Error getting rels' });
+      })
+  }
 });
 
 app.listen(process.env.PORT || 8080);

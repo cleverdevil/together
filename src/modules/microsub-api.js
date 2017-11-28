@@ -5,7 +5,7 @@ const optionKeys = [
   'token',
   'authEndpoint',
   'tokenEndpoint',
-  'micropubEndpoint',
+  'microsubEndpoint',
   'state',
 ];
 
@@ -34,7 +34,7 @@ export default function (method, params = {}) {
   return new Promise((resolve, reject) => {
     saveOptions(params);
     const data = Object.assign(options, params);
-    fetch('http://localhost:8080/micropub/' + method, {
+    fetch('http://localhost:8080/microsub/' + method, {
       method: 'post',
       // mode: 'no-cors',
       headers: {
@@ -76,26 +76,4 @@ export function setOption(key, value) {
       localStorage.setItem(localStoragePrefix + key, value);
     }
   }
-}
-
-export function getRels(url = options.me) {
-  console.log('running get rels function');
-  return new Promise((resolve, reject) => {
-    if (!url) {
-      console.log('missing url');
-      return reject('missing url');
-    }
-    console.log('requesting rels');
-    fetch('http://localhost:8080/rels', {
-      method: 'post',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url: url })
-    })
-      .then(res => res.json())
-      .then(rels => resolve(rels.rels))
-      .catch(err => reject(err));
-  });
 }

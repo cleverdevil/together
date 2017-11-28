@@ -12,7 +12,8 @@ import Dialog, {
   DialogTitle,
 } from 'material-ui/Dialog';
 import { LinearProgress } from 'material-ui/Progress';
-import micropubApi, {getOption} from '../modules/micropub-api';
+import micropubApi, {getOption, getRels} from '../modules/micropub-api';
+import { setOption as setMicrosubOption } from '../modules/microsub-api';
 import { setUserOption } from '../actions';
 
 
@@ -30,13 +31,13 @@ class Login extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.user && newProps.user.token && newProps.user.me) {
+    if (newProps.user && newProps.user.token && newProps.user.me && newProps.user.micropubEndpoint && newProps.user.microsubEndpoint) {
       this.setState({ open: false });
     }
   }
 
   componentDidMount() {
-    if (this.props.user && this.props.user.token && this.props.user.me) {
+    if (this.props.user && this.props.user.token && this.props.user.me && this.props.user.micropubEndpoint && this.props.user.microsubEndpoint) {
       this.setState({ open: false });
     } else {
       const params = new URLSearchParams(window.location.search);
@@ -54,9 +55,22 @@ class Login extends React.Component {
           .then((res) => {
             this.props.setUserOption('token', res);
             this.props.setUserOption('me', me);
-            this.setState({ open: false });
+            // this.setState({ open: false });
           })
           .catch(err => console.log(err));
+        getRels(me)
+          .then((rels) => {
+            if (!rels.microsub) {
+              alert('Couldn\'t find your microsub endpoint. This app is not going to work.');
+            } else {
+              setMicrosubOption('microsubEndpoint', rels.microsub[0]);
+              this.props.setUserOption('microsubEndpoint', rels.microsub[0]);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            alert('Error getting your rel links');
+          });
       }
     }
   }

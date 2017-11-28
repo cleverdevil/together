@@ -5,6 +5,7 @@ const defaultState = new Map({
   me: getOption('me') || '',
   token: getOption('token') || '',
   micropubEndpoint: getOption('micropubEndpoint') || '',
+  microsubEndpoint: localStorage.getItem('micropub_microsubEndpoint') || '',
   mediaEndpoint: getOption('mediaEndpoint') || '',
   tokenEndpoint: getOption('tokenEndpoint') || '',
 });
@@ -16,6 +17,7 @@ export default (state = defaultState, payload) => {
       return state.set(payload.key, payload.value);
     }
     case 'LOGOUT': {
+      localStorage.clear();
       return state.map((value, key) => {
         setOption(key, false);
         return '';

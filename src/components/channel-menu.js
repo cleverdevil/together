@@ -6,7 +6,11 @@ import { withStyles } from 'material-ui/styles';
 // import { Link } from 'react-router-dom';
 import Drawer from 'material-ui/Drawer';
 import List, { ListItem, ListItemText } from 'material-ui/List';
-import { selectChannel, toggleChannelsMenu } from '../actions';
+import AddIcon from 'material-ui-icons/Add';
+import TextField from 'material-ui/TextField';
+import Button from 'material-ui/Button';
+import { selectChannel, toggleChannelsMenu, addChannel } from '../actions';
+import microsub from '../modules/microsub-api';
 
 
 const styles = theme => ({
@@ -18,23 +22,107 @@ const styles = theme => ({
     textAlign: 'left',
     color: theme.palette.shades.dark.text.icon,
   },
-  // iconSelected: {
-  //   color: theme.palette.secondary['500'],
-  //   '&:hover': {
-  //     color: theme.palette.secondary['500'],
-  //   }
-  // }
+  highlightedButton: {
+    textAlign: 'left',
+    color: theme.palette.secondary['500'],
+  },
+  addButton: {
+    textAlign: 'center',
+    color: theme.palette.primary['500'],
+  },
+  addForm: {
+    background: theme.palette.shades.light.background.appBar,
+  },
 });
 
 class ChannelMenu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
-    this.handleClick = this.handleClick.bind(this);
+    this.state = {
+      newChannelName: '',
+      newChannel: false,
+    };
+    this.handleAddChannel = this.handleAddChannel.bind(this);
+    this.renderChannelForm = this.renderChannelForm.bind(this);
   }
 
-  handleClick(channel) {
-    
+  componentDidMount() {
+    if (this.props.microsubEndpoint) {
+      microsub('getChannels')
+        .then((channels) => {
+          channels.forEach((channel) => {
+            this.props.addChannel(channel.name, channel.uid);
+          });
+        })
+        .catch((err) => {
+          console.log('Error getting channels');
+          console.log(err);
+        });
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.microsubEndpoint && this.props.microsubEndpoint !== newProps.microsubEndpoint) {
+      microsub('getChannels')
+        .then((channels) => {
+          channels.forEach((channel) => {
+            this.props.addChannel(channel.name, channel.uid);
+          });
+        })
+        .catch((err) => {
+          console.log('Error getting channels');
+          console.log(err);
+        });
+    }
+  }
+
+  handleAddChannel(e) {
+    e.preventDefault();
+    microsub('createChannel', { params: [this.state.newChannelName] })
+      .then((newChannel) => {
+        this.setState({
+          newChannelName: '',
+          newChannel: false,
+        });
+        this.props.addChannel(newChannel.name, newChannel.uid);
+      })
+      .catch((err) => {
+        alert('Error creating channel');
+      });
+    return false;
+  }
+
+  renderChannelForm() {
+    if (!this.state.newChannel) {
+      return (
+        <ListItem
+          onClick={() => this.setState({newChannel: true})}
+          button
+        >
+          <ListItemText
+            title="Add New Channel"  
+            classes={{ text: this.props.classes.addButton }}
+            primary={<AddIcon />}
+          />
+        </ListItem>
+      );
+    }
+    return (
+      <form
+        className={this.props.classes.addForm}
+        onSubmit={this.handleAddChannel}
+      >
+        <TextField
+          fullWidth={true}
+          label="New Channel Name"
+          required={true}
+          autoFocus={true}
+          value={this.state.newChannelName}
+          onChange={(e) => this.setState({newChannelName: e.target.value})}
+        />
+        <Button style={{width: '100%'}}>Add Channel</Button>
+      </form>
+    );
   }
 
   render() {
@@ -48,6 +136,10 @@ class ChannelMenu extends React.Component {
       >
         <List>
           {this.props.channels.map((channel) => {
+            let textClassName = this.props.classes.button;
+            if (channel.uid === this.props.selectedChannel) {
+              textClassName = this.props.classes.highlightedButton;
+            }
             return (
               <ListItem
                 key={`channel-${channel.uid}`}
@@ -55,13 +147,15 @@ class ChannelMenu extends React.Component {
                 button
               >
                 <ListItemText
-                  classes={{ text: this.props.classes.button }}
+                  classes={{ text: textClassName }}
                   primary={channel.name}
                 />
               </ListItem>
             );
           })}
-        </List>  
+        </List>
+        <div style={{ flexGrow: 1 }}></div>
+        {this.renderChannelForm()}
       </Drawer>
     );
   }
@@ -77,6 +171,8 @@ ChannelMenu.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
+    microsubEndpoint: state.user.get('microsubEndpoint'),
+    selectedChannel: state.app.get('selectedChannel'),
     channels: state.channels.toJS(),
     open: state.app.get('channelsMenuOpen'),
   };
@@ -86,6 +182,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     selectChannel: selectChannel,
     toggleChannelsMenu: toggleChannelsMenu,
+    addChannel: addChannel,
   }, dispatch);
 }
 

@@ -148,6 +148,14 @@ class Settings extends React.Component {
               type="text"
             />
             <TextField
+              id="microsub-endpoint"
+              label="Microsub Endpoint"
+              value={this.props.user.microsubEndpoint}
+              onChange={this.handleUserOptionChange('microsubEndpoint')}
+              margin="normal"
+              type="url"
+            />
+            <TextField
               id="micropub-endpoint"
               label="Micropub Endpoint"
               value={this.props.user.micropubEndpoint}

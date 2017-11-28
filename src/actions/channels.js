@@ -1,6 +1,6 @@
 export const selectChannel = (uid) => {
   return {
-    type: 'SELECT_CHANNEL',
+    type: 'SET_SELECTED_CHANNEL',
     uid: uid,
   };
 }

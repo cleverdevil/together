@@ -2,7 +2,9 @@ import { Map } from 'immutable';
 
 const defaultState = new Map({
   channelsMenuOpen: false,
-  selectedChannel: 'default',
+  selectedChannel: '',
+  timelineBefore: '',
+  timelineAfter: '',
 });
 
 export default (state = defaultState, payload) => {
@@ -13,6 +15,12 @@ export default (state = defaultState, payload) => {
     case 'SET_SELECTED_CHANNEL': {
       return state.set('selectedChannel', payload.uid);
     }
+    case 'SET_TIMELINE_BEFORE': {
+      return state.set('timelineBefore', payload.before);
+    }
+    case 'SET_TIMELINE_AFTER': {
+      return state.set('timelineAfter', payload.after);
+    }  
     default: {
       return state;
     }

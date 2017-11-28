@@ -37,7 +37,7 @@ class CheckinMap extends React.Component {
   }
 
   render() {
-    let bounds = null;
+    let bounds = false;
     const markers = this.props.posts.map((post, i) => {
       let lat = false;
       let lng = false;
@@ -52,7 +52,7 @@ class CheckinMap extends React.Component {
         return null;
       } else {
         // Expand the bounds to fit the marker
-        if (!bounds) {
+        if (!bounds && lat !== false && lng !== false) {
           bounds = [[lat, lng], [lat, lng]];
         } else {
           if (lat < bounds[0][0]) {
@@ -96,13 +96,18 @@ class CheckinMap extends React.Component {
       }
     });
 
+    let mapProps = {
+      center: [0,0],
+      zoom: 2,
+      // scrollWheelZoom={false}
+      className: this.props.classes.map,
+    }
+    if (bounds) {
+      mapProps.bounds = bounds;
+    }
     return (
       <Map
-      center={[0,0]}
-      zoom={2}
-      // scrollWheelZoom={false}
-      bounds={bounds}
-      className={this.props.classes.map}
+        {...mapProps}
       >
         <TileLayer
           url='https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png'
