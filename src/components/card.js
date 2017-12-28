@@ -15,7 +15,9 @@ import LikeIcon from 'material-ui-icons/ThumbUp';
 import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import VisitIcon from 'material-ui-icons/Link';
+import Popover from 'material-ui/Popover';
 import { Map, Marker, TileLayer } from 'react-leaflet';
+import MicropubForm from './micropub-form';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
@@ -57,6 +59,10 @@ const styles = theme => ({
 class TogetherCard extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      popoverOpen: false,
+      popoverAnchor: null,
+    };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
     this.renderCheckin = this.renderCheckin.bind(this);
@@ -83,15 +89,21 @@ class TogetherCard extends React.Component {
   }
 
   handleReply(e) {
-    try {
-      const url = this.props.post.url;
-      const likeUrl = 'https://quill.p3k.io/new?reply=' + encodeURIComponent(url);
-      const win = window.open(likeUrl, '_blank');
-      win.focus();
-    } catch (err) {
-      alert('Error replying');
-      console.log(err);
-    }
+    const url = this.props.post.url;
+    this.setState({
+      inReplyToUrl: url,
+      popoverOpen: true,
+      popoverAnchor: e.target,
+    });
+  }
+
+  handleReplySend(micropub) {
+    indieActions.reply(micropub.properties['in-reply-to'][0], micropub.properties.content[0])
+      .then(() => {
+        this.setState({ popoverOpen: false });
+        alert('successful reply');
+      })
+      .catch((err) => console.log('Error posting reply'));
   }
 
   handleView(e) {
@@ -297,6 +309,25 @@ class TogetherCard extends React.Component {
             </IconButton>
           </Tooltip>
         </CardActions>
+        <Popover
+          open={this.state.popoverOpen}
+          anchorEl={this.state.popoverAnchor}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          onClose={() => this.setState({ popoverOpen: false })}
+          onBackdropClick={() => this.setState({popoverOpen: false})}
+        >
+          <div style={{
+            padding: 10,
+          }}>
+          <MicropubForm
+            onSubmit={this.handleReplySend}
+            in-reply-to={this.state.inReplyToUrl}
+          />
+          </div>
+        </Popover>
       </Card>
     );
   }

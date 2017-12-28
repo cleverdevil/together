@@ -15,7 +15,7 @@ import SendIcon from 'material-ui-icons/Send';
 const styles = theme => ({
   container: {
     display: 'block',
-    oveflow: 'hidden',
+    overflow: 'hidden',
   },
   input: {
 
