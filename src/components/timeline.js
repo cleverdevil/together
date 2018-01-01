@@ -16,20 +16,19 @@ import { addToTimeline, setTimelineAfter, setTimelineBefore, selectChannel } fro
 
 const styles = theme => ({
   timeline: {
-    paddingLeft: 12,
-    paddingRight: 12,
+    width: '100%',
     maxWidth: 600,
+    minWidth: 300,
   },
   noPosts: {
-    padding: 24,
   },
   channelName: {
-    padding: 12,
   },
   loading: {
-    position: 'sticky',
+    position: 'fixed',
     top: 0,
     right: 0,
+    left: 0,
   },
 });
 

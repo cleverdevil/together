@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 // import { Link } from 'react-router-dom';
-import Drawer from 'material-ui/Drawer';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import AddIcon from 'material-ui-icons/Add';
 import TextField from 'material-ui/TextField';
@@ -15,7 +14,9 @@ import microsub from '../modules/microsub-api';
 
 const styles = theme => ({
   drawer: {
-    width: 200,
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
     background: theme.palette.shades.dark.background.appBar,
   },
   button: {
@@ -127,13 +128,7 @@ class ChannelMenu extends React.Component {
 
   render() {
     return (
-      <Drawer
-        open={this.props.open}
-        onRequestClose={this.props.toggleChannelsMenu}
-        classes={{
-          paperAnchorLeft: this.props.classes.drawer,
-        }}
-      >
+      <div className={this.props.classes.drawer}>
         <List>
           {this.props.channels.map((channel) => {
             let textClassName = this.props.classes.button;
@@ -156,7 +151,7 @@ class ChannelMenu extends React.Component {
         </List>
         <div style={{ flexGrow: 1 }}></div>
         {this.renderChannelForm()}
-      </Drawer>
+      </div>
     );
   }
 }

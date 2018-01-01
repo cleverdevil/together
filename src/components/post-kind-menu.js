@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { Link } from 'react-router-dom';
-import Drawer from 'material-ui/Drawer';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 import SettingsIcon from 'material-ui-icons/Settings';
@@ -13,9 +12,11 @@ import { selectPostKind, toggleChannelsMenu } from '../actions';
 
 
 const styles = theme => ({
-  paperAnchorDockedLeft: {
+  menu: {
+    display: 'flex',
+    flexDirection: 'column',
     overflow: 'visible',
-    background: theme.palette.shades.dark.background.appBar,
+    background: theme.palette.shades.dark.background.default,
   },
   icon: {
     color: theme.palette.shades.dark.text.icon,
@@ -28,7 +29,13 @@ const styles = theme => ({
     '&:hover': {
       color: theme.palette.secondary['500'],
     }
-  }
+  },
+  channelMenuToggle: {
+    display: 'none',
+    [theme.breakpoints.down('md')]: {
+      display: 'block',
+    },
+  },
 });
 
 class PostKindMenu extends React.Component {
@@ -45,12 +52,7 @@ class PostKindMenu extends React.Component {
 
   render() {
     return (
-      <Drawer
-        type="permanent"
-        classes={{
-          paperAnchorDockedLeft: this.props.classes.paperAnchorDockedLeft,
-        }}
-      >
+      <div className={this.props.classes.menu}>
         {this.props.postKinds.map((postKind) => {
           const Icon = postKind.icon;
           return (
@@ -65,7 +67,7 @@ class PostKindMenu extends React.Component {
           );
         })}
         <div style={{ flexGrow: 1 }}></div>
-        <Tooltip title="Channels" placement="right">
+        <Tooltip title="Channels" placement="right" className={this.props.classes.channelMenuToggle}>
           <IconButton
             className={this.props.classes.icon}
             onClick={this.props.toggleChannelsMenu}
@@ -82,7 +84,7 @@ class PostKindMenu extends React.Component {
             </IconButton>
           </Tooltip>
         </Link>
-      </Drawer>
+      </div>
     );
   }
 }
