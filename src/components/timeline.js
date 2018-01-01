@@ -23,6 +23,7 @@ const styles = theme => ({
   noPosts: {
   },
   channelName: {
+    marginBottom: 12,
   },
   loading: {
     position: 'fixed',

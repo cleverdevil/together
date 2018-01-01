@@ -26,7 +26,7 @@ class Gallery extends React.Component {
     const cellHeight = Math.floor(contentWidth / columnCount);
     return (
       <div>
-        <GridList cellHeight={cellHeight} cols={columnCount} spacing={0}>
+        <GridList cellHeight={cellHeight} cols={columnCount} spacing={0} style={{margin: -12, marginTop: 0}}>
           {this.props.posts.filter(post => post.photo).map(post => {
             const avatarData = authorToAvatarData(post.author);
 
