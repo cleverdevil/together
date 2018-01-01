@@ -24,8 +24,6 @@ import micropubApi from '../modules/micropub-api';
 
 const styles = theme => ({
   page: {
-    padding: 12,
-    paddingLeft: 49+12,
   },
   fieldset: {
     width: '100%',

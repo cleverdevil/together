@@ -85,13 +85,15 @@ class App extends Component {
             <Grid item className={this.props.classes.postKindMenu}>
               <PostKindMenu />
             </Grid>
-            <Route exact path="/" render={() => (
-              <Grid item className={this.props.classes.main}>
-                <Timeline className={this.props.classes.timeline} />
-                <AddFeed />
-              </Grid>
-            )} />
-            <Route path="/settings" component={Settings} />
+            <Grid item className={this.props.classes.main}>
+              <Route exact path="/" render={() => (
+                <div>
+                  <Timeline className={this.props.classes.timeline} />
+                  <AddFeed />
+                </div>
+              )} />
+              <Route path="/settings" component={Settings} />
+            </Grid>
             <Login />
           </Grid>
         </MuiThemeProvider>
