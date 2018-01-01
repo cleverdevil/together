@@ -1,7 +1,7 @@
 const Micropub = require('micropub-helper');
 
 module.exports = (req, res, next) => {
-  req.body.clientId = 'http://together.com';
+  req.body.clientId = 'http://together.tpxl.io';
   let micropub = new Micropub(req.body);
   micropub[req.params.method](req.body.param)
     .then((result) => {

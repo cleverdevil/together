@@ -1,7 +1,7 @@
 const Microsub = require('../microsub');
 
 module.exports = (req, res, next) => {
-  req.body.clientId = 'http://together.com';
+  req.body.clientId = 'http://together.tpxl.io';
   let microsub = new Microsub(req.body);
   let params = req.body.params || [];
   microsub[req.params.method](...params)
