@@ -77,9 +77,9 @@ class App extends Component {
             direction="row"
             justify="flex-start"
             wrap="nowrap"
-            className={rootClasses}
+            className={rootClasses.join(' ')}
           >
-            <Grid item className={channelMenuClasses}>
+            <Grid item className={channelMenuClasses.join(' ')}>
               <ChannelMenu />
             </Grid>
             <Grid item className={this.props.classes.postKindMenu}>

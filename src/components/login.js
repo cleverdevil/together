@@ -71,6 +71,7 @@ class Login extends React.Component {
             console.log(err);
             alert('Error getting your rel links');
           });
+        window.history.pushState({}, document.title, '/');
       }
     }
   }
