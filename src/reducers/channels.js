@@ -1,14 +1,14 @@
 import { fromJS, Map } from 'immutable';
 
 const defaultState = fromJS([
-  {
-    name: 'Home',
-    uid: 'default',
-  },
-  {
-    name: 'Notifications',
-    uid: 'notifications',
-  },
+  // {
+  //   name: 'Home',
+  //   uid: 'default',
+  // },
+  // {
+  //   name: 'Notifications',
+  //   uid: 'notifications',
+  // },
 ]);
 
 export default (state = defaultState, payload) => {

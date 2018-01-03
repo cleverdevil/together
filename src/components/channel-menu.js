@@ -54,6 +54,9 @@ class ChannelMenu extends React.Component {
           channels.forEach((channel) => {
             this.props.addChannel(channel.name, channel.uid);
           });
+          if (channels[0]) {
+            this.props.selectChannel(channels[0].uid);
+          }
         })
         .catch((err) => {
           console.log('Error getting channels');
