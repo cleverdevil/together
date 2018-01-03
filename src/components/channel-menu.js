@@ -17,6 +17,7 @@ const styles = theme => ({
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'auto',
     background: theme.palette.shades.dark.background.appBar,
   },
   button: {
