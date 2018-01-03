@@ -55,7 +55,6 @@ const style = theme => ({
     overflow: 'auto',
     flexGrow: 1,
     flexShrink: 1,
-    padding: 12,
   },
 });
 

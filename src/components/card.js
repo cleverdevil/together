@@ -16,12 +16,12 @@ import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import VisitIcon from 'material-ui-icons/Link';
 import Popover from 'material-ui/Popover';
-import { Map, Marker, TileLayer } from 'react-leaflet';
+import ReactMapGL, {Marker} from 'react-map-gl';
+import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
-import 'leaflet/dist/leaflet.css';
 
 // Hack to fix leaflet marker
 import L from 'leaflet';
@@ -159,7 +159,7 @@ class TogetherCard extends React.Component {
     return null;
   }
 
-  renderCheckin(location) {
+  renderCheckin(location, author) {
     if (this.props.embedMode === 'marker') {
       return null;
     }
@@ -176,19 +176,7 @@ class TogetherCard extends React.Component {
 
     if (lat !== false && lng !== false) {
       return (
-        <Map
-          center={[lat, lng]}
-          zoom={14}
-          scrollWheelZoom={false}
-          className={this.props.classes.map}
-          >
-          <TileLayer
-            url='https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png'
-            attribution='Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            maxZoom={18}
-          />
-          <Marker position={[lat,lng]}></Marker>
-        </Map>
+        <SingleAvatarMap lat={lat} lng={lng} author={author} />
       );
     }
 
@@ -281,7 +269,7 @@ class TogetherCard extends React.Component {
         {this.renderContent()}
 
         {this.renderLocation(item.location)}
-        {this.renderCheckin(item.checkin)}
+        {this.renderCheckin(item.checkin, item.author)}
 
         <CardActions>
           <Tooltip title="Like" placement="top">

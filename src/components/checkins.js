@@ -1,34 +1,28 @@
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { withStyles } from 'material-ui/styles';
-import Avatar from 'material-ui/Avatar';
-import { Map, Marker, TileLayer, Popup } from 'react-leaflet';
-import { divIcon } from 'leaflet';
-import TogetherCard from './card';
-import authorToAvatarData from '../modules/author-to-avatar-data';
+import Dimensions from 'react-dimensions';
+import ReactMapGL, { Marker } from 'react-map-gl';
+import WebMercatorViewport from 'viewport-mercator-project';
+import MapMarker from './map-marker';
 
 const markerSize = 18;
 
 const styles = theme => ({
-  map: {
-    height: '100vh',
-  },
-  marker: {
-    width: markerSize,
-    height: markerSize,
-    fontSize: markerSize - (markerSize / 2),
-  },
+  map: {},
 });
 
 class CheckinMap extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedPost: null,
+      lat: 0,
+      lng: 0,
+      zoom: 1,
+      markers: [],
     };
   }
 
@@ -36,9 +30,10 @@ class CheckinMap extends React.Component {
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
-  render() {
+  componentDidMount() {
     let bounds = false;
-    const markers = this.props.posts.map((post, i) => {
+
+    let posts = this.props.posts.map((post, i) => {
       let lat = false;
       let lng = false;
       if (post.location && this.isNumeric(post.location.latitude) && this.isNumeric(post.location.longitude)) {
@@ -68,54 +63,58 @@ class CheckinMap extends React.Component {
             bounds[1][1] = lng;
           }
         }
-
-        // Create the marker icon
-        const avatarData = authorToAvatarData(post.author);
-        const icon = divIcon({
-          className: 'together-checkin-marker',
-          iconSize: markerSize,
-          html: renderToStaticMarkup(
-            <Avatar
-              className={this.props.classes.marker}
-              {...avatarData}
-              aria-label={avatarData.alt}
-            >
-              {avatarData.src ? null : avatarData.initials}
-            </Avatar>
-          ),
-        });
-
-        // Return the marker and popup
-        return (
-          <Marker icon={icon} key={`checkin-marker-${i}`} position={[lat, lng]}>
-            <Popup>
-              <TogetherCard post={post} embedMode="marker" store={null} />
-            </Popup>
-          </Marker>
-        );
+        post.marker = {
+          lat: lat,
+          lng: lng,
+        };
+        return post;
       }
     });
 
-    let mapProps = {
-      center: [0,0],
-      zoom: 2,
-      // scrollWheelZoom={false}
-      className: this.props.classes.map,
-    }
+    posts.filter(post => post);
+    this.setState({ markers: posts });
+
     if (bounds) {
-      mapProps.bounds = bounds;
+      const viewport = new WebMercatorViewport({ width: this.props.containerWidth, height: document.body.clientHeight });
+      // This doesn't work at the moment for reasons I don't understand
+      // const bound = viewport.fitBounds(bounds, { padding: 20 });
+      
+      // this.setState({
+      //   lat: bound.latitude,
+      //   lng: bound.longitude,
+      //   zoom: bound.zoom,
+      // });
     }
+  }
+
+  render() {
     return (
-      <Map
-        {...mapProps}
+      <ReactMapGL
+        width={this.props.containerWidth}
+        height={window.innerHeight - 72} // 72 = height of the title
+        latitude={this.state.lat}
+        longitude={this.state.lng}
+        zoom={this.state.zoom}
+        className={this.props.classes.map}
+        mapStyle="mapbox://styles/mapbox/basic-v9"
+        mapboxApiAccessToken="pk.eyJ1IjoiZ3JhbnRjb2RlcyIsImEiOiJjamJ3ZTk3czYyOHAxMzNyNmo4cG4zaGFqIn0.9tRVGo4SgVgns3khwoO0gA"
+        onViewportChange={(viewport) => {
+          const { width, height, latitude, longitude, zoom } = viewport;
+          this.setState({
+            lat: latitude,
+            lng: longitude,
+            zoom: zoom,
+          });
+        }}
       >
-        <TileLayer
-          url='https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png'
-          attribution='Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          maxZoom={18}
-        />
-        {markers}
-      </Map>
+        {this.state.markers.map((post, i) => {
+          return (
+            <Marker latitude={post.marker.lat} longitude={post.marker.lng} key={`marker-${i}`}>
+              <MapMarker author={post.author} post={post} />
+            </Marker>
+          );
+        })}
+      </ReactMapGL>
     );
   }
 }
@@ -134,4 +133,4 @@ function mapDispatchToProps(dispatch) {
   }, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(CheckinMap));
+export default connect(null, mapDispatchToProps)(Dimensions()((withStyles(styles)(CheckinMap))));

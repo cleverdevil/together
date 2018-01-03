@@ -19,11 +19,15 @@ const styles = theme => ({
     width: '100%',
     maxWidth: 600,
     minWidth: 300,
+    padding: theme.spacing.unit * 2,
+    paddingTop: 0,
   },
   noPosts: {
+    padding: theme.spacing.unit * 2,
   },
   channelName: {
-    marginBottom: 12,
+    margin: 0,
+    padding: theme.spacing.unit * 2,
   },
   loading: {
     position: 'fixed',
