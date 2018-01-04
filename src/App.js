@@ -8,8 +8,8 @@ import Timeline from './components/timeline.js';
 import PostKindMenu from './components/post-kind-menu.js';
 import ChannelMenu from './components/channel-menu.js';
 import Settings from './components/settings';
+import ChannelSettings from './components/channel-settings';
 import Login from './components/login';
-import AddFeed from './components/add-feed';
 
 const theme = createMuiTheme({
   typography: {
@@ -85,13 +85,10 @@ class App extends Component {
               <PostKindMenu />
             </Grid>
             <Grid item className={this.props.classes.main}>
-              <Route exact path="/" render={() => (
-                <div>
-                  <Timeline className={this.props.classes.timeline} />
-                  <AddFeed />
-                </div>
-              )} />
-              <Route path="/settings" component={Settings} />
+              <Route exact path="/" component={Timeline} />
+              <Route exact path="/channel/:channelUid" component={Timeline} />
+              <Route exact path="/channel/:channelUid/edit" component={ChannelSettings} />
+              <Route exact path="/settings" component={Settings} />
             </Grid>
             <Login />
           </Grid>

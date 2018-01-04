@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 import AddIcon from 'material-ui-icons/Add';
 import TextField from 'material-ui/TextField';
@@ -46,6 +46,7 @@ class ChannelMenu extends React.Component {
     };
     this.handleAddChannel = this.handleAddChannel.bind(this);
     this.renderChannelForm = this.renderChannelForm.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
 
   componentDidMount() {
@@ -55,9 +56,6 @@ class ChannelMenu extends React.Component {
           channels.forEach((channel) => {
             this.props.addChannel(channel.name, channel.uid);
           });
-          if (channels[0]) {
-            this.props.selectChannel(channels[0].uid);
-          }
         })
         .catch((err) => {
           console.log('Error getting channels');
@@ -78,6 +76,12 @@ class ChannelMenu extends React.Component {
           console.log('Error getting channels');
           console.log(err);
         });
+    }
+  }
+
+  handleClose() {
+    if (this.props.open) {
+      this.props.toggleChannelsMenu();
     }
   }
 
@@ -125,7 +129,7 @@ class ChannelMenu extends React.Component {
           value={this.state.newChannelName}
           onChange={(e) => this.setState({newChannelName: e.target.value})}
         />
-        <Button style={{width: '100%'}}>Add Channel</Button>
+        <Button style={{width: '100%'}} type="submit">Add Channel</Button>
       </form>
     );
   }
@@ -140,16 +144,14 @@ class ChannelMenu extends React.Component {
               textClassName = this.props.classes.highlightedButton;
             }
             return (
-              <ListItem
-                key={`channel-${channel.uid}`}
-                onClick={() => this.props.selectChannel(channel.uid)}
-                button
-              >
-                <ListItemText
-                  classes={{ text: textClassName }}
-                  primary={channel.name}
-                />
-              </ListItem>
+              <Link to={`/channel/${channel.uid}`} key={`channel-${channel.uid}`} style={{ textDecoration: 'none' }} onClick={this.handleClose}>
+                <ListItem button>
+                  <ListItemText
+                    classes={{ text: textClassName }}
+                    primary={channel.name}
+                  />
+                </ListItem>
+              </Link>
             );
           })}
         </List>

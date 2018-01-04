@@ -3,9 +3,13 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
+import { Link } from 'react-router-dom';
 import Button from 'material-ui/Button';
+import IconButton from 'material-ui/IconButton';
+import EditIcon from 'material-ui-icons/Edit';
 import Typography from 'material-ui/Typography';
 import { LinearProgress } from 'material-ui/Progress';
+import AddFeed from './add-feed';
 import microsub from '../modules/microsub-api';
 
 import Card from './card';
@@ -29,6 +33,13 @@ const styles = theme => ({
     margin: 0,
     padding: theme.spacing.unit * 2,
   },
+  editButton: {
+    opacity: .3,
+    transition: 'opacity .2s',
+    '&:hover': {
+      opacity: 1,
+    },
+  },
   loading: {
     position: 'fixed',
     top: 0,
@@ -44,11 +55,26 @@ class Timeline extends React.Component {
     this.state = {
       loading: false,
     };
+
     this.handleLoadMore = this.handleLoadMore.bind(this);
     this.renderTimelinePosts = this.renderTimelinePosts.bind(this);
+    this.renderTitle = this.renderTitle.bind(this);
   }
 
-  componentWillUpdate(newProps) {
+  componentDidMount() {
+    if (this.props.match && this.props.match.params && this.props.match.params.channelUid) {
+      const channel = this.props.match.params.channelUid;
+      this.props.selectChannel(channel);
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.match && newProps.match.params && newProps.match.params.channelUid && newProps.match.params.channelUid != newProps.selectedChannel ) {
+      const channel = newProps.match.params.channelUid;
+      newProps.selectChannel(channel);
+    } else if (newProps.match && newProps.match.params && !newProps.match.params.channelUid && !newProps.selectedChannel && newProps.channels.length) {
+      newProps.selectChannel(newProps.channels[0].uid);
+    }
     if (newProps.selectedChannel && newProps.selectedChannel != this.props.selectedChannel) {
       this.setState({ loading: true });
       microsub('getTimeline', { params: [newProps.selectedChannel] })
@@ -127,13 +153,30 @@ class Timeline extends React.Component {
     );
   }
 
-  render() {
+  renderTitle() {
     const selectedChannel = this.props.channels.find(channel => channel.uid === this.props.selectedChannel);
+    if (!selectedChannel) {
+      return null;
+    }
+    return (
+      <Typography type="display1" component="h2" className={this.props.classes.channelName}>
+        {selectedChannel.name}
+        <Link to={`/channel/${selectedChannel.uid}/edit`}>
+          <IconButton aria-label="Edit Channel" className={this.props.classes.editButton}>
+            <EditIcon />
+          </IconButton>
+        </Link>
+      </Typography>
+    );
+  }
+
+  render() {
     return (
       <div>
         {this.state.loading && <LinearProgress className={this.props.classes.loading} />}
-        {selectedChannel && <Typography type="display1" component="h2" className={this.props.classes.channelName}>{selectedChannel.name}</Typography>}
+        {this.renderTitle()}
         {(this.props.items.length > 0 || this.state.loading) ? this.renderTimelinePosts() : this.renderNoPosts()}
+        <AddFeed />
       </div>
     );
   }
@@ -163,6 +206,7 @@ function mapDispatchToProps(dispatch) {
     addToTimeline: addToTimeline,
     setTimelineAfter: setTimelineAfter,
     setTimelineBefore: setTimelineBefore,
+    selectChannel: selectChannel,
   }, dispatch);
 }
 

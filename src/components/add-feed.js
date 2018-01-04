@@ -90,7 +90,7 @@ class AddFeed extends React.Component {
   handleCancel(e) {
     e.preventDefault();
     this.setState({
-      results: null,
+      results: [],
       search: null,
       searching: false,
       preview: false,

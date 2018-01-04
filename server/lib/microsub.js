@@ -47,11 +47,15 @@ class Microsub extends Micropub {
     });
   }
 
-  createChannel(channelName) {
+  createChannel(channelName, uid = '') {
     return new Promise((resolve, reject) => {
       const url = new URL(this.options.microsubEndpoint);
       url.searchParams.append('action', 'channels');
       url.searchParams.append('name', channelName);
+      if (uid) {
+        // Will update the channel name instead of creating it.
+        url.searchParams.append('channel', uid);
+      }
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
@@ -61,6 +65,39 @@ class Microsub extends Micropub {
         .then((res) => res.json())
         .then((newChannel) => {
           resolve(newChannel);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  deleteChannel(uid) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(this.options.microsubEndpoint);
+      url.searchParams.append('action', 'channels');
+      url.searchParams.append('method', 'delete');
+      url.searchParams.append('channel', uid);
+      fetch(url.toString(), {
+        method: 'POST',
+        headers: new Headers({
+          'Authorization': 'Bearer ' + this.options.token,
+        }),
+      })
+        .then((res) => {
+          if (res.status == 200) {
+            resolve();
+          } else {
+            console.log(res);
+            return res.text();
+          }
+        })
+        .then((data) => {
+          console.log(data);
+          reject({
+            message: 'Error deleting channel',
+            // status: res.status,
+          });
         })
         .catch((err) => {
           reject(err);
