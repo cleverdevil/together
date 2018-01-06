@@ -15,7 +15,7 @@
     "leaflet": "^1.2.0",
     "material-ui": "^1.0.0-beta.13",
     "material-ui-icons": "^1.0.0-beta.17",
-    "micropub-helper": "^1.3.2",
+    "micropub-helper": "^1.3.4",
     "moment": "^2.19.1",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
