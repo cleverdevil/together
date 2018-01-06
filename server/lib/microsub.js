@@ -11,10 +11,27 @@ const defaultSettings = {
   microsubEndpoint: '',
 };
 
-class Microsub extends Micropub {
+const microsubError = (message, status = null, error = null) => {
+  return {
+    message: message,
+    status: status,
+    error: error,
+  };
+};
+
+const validateResponse = (res) => {
+  return new Promise((resolve, reject) => {
+    if (res.ok) {
+      resolve(res.json());
+    } else {
+      reject(microsubError('Error from microsub server', res.status));
+    }
+  });
+};
+
+class Microsub {
   constructor(userSettings = {}) {
-    super();
-    this.options = Object.assign(defaultSettings, userSettings);
+    this.options = Object.assign({}, defaultSettings, userSettings);
 
     // Bind all the things
     this.getChannels = this.getChannels.bind(this);
@@ -31,18 +48,19 @@ class Microsub extends Micropub {
     return new Promise((resolve, reject) => {
       const url = new URL(this.options.microsubEndpoint);
       url.searchParams.append('action', 'channels');
+
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
           'Authorization': 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
+        .then(res => validateResponse(res))
         .then((channels) => {
           resolve(channels.channels);
         })
-        .catch((err) => {
-          reject(err);
+        .catch((err) => {;
+          reject(microsubError('Error getting channels', null, err));
         });
     });
   }
@@ -67,7 +85,7 @@ class Microsub extends Micropub {
           resolve(newChannel);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error creating channel', null, err));
         });
     });
   }
@@ -94,13 +112,10 @@ class Microsub extends Micropub {
         })
         .then((data) => {
           console.log(data);
-          reject({
-            message: 'Error deleting channel',
-            // status: res.status,
-          });
+          reject(microsubError('Error deleting channel'));
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error deleting channel', null, err));
         });
     });
   }
@@ -121,7 +136,7 @@ class Microsub extends Micropub {
           resolve(results.results);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error searching', null, err));
         });
     });
   }
@@ -145,7 +160,7 @@ class Microsub extends Micropub {
           resolve(results);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error following', null, err));
         });
     });
   }
@@ -169,7 +184,7 @@ class Microsub extends Micropub {
           resolve(results);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error unfollowing', null, err));
         });
     });
   }
@@ -190,7 +205,7 @@ class Microsub extends Micropub {
           resolve(results);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error getting preview', null, err));
         });
     });
   }
@@ -211,7 +226,7 @@ class Microsub extends Micropub {
           resolve(results);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error getting following', null, err));
         });
     });
   }
@@ -243,7 +258,7 @@ class Microsub extends Micropub {
           resolve(results);
         })
         .catch((err) => {
-          reject(err);
+          reject(microsubError('Error getting timeline', null, err));
         });
     });
   }
