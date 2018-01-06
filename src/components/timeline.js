@@ -12,7 +12,7 @@ import { LinearProgress } from 'material-ui/Progress';
 import AddFeed from './add-feed';
 import microsub from '../modules/microsub-api';
 
-import Card from './card';
+import Card from './compressed-post';
 import Gallery from './gallery';
 import Checkins from './checkins';
 
