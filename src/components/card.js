@@ -59,6 +59,7 @@ class TogetherCard extends React.Component {
     this.renderCheckin = this.renderCheckin.bind(this);
     this.renderContent = this.renderContent.bind(this);
     this.renderMedia = this.renderMedia.bind(this);
+    this.renderUrl = this.renderUrl.bind(this);
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
@@ -139,6 +140,32 @@ class TogetherCard extends React.Component {
       );
     }
     return null;
+  }
+
+  renderUrl(urls, type) {
+    if (!urls) {
+      return null;
+    }
+    let introText = '';
+    switch (type) {
+      case 'reply':
+        introText = 'In reply to ';
+        break;
+      case 'like':
+        introText = 'Like of ';
+        break;
+      case 'repost':
+        introText = 'Repost of ';
+        break;
+    }
+    return urls.map((url) => (
+      <CardContent>
+        <Typography component="p">
+          {introText}
+          <a href={url} target="_blank">{url}</a>
+        </Typography>
+      </CardContent>
+    ));
   }
 
   renderMedia(media, type) {
@@ -255,6 +282,9 @@ class TogetherCard extends React.Component {
             </Avatar>
           }
         />
+        {this.renderUrl(item['in-reply-to'], 'reply')}
+        {this.renderUrl(item['like-of'], 'like')}
+        {this.renderUrl(item['repost-of'], 'repost')}
         {this.renderMedia(item.video, 'video')}
         {this.renderMedia(item.audio, 'audio')}
         {this.renderPhotos(item.featured)}
