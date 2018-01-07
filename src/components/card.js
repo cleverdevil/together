@@ -19,6 +19,7 @@ import Popover from 'material-ui/Popover';
 import ReactMapGL, {Marker} from 'react-map-gl';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
+import { addNotification } from '../actions';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
@@ -78,15 +79,15 @@ class TogetherCard extends React.Component {
   handleLike(e) {
     const url = this.props.post.url;
     indieActions.like(url)
-      .then(() => alert('successful like'))
-      .catch(() => alert('error liking'));
+      .then(() => this.props.addNotification(`Successfully liked ${url}`))
+      .catch(() => this.props.addNotification(`Error liking ${url}`, 'error'));
   }
 
   handleRepost(e) {
     const url = this.props.post.url;
     indieActions.repost(url)
-      .then(() => alert('successful repost'))
-      .catch(() => alert('error repost'));
+      .then(() => this.props.addNotification(`Successfully reposted ${url}`))
+      .catch(() => this.props.addNotification(`Error reposting ${url}`, 'error'));
   }
 
   handleReply(e) {
@@ -102,9 +103,9 @@ class TogetherCard extends React.Component {
     indieActions.reply(micropub.properties['in-reply-to'][0], micropub.properties.content[0])
       .then(() => {
         this.setState({ popoverOpen: false });
-        alert('successful reply');
+        this.props.addNotification(`Successfully posted reply`)
       })
-      .catch((err) => console.log('Error posting reply'));
+      .catch((err) => this.props.addNotification(`Error posting reply`, 'error'));
   }
 
   handleView(e) {
@@ -113,7 +114,7 @@ class TogetherCard extends React.Component {
       const win = window.open(url, '_blank');
       win.focus();
     } catch (err) {
-      console.log(err);
+      this.props.addNotification(`Error opening url`, 'error');
     }
   }
 
@@ -332,11 +333,10 @@ TogetherCard.propTypes = {
   embedMode: PropTypes.string,
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return bindActionCreators({
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    addNotification: addNotification,
+  }, dispatch);
+}
 
-//   }, dispatch);
-// }
-
-// export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
-export default withStyles(styles)(TogetherCard);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));

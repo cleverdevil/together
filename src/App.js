@@ -10,6 +10,7 @@ import ChannelMenu from './components/channel-menu.js';
 import Settings from './components/settings';
 import ChannelSettings from './components/channel-settings';
 import Login from './components/login';
+import Notification from './components/notification';
 
 const theme = createMuiTheme({
   typography: {
@@ -91,6 +92,7 @@ class App extends Component {
               <Route exact path="/settings" component={Settings} />
             </Grid>
             <Login />
+            <Notification />
           </Grid>
         </MuiThemeProvider>
       </Router>
