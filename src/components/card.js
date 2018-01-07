@@ -196,11 +196,11 @@ class TogetherCard extends React.Component {
     let content = null;
     
     if (item.name) {
-      title = (<Typography type="headline" component="h2">{item.name}</Typography>);
+      title = (<Typography type="headline" component="h2" dangerouslySetInnerHTML={{__html: item.name}}></Typography>);
     }
 
     if (item.summary && !item.content) {
-      summary = (<Typography component="p">{item.summary}</Typography>);
+      summary = (<Typography component="p" dangerouslySetInnerHTML={{__html: item.summary}}></Typography>);
     }
 
     if (item.content) {
@@ -208,7 +208,7 @@ class TogetherCard extends React.Component {
       if (contentObject.html) {
         content = (<Typography component="div" className={this.props.classes.postContent} dangerouslySetInnerHTML={{__html: contentObject.html}}></Typography>);
       } else if (contentObject.value) {
-        content = (<Typography component="p">{contentObject.value}</Typography>);
+        content = (<Typography component="p" dangerouslySetInnerHTML={{__html: contentObject.value}}></Typography>);
       }
     }
     return (
