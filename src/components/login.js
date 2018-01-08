@@ -14,7 +14,7 @@ import Dialog, {
 import { LinearProgress } from 'material-ui/Progress';
 import micropubApi, {getOption, getRels} from '../modules/micropub-api';
 import { setOption as setMicrosubOption } from '../modules/microsub-api';
-import { setUserOption } from '../actions';
+import { setUserOption, addNotification } from '../actions';
 
 
 const styles = theme => ({
@@ -61,7 +61,7 @@ class Login extends React.Component {
         getRels(me)
           .then((rels) => {
             if (!rels.microsub) {
-              alert('Couldn\'t find your microsub endpoint. This app is not going to work.');
+              this.props.addNotification('Couldn\'t find your microsub endpoint. This app is not going to work.', 'error');
             } else {
               setMicrosubOption('microsubEndpoint', rels.microsub[0]);
               this.props.setUserOption('microsubEndpoint', rels.microsub[0]);
@@ -69,7 +69,7 @@ class Login extends React.Component {
           })
           .catch((err) => {
             console.log(err);
-            alert('Error getting your rel links');
+            this.props.addNotification('Error getting your rel links', 'error');
           });
         window.history.pushState({}, document.title, '/');
       }
@@ -136,6 +136,7 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     setUserOption: setUserOption,
+    addNotification: addNotification,
   }, dispatch);
 }
 
