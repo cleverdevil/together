@@ -8,7 +8,7 @@ import List, { ListItem, ListItemText } from 'material-ui/List';
 import AddIcon from 'material-ui-icons/Add';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
-import { selectChannel, toggleChannelsMenu, addChannel } from '../actions';
+import { selectChannel, toggleChannelsMenu, addChannel, addNotification } from '../actions';
 import microsub from '../modules/microsub-api';
 
 
@@ -96,7 +96,7 @@ class ChannelMenu extends React.Component {
         this.props.addChannel(newChannel.name, newChannel.uid);
       })
       .catch((err) => {
-        alert('Error creating channel');
+        this.props.addNotification('Error creating channel', 'error');
       });
     return false;
   }
@@ -184,6 +184,7 @@ function mapDispatchToProps(dispatch) {
     selectChannel: selectChannel,
     toggleChannelsMenu: toggleChannelsMenu,
     addChannel: addChannel,
+    addNotification: addNotification,
   }, dispatch);
 }
 

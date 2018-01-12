@@ -19,7 +19,7 @@ import AddIcon from 'material-ui-icons/Add';
 import { LinearProgress } from 'material-ui/Progress';
 import TogetherCard from './card';
 import microsub from '../modules/microsub-api';
-import { setUserOption } from '../actions';
+import { addNotification, selectChannel } from '../actions';
 
 
 const styles = theme => ({
@@ -88,7 +88,9 @@ class AddFeed extends React.Component {
   }
 
   handleCancel(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
     this.setState({
       results: [],
       search: null,
@@ -145,14 +147,16 @@ class AddFeed extends React.Component {
     if (feed && channel) {
       microsub('follow', { params: [feed, channel] })
         .then((res) => {
-          alert('Followed. You will need to change channels and return to this channel to see the update');
+          this.props.addNotification(`Added ${feed} to your channel`);
+          this.props.selectChannel(channel);
+          this.handleCancel();
         })
         .catch((err) => {
           console.log(err);
-          alert('Error following');
+          this.props.addNotification(`Error following ${feed}`, 'error');
         });
     } else {
-      alert('Error following');
+      this.props.addNotification('Error following', 'error');
     }
   }
 
@@ -300,6 +304,8 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
+    addNotification: addNotification,
+    selectChannel: selectChannel,
   }, dispatch);
 }
 

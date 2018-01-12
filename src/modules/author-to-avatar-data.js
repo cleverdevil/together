@@ -20,6 +20,8 @@ export default function (author) {
         let initials = avatar.alt.match(/\b\w/g) || [];
         initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
         avatar.initials = initials;
+      } else if (author.href) {
+        author.alt = author.href;
       }
     }
   }

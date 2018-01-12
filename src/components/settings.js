@@ -18,7 +18,7 @@ import Button from 'material-ui/Button';
 import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
-import { setUserOption, setSetting, logout } from '../actions';
+import { setUserOption, setSetting, logout, addNotification } from '../actions';
 import micropubApi from '../modules/micropub-api';
 
 
@@ -109,12 +109,12 @@ class Settings extends React.Component {
         if (syndicationProviders['syndicate-to']) {
           this.props.setSetting('syndicationProviders', syndicationProviders['syndicate-to']);
         } else {
-          alert('Error getting your syndication options')
+          this.props.addNotification('Error getting your syndication options', 'error');
         }
       })
       .catch((err) => {
         console.log(err);
-        alert('Error getting your syndication options')
+        this.props.addNotification('Error getting your syndication options', 'error');
       });
   }
 
@@ -259,6 +259,7 @@ function mapDispatchToProps(dispatch) {
     setUserOption: setUserOption,
     setSetting: setSetting,
     logout: logout,
+    addNotification: addNotification,
   }, dispatch);
 }
 

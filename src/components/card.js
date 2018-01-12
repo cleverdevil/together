@@ -19,20 +19,10 @@ import Popover from 'material-ui/Popover';
 import ReactMapGL, {Marker} from 'react-map-gl';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
+import { addNotification } from '../actions';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
-
-// Hack to fix leaflet marker
-import L from 'leaflet';
-delete L.Icon.Default.prototype._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-// End hacky times
 
 const styles = theme => ({
   card: {
@@ -69,6 +59,7 @@ class TogetherCard extends React.Component {
     this.renderCheckin = this.renderCheckin.bind(this);
     this.renderContent = this.renderContent.bind(this);
     this.renderMedia = this.renderMedia.bind(this);
+    this.renderUrl = this.renderUrl.bind(this);
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
@@ -78,15 +69,15 @@ class TogetherCard extends React.Component {
   handleLike(e) {
     const url = this.props.post.url;
     indieActions.like(url)
-      .then(() => alert('successful like'))
-      .catch(() => alert('error liking'));
+      .then(() => this.props.addNotification(`Successfully liked ${url}`))
+      .catch(() => this.props.addNotification(`Error liking ${url}`, 'error'));
   }
 
   handleRepost(e) {
     const url = this.props.post.url;
     indieActions.repost(url)
-      .then(() => alert('successful repost'))
-      .catch(() => alert('error repost'));
+      .then(() => this.props.addNotification(`Successfully reposted ${url}`))
+      .catch(() => this.props.addNotification(`Error reposting ${url}`, 'error'));
   }
 
   handleReply(e) {
@@ -102,9 +93,9 @@ class TogetherCard extends React.Component {
     indieActions.reply(micropub.properties['in-reply-to'][0], micropub.properties.content[0])
       .then(() => {
         this.setState({ popoverOpen: false });
-        alert('successful reply');
+        this.props.addNotification(`Successfully posted reply`)
       })
-      .catch((err) => console.log('Error posting reply'));
+      .catch((err) => this.props.addNotification(`Error posting reply`, 'error'));
   }
 
   handleView(e) {
@@ -113,13 +104,16 @@ class TogetherCard extends React.Component {
       const win = window.open(url, '_blank');
       win.focus();
     } catch (err) {
-      console.log(err);
+      this.props.addNotification(`Error opening url`, 'error');
     }
   }
 
   renderPhotos(photos) {
     if (!photos || this.props.embedMode === 'photo') {
       return null;
+    }
+    if (Array.isArray(photos) && photos.length === 1) {
+      photos = photos[0];
     }
     if (typeof photos === 'string') {
       return (
@@ -129,13 +123,14 @@ class TogetherCard extends React.Component {
         />
       );
     } else if (Array.isArray(photos)) {
+      let cols = photos.length > 3 ? 3 : photos.length;
       let cellHeight = 200;
       let cardWidth = (document.getElementById('root').clientWidth - 49 - 12 - 12);
       if (cardWidth < 600) {
         cellHeight = Math.floor(cardWidth / 3);
       }
       return (
-        <GridList cellHeight={cellHeight} cols={3} spacing={0}>
+        <GridList cellHeight={cellHeight} cols={cols} spacing={0}>
           {photos.map(photo => (
             <GridListTile key={photo} cols={1}>
               <img src={photo} alt="" />
@@ -145,6 +140,35 @@ class TogetherCard extends React.Component {
       );
     }
     return null;
+  }
+
+  renderUrl(urls, type) {
+    if (!urls) {
+      return null;
+    }
+    let introText = '';
+    switch (type) {
+      case 'reply':
+        introText = 'In reply to ';
+        break;
+      case 'like':
+        introText = 'Like of ';
+        break;
+      case 'repost':
+        introText = 'Repost of ';
+        break;
+      case 'bookmark':
+        introText = 'Bookmark of ';
+        break;
+    }
+    return urls.map((url) => (
+      <CardContent>
+        <Typography component="p">
+          {introText}
+          <a href={url} target="_blank">{url}</a>
+        </Typography>
+      </CardContent>
+    ));
   }
 
   renderMedia(media, type) {
@@ -202,11 +226,11 @@ class TogetherCard extends React.Component {
     let content = null;
     
     if (item.name) {
-      title = (<Typography type="headline" component="h2">{item.name}</Typography>);
+      title = (<Typography type="headline" component="h2" dangerouslySetInnerHTML={{__html: item.name}}></Typography>);
     }
 
     if (item.summary && !item.content) {
-      summary = (<Typography component="p">{item.summary}</Typography>);
+      summary = (<Typography component="p" dangerouslySetInnerHTML={{__html: item.summary}}></Typography>);
     }
 
     if (item.content) {
@@ -214,7 +238,7 @@ class TogetherCard extends React.Component {
       if (contentObject.html) {
         content = (<Typography component="div" className={this.props.classes.postContent} dangerouslySetInnerHTML={{__html: contentObject.html}}></Typography>);
       } else if (contentObject.value) {
-        content = (<Typography component="p">{contentObject.value}</Typography>);
+        content = (<Typography component="p" dangerouslySetInnerHTML={{__html: contentObject.value}}></Typography>);
       }
     }
     return (
@@ -261,6 +285,10 @@ class TogetherCard extends React.Component {
             </Avatar>
           }
         />
+        {this.renderUrl(item['in-reply-to'], 'reply')}
+        {this.renderUrl(item['like-of'], 'like')}
+        {this.renderUrl(item['repost-of'], 'repost')}
+        {this.renderUrl(item['bookmark-of'], 'bookmark')}
         {this.renderMedia(item.video, 'video')}
         {this.renderMedia(item.audio, 'audio')}
         {this.renderPhotos(item.featured)}
@@ -332,11 +360,10 @@ TogetherCard.propTypes = {
   embedMode: PropTypes.string,
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return bindActionCreators({
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({
+    addNotification: addNotification,
+  }, dispatch);
+}
 
-//   }, dispatch);
-// }
-
-// export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
-export default withStyles(styles)(TogetherCard);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
