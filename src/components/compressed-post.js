@@ -306,6 +306,7 @@ class TogetherCard extends React.Component {
           anchorEl={this.state.menuAnchor}
           open={this.state.menuOpen}
           onClose={this.handleMenuClose}
+          onBackdropClick={this.handleMenuClose}
           // PaperProps={{
           //   style: {
           //     maxHeight: ITEM_HEIGHT * 4.5,
