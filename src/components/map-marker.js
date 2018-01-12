@@ -80,6 +80,7 @@ class MapMarker extends React.Component {
         <Avatar
           className={this.props.classes.marker}
           {...avatarData}
+          style={{background: avatarData.color}}
           aria-label={avatarData.alt}
           onClick={this.handleClick}
         >

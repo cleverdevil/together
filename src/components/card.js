@@ -280,6 +280,7 @@ class TogetherCard extends React.Component {
             <Avatar
               {...avatarData}
               aria-label={avatarData.alt}
+              style={{ background: avatarData.color }}
             >
               {avatarData.src ? null : avatarData.initials}
             </Avatar>

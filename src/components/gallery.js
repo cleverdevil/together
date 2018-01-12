@@ -41,7 +41,7 @@ class Gallery extends React.Component {
                   subtitle={avatarData.alt}
                   actionIcon={
                     <Avatar
-                      style={{marginRight: 14}}
+                      style={{marginRight: 14, background: avatarData.color}}
                       {...avatarData}
                       aria-label={avatarData.alt}
                     >
