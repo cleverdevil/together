@@ -157,6 +157,9 @@ class TogetherCard extends React.Component {
       case 'repost':
         introText = 'Repost of ';
         break;
+      case 'bookmark':
+        introText = 'Bookmark of ';
+        break;
     }
     return urls.map((url) => (
       <CardContent>
@@ -285,6 +288,7 @@ class TogetherCard extends React.Component {
         {this.renderUrl(item['in-reply-to'], 'reply')}
         {this.renderUrl(item['like-of'], 'like')}
         {this.renderUrl(item['repost-of'], 'repost')}
+        {this.renderUrl(item['bookmark-of'], 'bookmark')}
         {this.renderMedia(item.video, 'video')}
         {this.renderMedia(item.audio, 'audio')}
         {this.renderPhotos(item.featured)}
