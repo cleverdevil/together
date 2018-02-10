@@ -11,16 +11,16 @@ const optionKeys = [
 
 // Load options from localStorage
 let options = {};
-optionKeys.forEach((key) => {
+optionKeys.forEach(key => {
   const value = localStorage.getItem(localStoragePrefix + key);
   if (value) {
     options[key] = value;
   }
 });
 
-const saveOptions = (data) => {
+const saveOptions = data => {
   if (data && typeof data === 'object') {
-    Object.keys(data).forEach((key) => {
+    Object.keys(data).forEach(key => {
       const value = data[key];
       if (optionKeys.indexOf(key) > -1) {
         options[key] = value;
@@ -30,27 +30,27 @@ const saveOptions = (data) => {
   }
 };
 
-export default function (method, params = {}) {
+export default function(method, params = {}) {
   return new Promise((resolve, reject) => {
     saveOptions(params);
     const data = Object.assign(options, params);
-    fetch('http://localhost:8080/microsub/' + method, {
+    fetch('/api/microsub/' + method, {
       method: 'post',
       // mode: 'no-cors',
       headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
-      .then((res) => {
+      .then(res => {
         if (!res.ok) {
           reject();
         } else {
           return res.json();
         }
       })
-      .then((data) => {
+      .then(data => {
         if (data && data.result) {
           if (data.options) {
             saveOptions(data.options);
