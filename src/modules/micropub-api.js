@@ -36,7 +36,7 @@ export default function(method, params = {}) {
   return new Promise((resolve, reject) => {
     saveOptions(params);
     const data = Object.assign(options, params);
-    fetch('/api/micropub/' + method, {
+    fetch(process.env.REACT_APP_API_SERVER + '/api/micropub/' + method, {
       method: 'post',
       // mode: 'no-cors',
       headers: {
@@ -88,7 +88,7 @@ export function getRels(url = options.me) {
       return reject('missing url');
     }
     console.log('requesting rels');
-    fetch('/api/rels', {
+    fetch(process.env.REACT_APP_API_SERVER + '/api/rels', {
       method: 'post',
       headers: {
         Accept: 'application/json',

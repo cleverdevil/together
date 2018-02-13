@@ -34,7 +34,7 @@ export default function(method, params = {}) {
   return new Promise((resolve, reject) => {
     saveOptions(params);
     const data = Object.assign(options, params);
-    fetch('/api/microsub/' + method, {
+    fetch(process.env.REACT_APP_API_SERVER + '/api/microsub/' + method, {
       method: 'post',
       // mode: 'no-cors',
       headers: {

@@ -4,6 +4,7 @@
   "private": true,
   "devDependencies": {
     "npm-run-all": "^4.1.2",
+    "react-app-env": "^1.2.0",
     "react-scripts": "1.0.17"
   },
   "dependencies": {
@@ -30,10 +31,10 @@
   },
   "scripts": {
     "start": "npm-run-all --parallel backend frontend",
-    "frontend": "react-scripts start",
+    "frontend": "react-app-env start",
     "backend": "node ./server",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "build": "react-app-env build",
+    "test": "react-app-env test --env=jsdom",
+    "eject": "react-app-env eject"
   }
 }
