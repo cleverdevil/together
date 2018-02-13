@@ -12,13 +12,11 @@ import Dialog, {
   DialogTitle,
 } from 'material-ui/Dialog';
 import { LinearProgress } from 'material-ui/Progress';
-import micropubApi, {getOption, getRels} from '../modules/micropub-api';
+import micropubApi, { getOption, getRels } from '../modules/micropub-api';
 import { setOption as setMicrosubOption } from '../modules/microsub-api';
 import { setUserOption, addNotification } from '../actions';
 
-
-const styles = theme => ({
-});
+const styles = theme => ({});
 
 class Login extends React.Component {
   constructor(props) {
@@ -31,13 +29,25 @@ class Login extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.user && newProps.user.token && newProps.user.me && newProps.user.micropubEndpoint && newProps.user.microsubEndpoint) {
+    if (
+      newProps.user &&
+      newProps.user.token &&
+      newProps.user.me &&
+      newProps.user.micropubEndpoint &&
+      newProps.user.microsubEndpoint
+    ) {
       this.setState({ open: false });
     }
   }
 
   componentDidMount() {
-    if (this.props.user && this.props.user.token && this.props.user.me && this.props.user.micropubEndpoint && this.props.user.microsubEndpoint) {
+    if (
+      this.props.user &&
+      this.props.user.token &&
+      this.props.user.me &&
+      this.props.user.micropubEndpoint &&
+      this.props.user.microsubEndpoint
+    ) {
       this.setState({ open: false });
     } else {
       const params = new URLSearchParams(window.location.search);
@@ -52,22 +62,25 @@ class Login extends React.Component {
           state: state,
           redirectUri: window.location.origin,
         })
-          .then((res) => {
+          .then(res => {
             this.props.setUserOption('token', res);
             this.props.setUserOption('me', me);
             // this.setState({ open: false });
           })
           .catch(err => console.log(err));
         getRels(me)
-          .then((rels) => {
+          .then(rels => {
             if (!rels.microsub) {
-              this.props.addNotification('Couldn\'t find your microsub endpoint. This app is not going to work.', 'error');
+              this.props.addNotification(
+                "Couldn't find your microsub endpoint. This app is not going to work.",
+                'error',
+              );
             } else {
               setMicrosubOption('microsubEndpoint', rels.microsub[0]);
               this.props.setUserOption('microsubEndpoint', rels.microsub[0]);
             }
           })
-          .catch((err) => {
+          .catch(err => {
             console.log(err);
             this.props.addNotification('Error getting your rel links', 'error');
           });
@@ -84,7 +97,7 @@ class Login extends React.Component {
       state: 'together' + Date.now(),
       redirectUri: window.location.origin,
     })
-      .then((res) => {
+      .then(res => {
         window.location.href = res;
       })
       .catch(err => console.log(err));
@@ -93,12 +106,13 @@ class Login extends React.Component {
 
   render() {
     return (
-      <Dialog open={this.state.open} onRequestClose={() => { }}>
+      <Dialog open={this.state.open} onRequestClose={() => {}}>
         {this.state.loading ? <LinearProgress /> : null}
         <DialogTitle>Login</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Hey! Welcome to Together. Get started by logging in with your website.
+            Hey! Welcome to Together. Get started by logging in with your
+            website.
           </DialogContentText>
           <form onSubmit={this.handleLogin}>
             <TextField
@@ -107,11 +121,16 @@ class Login extends React.Component {
               label="Your Website URL"
               type="url"
               name="me"
-              style={{margin: '1em 0'}}
-              onChange={(e) => this.setState({ me: e.target.value })}
+              style={{ margin: '1em 0' }}
+              onChange={e => this.setState({ me: e.target.value })}
               fullWidth
             />
-            <Button type="submit" color="primary" raised style={{ width: '100%', paddingTop: 15, paddingBottom: 15 }}>
+            <Button
+              type="submit"
+              color="primary"
+              raised
+              style={{ width: '100%', paddingTop: 15, paddingBottom: 15 }}
+            >
               Login
             </Button>
           </form>
@@ -121,11 +140,9 @@ class Login extends React.Component {
   }
 }
 
-Login.defaultProps = {
-};
+Login.defaultProps = {};
 
-Login.propTypes = {
-};
+Login.propTypes = {};
 
 function mapStateToProps(state, props) {
   return {
@@ -134,10 +151,15 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    setUserOption: setUserOption,
-    addNotification: addNotification,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      setUserOption: setUserOption,
+      addNotification: addNotification,
+    },
+    dispatch,
+  );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Login));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(Login),
+);

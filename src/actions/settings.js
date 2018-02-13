@@ -4,4 +4,4 @@ export const setSetting = (key, value) => {
     key: key,
     value: value,
   };
-}
+};

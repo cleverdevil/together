@@ -14,7 +14,8 @@ import Notification from './components/notification';
 
 const theme = createMuiTheme({
   typography: {
-    fontFamily: '"Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif',
+    fontFamily:
+      '"Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif',
     fontWeightLight: 400,
     fontWeightRegular: 400,
     fontWeightMedium: 900,
@@ -88,7 +89,11 @@ class App extends Component {
             <Grid item className={this.props.classes.main}>
               <Route exact path="/" component={Timeline} />
               <Route exact path="/channel/:channelUid" component={Timeline} />
-              <Route exact path="/channel/:channelUid/edit" component={ChannelSettings} />
+              <Route
+                exact
+                path="/channel/:channelUid/edit"
+                component={ChannelSettings}
+              />
               <Route exact path="/settings" component={Settings} />
             </Grid>
             <Login />

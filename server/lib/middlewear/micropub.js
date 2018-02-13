@@ -8,13 +8,13 @@ module.exports = (req, res, next) => {
     res.json({ error: 'Route not found' });
   } else {
     micropub[req.params.method](req.body.param)
-      .then((result) => {
+      .then(result => {
         res.json({
           result: result,
           options: micropub.options,
         });
       })
-      .catch((err) => {
+      .catch(err => {
         let status = 500;
         if (err.status) {
           status = err.status;
@@ -23,4 +23,4 @@ module.exports = (req, res, next) => {
         res.json(err);
       });
   }
-}
+};

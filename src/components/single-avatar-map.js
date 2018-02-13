@@ -33,7 +33,7 @@ class SingleAvatarMap extends React.Component {
         className={this.props.classes.map}
         mapStyle="mapbox://styles/mapbox/basic-v9"
         mapboxApiAccessToken="pk.eyJ1IjoiZ3JhbnRjb2RlcyIsImEiOiJjamJ3ZTk3czYyOHAxMzNyNmo4cG4zaGFqIn0.9tRVGo4SgVgns3khwoO0gA"
-        onViewportChange={(viewport) => {
+        onViewportChange={viewport => {
           const { width, height, latitude, longitude, zoom } = viewport;
           this.setState({
             lat: latitude,
@@ -41,13 +41,9 @@ class SingleAvatarMap extends React.Component {
           });
         }}
       >
-        <Marker
-          latitude={this.props.lat}
-          longitude={this.props.lng}
-        >
-          <MapMarker author={this.props.author} />  
+        <Marker latitude={this.props.lat} longitude={this.props.lng}>
+          <MapMarker author={this.props.author} />
         </Marker>
-        
       </ReactMapGL>
     );
   }

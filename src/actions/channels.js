@@ -1,9 +1,9 @@
-export const selectChannel = (uid) => {
+export const selectChannel = uid => {
   return {
     type: 'SET_SELECTED_CHANNEL',
     uid: uid,
   };
-}
+};
 
 export const addChannel = (name, uid) => {
   return {
@@ -11,11 +11,11 @@ export const addChannel = (name, uid) => {
     name: name,
     uid: uid,
   };
-}
+};
 
-export const removeChannel = (uid) => {
+export const removeChannel = uid => {
   return {
     type: 'REMOVE_CHANNEL',
     uid: uid,
   };
-}
+};

@@ -17,13 +17,13 @@ function stringToColor(string) {
   }
   let color = '#';
   for (var i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xFF;
+    const value = (hash >> (i * 8)) & 0xff;
     color += ('00' + value.toString(16)).substr(-2);
   }
   return color;
 }
 
-export default function (author) {
+export default function(author) {
   let avatar = {
     alt: 'Unknown',
     initials: '?',
@@ -43,7 +43,9 @@ export default function (author) {
       avatar.href = author.url;
       if (avatar.alt) {
         let initials = avatar.alt.match(/\b\w/g) || [];
-        initials = ((initials.shift() || '') + (initials.pop() || '')).toUpperCase();
+        initials = (
+          (initials.shift() || '') + (initials.pop() || '')
+        ).toUpperCase();
         avatar.initials = initials;
       } else if (avatar.href) {
         avatar.alt = getDomain(avatar.href);

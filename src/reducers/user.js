@@ -22,7 +22,7 @@ export default (state = defaultState, payload) => {
         setOption(key, false);
         return '';
       });
-    }  
+    }
     default: {
       return state;
     }

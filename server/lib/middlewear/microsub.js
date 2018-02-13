@@ -1,6 +1,6 @@
 const Microsub = require('../microsub');
 
-module.exports = function (req, res, next) {
+module.exports = function(req, res, next) {
   req.body.clientId = 'http://together.tpxl.io';
   const microsub = new Microsub(req.body);
   const params = req.body.params || [];
@@ -9,13 +9,13 @@ module.exports = function (req, res, next) {
     res.json({ error: 'Route not found' });
   } else {
     microsub[req.params.method](...params)
-      .then((result) => {
+      .then(result => {
         res.json({
           result: result,
           options: microsub.options,
         });
       })
-      .catch((err) => {
+      .catch(err => {
         let status = 500;
         if (err.status) {
           status = err.status;
@@ -31,10 +31,10 @@ module.exports = function (req, res, next) {
             message: 'Unknown error',
             status: status,
             err: err,
-          }
+          };
         }
         res.status(status);
         res.json(err);
       });
   }
-}
+};

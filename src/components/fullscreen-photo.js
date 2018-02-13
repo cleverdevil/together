@@ -82,17 +82,27 @@ class FullscreenPhoto extends React.Component {
         transition={<Slide direction="up" />}
       >
         <div className={this.props.classes.popup}>
-          <IconButton className={this.props.classes.popupClose} onClick={() => this.setState({ open: false })}>
+          <IconButton
+            className={this.props.classes.popupClose}
+            onClick={() => this.setState({ open: false })}
+          >
             <CloseIcon />
           </IconButton>
-          <IconButton className={this.props.classes.infoButton} onClick={() => this.setState({ showInfo: true })}>
+          <IconButton
+            className={this.props.classes.infoButton}
+            onClick={() => this.setState({ showInfo: true })}
+          >
             <InfoIcon />
           </IconButton>
-          <img className={this.props.classes.popupImage} src={this.props.photo} alt="" />
+          <img
+            className={this.props.classes.popupImage}
+            src={this.props.photo}
+            alt=""
+          />
         </div>
         <Drawer
           open={this.state.showInfo}
-          onRequestClose={() => this.setState( {showInfo: false })}
+          onRequestClose={() => this.setState({ showInfo: false })}
           classes={{
             paperAnchorLeft: this.props.classes.drawer,
           }}
@@ -104,16 +114,14 @@ class FullscreenPhoto extends React.Component {
   }
 }
 
-FullscreenPhoto.defaultProps = {
-};
+FullscreenPhoto.defaultProps = {};
 
-FullscreenPhoto.propTypes = {
-};
+FullscreenPhoto.propTypes = {};
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-
-  }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(FullscreenPhoto));
+export default connect(null, mapDispatchToProps)(
+  withStyles(styles)(FullscreenPhoto),
+);

@@ -4,7 +4,12 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { withStyles } from 'material-ui/styles';
-import Card, { CardHeader, CardActions, CardContent, CardMedia } from 'material-ui/Card';
+import Card, {
+  CardHeader,
+  CardActions,
+  CardContent,
+  CardMedia,
+} from 'material-ui/Card';
 import { GridList, GridListTile } from 'material-ui/GridList';
 import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
@@ -16,7 +21,7 @@ import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import VisitIcon from 'material-ui-icons/Link';
 import Popover from 'material-ui/Popover';
-import ReactMapGL, {Marker} from 'react-map-gl';
+import ReactMapGL, { Marker } from 'react-map-gl';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
 import { addNotification } from '../actions';
@@ -43,8 +48,8 @@ const styles = theme => ({
     '& img': {
       maxWidth: '100%',
       height: 'auto',
-    }
-  }
+    },
+  },
 });
 
 class TogetherCard extends React.Component {
@@ -68,16 +73,20 @@ class TogetherCard extends React.Component {
 
   handleLike(e) {
     const url = this.props.post.url;
-    indieActions.like(url)
+    indieActions
+      .like(url)
       .then(() => this.props.addNotification(`Successfully liked ${url}`))
       .catch(() => this.props.addNotification(`Error liking ${url}`, 'error'));
   }
 
   handleRepost(e) {
     const url = this.props.post.url;
-    indieActions.repost(url)
+    indieActions
+      .repost(url)
       .then(() => this.props.addNotification(`Successfully reposted ${url}`))
-      .catch(() => this.props.addNotification(`Error reposting ${url}`, 'error'));
+      .catch(() =>
+        this.props.addNotification(`Error reposting ${url}`, 'error'),
+      );
   }
 
   handleReply(e) {
@@ -90,12 +99,16 @@ class TogetherCard extends React.Component {
   }
 
   handleReplySend(micropub) {
-    indieActions.reply(micropub.properties['in-reply-to'][0], micropub.properties.content[0])
+    indieActions
+      .reply(
+        micropub.properties['in-reply-to'][0],
+        micropub.properties.content[0],
+      )
       .then(() => {
         this.setState({ popoverOpen: false });
-        this.props.addNotification(`Successfully posted reply`)
+        this.props.addNotification(`Successfully posted reply`);
       })
-      .catch((err) => this.props.addNotification(`Error posting reply`, 'error'));
+      .catch(err => this.props.addNotification(`Error posting reply`, 'error'));
   }
 
   handleView(e) {
@@ -116,16 +129,12 @@ class TogetherCard extends React.Component {
       photos = photos[0];
     }
     if (typeof photos === 'string') {
-      return (
-        <img
-          className={this.props.classes.fullImage}  
-          src={photos}
-        />
-      );
+      return <img className={this.props.classes.fullImage} src={photos} />;
     } else if (Array.isArray(photos)) {
       let cols = photos.length > 3 ? 3 : photos.length;
       let cellHeight = 200;
-      let cardWidth = (document.getElementById('root').clientWidth - 49 - 12 - 12);
+      let cardWidth =
+        document.getElementById('root').clientWidth - 49 - 12 - 12;
       if (cardWidth < 600) {
         cellHeight = Math.floor(cardWidth / 3);
       }
@@ -161,11 +170,13 @@ class TogetherCard extends React.Component {
         introText = 'Bookmark of ';
         break;
     }
-    return urls.map((url) => (
+    return urls.map(url => (
       <CardContent>
         <Typography component="p">
           {introText}
-          <a href={url} target="_blank">{url}</a>
+          <a href={url} target="_blank">
+            {url}
+          </a>
         </Typography>
       </CardContent>
     ));
@@ -173,12 +184,7 @@ class TogetherCard extends React.Component {
 
   renderMedia(media, type) {
     if (typeof media === 'string') {
-      return (
-        <CardMedia
-          component={type}
-          src={media}
-        />
-      );
+      return <CardMedia component={type} src={media} />;
     }
     return null;
   }
@@ -199,9 +205,7 @@ class TogetherCard extends React.Component {
     }
 
     if (lat !== false && lng !== false) {
-      return (
-        <SingleAvatarMap lat={lat} lng={lng} author={author} />
-      );
+      return <SingleAvatarMap lat={lat} lng={lng} author={author} />;
     }
 
     return null;
@@ -213,7 +217,7 @@ class TogetherCard extends React.Component {
     }
 
     if (location.name !== undefined) {
-      return (<CardContent>{location.name}</CardContent>);
+      return <CardContent>{location.name}</CardContent>;
     }
 
     return null;
@@ -224,21 +228,43 @@ class TogetherCard extends React.Component {
     let title = null;
     let summary = null;
     let content = null;
-    
+
     if (item.name) {
-      title = (<Typography type="headline" component="h2" dangerouslySetInnerHTML={{__html: item.name}}></Typography>);
+      title = (
+        <Typography
+          type="headline"
+          component="h2"
+          dangerouslySetInnerHTML={{ __html: item.name }}
+        />
+      );
     }
 
     if (item.summary && !item.content) {
-      summary = (<Typography component="p" dangerouslySetInnerHTML={{__html: item.summary}}></Typography>);
+      summary = (
+        <Typography
+          component="p"
+          dangerouslySetInnerHTML={{ __html: item.summary }}
+        />
+      );
     }
 
     if (item.content) {
-      const contentObject = item.content; 
+      const contentObject = item.content;
       if (contentObject.html) {
-        content = (<Typography component="div" className={this.props.classes.postContent} dangerouslySetInnerHTML={{__html: contentObject.html}}></Typography>);
+        content = (
+          <Typography
+            component="div"
+            className={this.props.classes.postContent}
+            dangerouslySetInnerHTML={{ __html: contentObject.html }}
+          />
+        );
       } else if (contentObject.value) {
-        content = (<Typography component="p" dangerouslySetInnerHTML={{__html: contentObject.value}}></Typography>);
+        content = (
+          <Typography
+            component="p"
+            dangerouslySetInnerHTML={{ __html: contentObject.value }}
+          />
+        );
       }
     }
     return (
@@ -335,15 +361,17 @@ class TogetherCard extends React.Component {
             horizontal: 'left',
           }}
           onClose={() => this.setState({ popoverOpen: false })}
-          onBackdropClick={() => this.setState({popoverOpen: false})}
+          onBackdropClick={() => this.setState({ popoverOpen: false })}
         >
-          <div style={{
-            padding: 10,
-          }}>
-          <MicropubForm
-            onSubmit={this.handleReplySend}
-            in-reply-to={this.state.inReplyToUrl}
-          />
+          <div
+            style={{
+              padding: 10,
+            }}
+          >
+            <MicropubForm
+              onSubmit={this.handleReplySend}
+              in-reply-to={this.state.inReplyToUrl}
+            />
           </div>
         </Popover>
       </Card>
@@ -362,9 +390,14 @@ TogetherCard.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    addNotification: addNotification,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      addNotification: addNotification,
+    },
+    dispatch,
+  );
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
+export default connect(null, mapDispatchToProps)(
+  withStyles(styles)(TogetherCard),
+);
