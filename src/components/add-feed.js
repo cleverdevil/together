@@ -29,7 +29,6 @@ const styles = theme => ({
     alignItems: 'flex-end',
     right: 0,
     bottom: 0,
-    width: 300,
     padding: 10,
     maxWidth: 'calc(100vw - 90px)',
     maxHeight: '100vh',
@@ -40,10 +39,12 @@ const styles = theme => ({
   },
   search: {
     marginBottom: 10,
-    width: '100%',
+    width: 320,
+    maxWidth: '100%',
   },
   results: {
-    width: '100%',
+    width: 320,
+    maxWidth: '100%',
     marginTop: 10,
     marginBottom: 10,
     maxHeight: 'calc(100vh - 240px)',
