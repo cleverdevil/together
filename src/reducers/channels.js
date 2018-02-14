@@ -18,6 +18,7 @@ export default (state = defaultState, payload) => {
         new Map({
           name: payload.name,
           uid: payload.uid,
+          unread: payload.unread,
         }),
       );
     }
@@ -27,6 +28,42 @@ export default (state = defaultState, payload) => {
       );
       if (channelIndex > -1) {
         state = state.splice(channelIndex, 1);
+      }
+      return state;
+    }
+    case 'SET_CHANNEL_UNREAD': {
+      const channelIndex = state.findIndex(
+        channel => channel.get('uid') === payload.uid,
+      );
+      if (channelIndex > -1) {
+        const newChannel = state
+          .get(channelIndex)
+          .set('unread', payload.unread);
+        state = state.set(channelIndex, newChannel);
+      }
+      return state;
+    }
+    case 'DECREMENT_CHANNEL_UNREAD': {
+      const channelIndex = state.findIndex(
+        channel => channel.get('uid') === payload.uid,
+      );
+      if (channelIndex > -1) {
+        const newChannel = state.get(channelIndex).update('unread', unread => {
+          return unread - 1;
+        });
+        state = state.set(channelIndex, newChannel);
+      }
+      return state;
+    }
+    case 'INCREMENT_CHANNEL_UNREAD': {
+      const channelIndex = state.findIndex(
+        channel => channel.get('uid') === payload.uid,
+      );
+      if (channelIndex > -1) {
+        const newChannel = state
+          .get(channelIndex)
+          .update('unread', unread => unread + 1);
+        state = state.set(channelIndex, newChannel);
       }
       return state;
     }

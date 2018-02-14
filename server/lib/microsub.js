@@ -50,6 +50,8 @@ class Microsub {
     this.preview = this.preview.bind(this);
     this.getFollowing = this.getFollowing.bind(this);
     this.getTimeline = this.getTimeline.bind(this);
+    this.markRead = this.markRead.bind(this);
+    this.markUnread = this.markUnread.bind(this);
   }
 
   getChannels() {
@@ -267,6 +269,66 @@ class Microsub {
         })
         .catch(err => {
           reject(microsubError('Error getting timeline', null, err));
+        });
+    });
+  }
+
+  markRead(channel, entry = null, last_read_entry = null) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(this.options.microsubEndpoint);
+      url.searchParams.append('action', 'timeline');
+      url.searchParams.append('channel', channel);
+      url.searchParams.append('method', 'mark_read');
+      if (last_read_entry) {
+        url.searchParams.append('last_read_entry', last_read_entry);
+      } else if (entry) {
+        entry = entry.split(',');
+        if (entry.length === 1) {
+          entry = entry[0];
+        }
+        url.searchParams.append('entry', entry);
+      }
+      fetch(url.toString(), {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: 'Bearer ' + this.options.token,
+        }),
+      })
+        .then(res => res.json())
+        .then(results => {
+          resolve(results);
+        })
+        .catch(err => {
+          console.log(err);
+          reject(microsubError('Error marking read', null, err));
+        });
+    });
+  }
+
+  markUnread(channel, entry) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(this.options.microsubEndpoint);
+      url.searchParams.append('action', 'timeline');
+      url.searchParams.append('channel', channel);
+      url.searchParams.append('method', 'mark_unread');
+      entry = entry.split(',');
+      if (entry.length === 1) {
+        entry = entry[0];
+      }
+      url.searchParams.append('entry', entry);
+      fetch(url.toString(), {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: 'Bearer ' + this.options.token,
+        }),
+      })
+        .then(res => res.json())
+        .then(results => {
+          resolve(results);
+        })
+        .catch(err => {
+          console.log(err);
+          reject(microsubError('Error marking unread', null, err));
         });
     });
   }

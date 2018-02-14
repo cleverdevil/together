@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import EditIcon from 'material-ui-icons/Edit';
+import ReadIcon from 'material-ui-icons/DoneAll';
 import Typography from 'material-ui/Typography';
 import { LinearProgress } from 'material-ui/Progress';
 import AddFeed from './add-feed';
@@ -21,6 +22,8 @@ import {
   setTimelineAfter,
   setTimelineBefore,
   selectChannel,
+  setChannelUnread,
+  addNotification,
 } from '../actions';
 
 const styles = theme => ({
@@ -61,6 +64,7 @@ class Timeline extends React.Component {
     };
 
     this.handleLoadMore = this.handleLoadMore.bind(this);
+    this.handleMarkRead = this.handleMarkRead.bind(this);
     this.renderTimelinePosts = this.renderTimelinePosts.bind(this);
     this.renderTitle = this.renderTitle.bind(this);
   }
@@ -147,6 +151,22 @@ class Timeline extends React.Component {
       });
   }
 
+  handleMarkRead() {
+    if (this.props.items && this.props.items[0] && this.props.items[0]._id) {
+      microsub('markRead', {
+        params: [this.props.selectedChannel, '', this.props.items[0]._id],
+      })
+        .then(res => {
+          this.props.addNotification(`Marked ${res.updated} items as read`);
+          this.props.setChannelUnread(this.props.selectedChannel, 0);
+        })
+        .catch(err => {
+          console.log(err);
+          this.props.addNotification('Error marking items as read', 'error');
+        });
+    }
+  }
+
   renderTimelinePosts() {
     let posts = this.props.items;
     if (this.props.postKind && this.props.postKind.filter) {
@@ -211,6 +231,13 @@ class Timeline extends React.Component {
             <EditIcon />
           </IconButton>
         </Link>
+        <IconButton
+          aria-label="Mark all as Read"
+          className={this.props.classes.editButton}
+          onClick={this.handleMarkRead}
+        >
+          <ReadIcon />
+        </IconButton>
       </Typography>
     );
   }
@@ -257,6 +284,8 @@ function mapDispatchToProps(dispatch) {
       setTimelineAfter: setTimelineAfter,
       setTimelineBefore: setTimelineBefore,
       selectChannel: selectChannel,
+      setChannelUnread: setChannelUnread,
+      addNotification: addNotification,
     },
     dispatch,
   );

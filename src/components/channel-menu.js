@@ -4,7 +4,11 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { Link } from 'react-router-dom';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import List, {
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+} from 'material-ui/List';
 import AddIcon from 'material-ui-icons/Add';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
@@ -39,6 +43,14 @@ const styles = theme => ({
   addForm: {
     background: theme.palette.shades.light.background.appBar,
   },
+  unread: {
+    background: theme.palette.primary['500'],
+    color: theme.palette.background.default,
+    fontWeight: 'bold',
+    fontSize: '0.5em',
+    padding: '.2em .5em',
+    borderRadius: '1em',
+  },
 });
 
 class ChannelMenu extends React.Component {
@@ -58,7 +70,7 @@ class ChannelMenu extends React.Component {
       microsub('getChannels')
         .then(channels => {
           channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid);
+            this.props.addChannel(channel.name, channel.uid, channel.unread);
           });
         })
         .catch(err => {
@@ -76,7 +88,7 @@ class ChannelMenu extends React.Component {
       microsub('getChannels')
         .then(channels => {
           channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid);
+            this.props.addChannel(channel.name, channel.uid, channel.uread);
           });
         })
         .catch(err => {
@@ -149,6 +161,14 @@ class ChannelMenu extends React.Component {
             if (channel.uid === this.props.selectedChannel) {
               textClassName = this.props.classes.highlightedButton;
             }
+            let unreadCount = null;
+            if (channel.unread) {
+              unreadCount = (
+                <span className={this.props.classes.unread}>
+                  {channel.unread}
+                </span>
+              );
+            }
             return (
               <Link
                 to={`/channel/${channel.uid}`}
@@ -161,6 +181,9 @@ class ChannelMenu extends React.Component {
                     classes={{ text: textClassName }}
                     primary={channel.name}
                   />
+                  <ListItemSecondaryAction>
+                    {unreadCount}
+                  </ListItemSecondaryAction>
                 </ListItem>
               </Link>
             );

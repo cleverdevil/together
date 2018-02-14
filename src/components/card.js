@@ -20,14 +20,21 @@ import LikeIcon from 'material-ui-icons/ThumbUp';
 import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import VisitIcon from 'material-ui-icons/Link';
+import ReadIcon from 'material-ui-icons/PanoramaFishEye';
+import UnreadIcon from 'material-ui-icons/Lens';
 import Popover from 'material-ui/Popover';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
-import { addNotification } from '../actions';
+import {
+  addNotification,
+  incrementChannelUnread,
+  decrementChannelUnread,
+} from '../actions';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
+import microsub from '../modules/microsub-api';
 
 const styles = theme => ({
   card: {
@@ -58,6 +65,7 @@ class TogetherCard extends React.Component {
     this.state = {
       popoverOpen: false,
       popoverAnchor: null,
+      read: props.post._is_read,
     };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
@@ -69,6 +77,7 @@ class TogetherCard extends React.Component {
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
     this.handleView = this.handleView.bind(this);
+    this.handleToggleRead = this.handleToggleRead.bind(this);
   }
 
   handleLike(e) {
@@ -118,6 +127,36 @@ class TogetherCard extends React.Component {
       win.focus();
     } catch (err) {
       this.props.addNotification(`Error opening url`, 'error');
+    }
+  }
+
+  handleToggleRead(e) {
+    if (this.state.read === false) {
+      microsub('markRead', {
+        params: [this.props.selectedChannel, this.props.post._id],
+      })
+        .then(res => {
+          this.props.addNotification('Marked as read');
+          this.props.decrementChannelUnread(this.props.selectedChannel);
+          this.setState({ read: true });
+        })
+        .catch(err => {
+          console.log(err);
+          this.props.addNotification('Error marking as read', 'error');
+        });
+    } else if (this.state.read === true) {
+      microsub('markUnread', {
+        params: [this.props.selectedChannel, this.props.post._id],
+      })
+        .then(res => {
+          this.props.addNotification('Marked as unread');
+          this.props.incrementChannelUnread(this.props.selectedChannel);
+          this.setState({ read: false });
+        })
+        .catch(err => {
+          console.log(err);
+          this.props.addNotification('Error marking as unread', 'error');
+        });
     }
   }
 
@@ -342,6 +381,14 @@ class TogetherCard extends React.Component {
               <ReplyIcon />
             </IconButton>
           </Tooltip>
+          <Tooltip
+            title={'Mark as ' + (this.state.read ? 'Unread' : 'Read')}
+            placement="top"
+          >
+            <IconButton onClick={this.handleToggleRead}>
+              {this.state.read ? <ReadIcon /> : <UnreadIcon />}
+            </IconButton>
+          </Tooltip>
           <Tooltip title="View Original" placement="top">
             <IconButton onClick={this.handleView}>
               <VisitIcon />
@@ -389,15 +436,23 @@ TogetherCard.propTypes = {
   embedMode: PropTypes.string,
 };
 
+function mapStateToProps(state, props) {
+  return {
+    selectedChannel: state.app.get('selectedChannel'),
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       addNotification: addNotification,
+      decrementChannelUnread: decrementChannelUnread,
+      incrementChannelUnread: incrementChannelUnread,
     },
     dispatch,
   );
 }
 
-export default connect(null, mapDispatchToProps)(
+export default connect(mapStateToProps, mapDispatchToProps)(
   withStyles(styles)(TogetherCard),
 );
