@@ -3,12 +3,9 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
-import { Link } from 'react-router-dom';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
-import SettingsIcon from 'material-ui-icons/Settings';
-import ChannelsIcon from 'material-ui-icons/Menu';
-import { selectPostKind, toggleChannelsMenu } from '../actions';
+import { selectPostKind } from '../actions';
 
 const styles = theme => ({
   menu: {
@@ -27,12 +24,6 @@ const styles = theme => ({
     color: theme.palette.primary.contrastText,
     '&:hover': {
       color: theme.palette.primary.contrastText,
-    },
-  },
-  channelMenuToggle: {
-    display: 'none',
-    [theme.breakpoints.down('md')]: {
-      display: 'block',
     },
   },
 });
@@ -73,26 +64,6 @@ class PostKindMenu extends React.Component {
             </Tooltip>
           );
         })}
-        <div style={{ flexGrow: 1 }} />
-        <Tooltip
-          title="Channels"
-          placement="right"
-          className={this.props.classes.channelMenuToggle}
-        >
-          <IconButton
-            className={this.props.classes.icon}
-            onClick={this.props.toggleChannelsMenu}
-          >
-            <ChannelsIcon />
-          </IconButton>
-        </Tooltip>
-        <Link to="/settings">
-          <Tooltip title="Settings" placement="right">
-            <IconButton className={this.props.classes.icon}>
-              <SettingsIcon />
-            </IconButton>
-          </Tooltip>
-        </Link>
       </div>
     );
   }
@@ -114,7 +85,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       selectPostKind: selectPostKind,
-      toggleChannelsMenu: toggleChannelsMenu,
     },
     dispatch,
   );
