@@ -18,7 +18,7 @@ const styles = theme => ({
     width: '100%',
     height: '100%',
     overflow: 'hidden',
-    background: theme.palette.shades.dark.background.appBar,
+    background: theme.palette.primary.dark,
   },
   popupImage: {
     display: 'block',
@@ -52,6 +52,10 @@ const styles = theme => ({
   },
 });
 
+function Transition(props) {
+  return <Slide direction="up" {...props} />;
+}
+
 class FullscreenPhoto extends React.Component {
   constructor(props) {
     super(props);
@@ -79,7 +83,7 @@ class FullscreenPhoto extends React.Component {
         fullScreen
         open={this.state.open}
         onClose={this.handleClose}
-        transition={<Slide direction="up" />}
+        transition={Transition}
       >
         <div className={this.props.classes.popup}>
           <IconButton

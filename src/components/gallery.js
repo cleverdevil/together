@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { withStyles } from 'material-ui/styles';
-import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
+import GridList, { GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
