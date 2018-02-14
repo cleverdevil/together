@@ -51,7 +51,7 @@ class Login extends React.Component {
       this.setState({ open: false });
     } else {
       const params = new URLSearchParams(window.location.search);
-      const me = params.get('me');
+      const me = getOption('me');
       const code = params.get('code');
       const state = params.get('state');
       if (me && code && state && state == getOption('state')) {
@@ -92,6 +92,7 @@ class Login extends React.Component {
   handleLogin(e) {
     e.preventDefault();
     this.setState({ loading: true });
+    setMicrosubOption('me', this.state.me);
     micropubApi('getAuthUrl', {
       me: this.state.me,
       state: 'together' + Date.now(),
