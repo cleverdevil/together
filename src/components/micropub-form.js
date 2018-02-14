@@ -98,7 +98,7 @@ class MicropubForm extends React.Component {
           />
         )}
         <Button
-          raised
+          variant="raised"
           color="primary"
           type="submit"
           className={this.props.classes.submitButton}

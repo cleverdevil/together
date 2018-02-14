@@ -26,25 +26,25 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    background: theme.palette.shades.dark.background.appBar,
+    background: theme.palette.primary.dark,
   },
   button: {
     textAlign: 'left',
-    color: theme.palette.shades.dark.text.icon,
+    color: theme.palette.primary.main,
   },
   highlightedButton: {
     textAlign: 'left',
-    color: theme.palette.secondary['500'],
+    color: theme.palette.primary.contrastText,
   },
   addButton: {
     textAlign: 'center',
-    color: theme.palette.primary['500'],
+    color: theme.palette.primary.main,
   },
   addForm: {
-    background: theme.palette.shades.light.background.appBar,
+    background: theme.palette.background.default,
   },
   unread: {
-    background: theme.palette.primary['500'],
+    background: theme.palette.primary.main,
     color: theme.palette.background.default,
     fontWeight: 'bold',
     fontSize: '0.5em',
@@ -126,7 +126,7 @@ class ChannelMenu extends React.Component {
         <ListItem onClick={() => this.setState({ newChannel: true })} button>
           <ListItemText
             title="Add New Channel"
-            classes={{ text: this.props.classes.addButton }}
+            classes={{ primary: this.props.classes.addButton }}
             primary={<AddIcon />}
           />
         </ListItem>
@@ -178,7 +178,7 @@ class ChannelMenu extends React.Component {
               >
                 <ListItem button>
                   <ListItemText
-                    classes={{ text: textClassName }}
+                    classes={{ primary: textClassName }}
                     primary={channel.name}
                   />
                   <ListItemSecondaryAction>

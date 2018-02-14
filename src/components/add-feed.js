@@ -306,7 +306,7 @@ class AddFeed extends React.Component {
         {this.renderResults()}
         {this.renderPreview()}
         <Button
-          fab
+          variant="fab"
           color="primary"
           aria-label="Add New Subscription"
           className={this.props.classes.fabButton}

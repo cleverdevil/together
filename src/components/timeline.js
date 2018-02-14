@@ -199,10 +199,10 @@ class Timeline extends React.Component {
   renderNoPosts() {
     return (
       <div className={this.props.classes.noPosts}>
-        <Typography type="display2" component="h2">
+        <Typography variant="display2" component="h2">
           🤷‍ Nothing to show
         </Typography>
-        <Typography type="body1" component="p">
+        <Typography variant="body1" component="p">
           Maybe you need to subscribe to a site or select a different channel
         </Typography>
       </div>
@@ -218,7 +218,7 @@ class Timeline extends React.Component {
     }
     return (
       <Typography
-        type="display1"
+        variant="display1"
         component="h2"
         className={this.props.classes.channelName}
       >

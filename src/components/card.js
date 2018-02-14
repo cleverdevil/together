@@ -271,7 +271,7 @@ class TogetherCard extends React.Component {
     if (item.name) {
       title = (
         <Typography
-          type="headline"
+          variant="headline"
           component="h2"
           dangerouslySetInnerHTML={{ __html: item.name }}
         />

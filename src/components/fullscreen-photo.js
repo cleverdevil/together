@@ -78,7 +78,7 @@ class FullscreenPhoto extends React.Component {
       <Dialog
         fullScreen
         open={this.state.open}
-        onRequestClose={this.handleClose}
+        onClose={this.handleClose}
         transition={<Slide direction="up" />}
       >
         <div className={this.props.classes.popup}>
@@ -102,7 +102,7 @@ class FullscreenPhoto extends React.Component {
         </div>
         <Drawer
           open={this.state.showInfo}
-          onRequestClose={() => this.setState({ showInfo: false })}
+          onClose={() => this.setState({ showInfo: false })}
           classes={{
             paperAnchorLeft: this.props.classes.drawer,
           }}

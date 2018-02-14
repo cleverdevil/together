@@ -183,7 +183,7 @@ class ChannelSettings extends React.Component {
   render() {
     return (
       <div className={this.props.classes.page}>
-        <Typography type="headline" component="h2" paragraph={true}>
+        <Typography variant="headline" component="h2" paragraph={true}>
           {this.state.name} Settings
         </Typography>
         <Link to="/" className={this.props.classes.close}>

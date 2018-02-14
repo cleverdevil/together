@@ -15,18 +15,18 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'visible',
-    background: theme.palette.shades.dark.background.default,
+    background: theme.palette.primary.main,
   },
   icon: {
-    color: theme.palette.shades.dark.text.icon,
+    color: theme.palette.primary.dark,
     '&:hover': {
-      color: theme.palette.secondary['200'],
+      color: theme.palette.primary.contrastText,
     },
   },
   iconSelected: {
-    color: theme.palette.secondary['500'],
+    color: theme.palette.primary.contrastText,
     '&:hover': {
-      color: theme.palette.secondary['500'],
+      color: theme.palette.primary.contrastText,
     },
   },
   channelMenuToggle: {

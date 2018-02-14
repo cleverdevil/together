@@ -106,8 +106,11 @@ class Login extends React.Component {
   }
 
   render() {
+    if (!this.state.open) {
+      return null;
+    }
     return (
-      <Dialog open={this.state.open} onRequestClose={() => {}}>
+      <Dialog open={this.state.open} onClose={() => {}}>
         {this.state.loading ? <LinearProgress /> : null}
         <DialogTitle>Login</DialogTitle>
         <DialogContent>
@@ -129,7 +132,7 @@ class Login extends React.Component {
             <Button
               type="submit"
               color="primary"
-              raised
+              variant="raised"
               style={{ width: '100%', paddingTop: 15, paddingBottom: 15 }}
             >
               Login

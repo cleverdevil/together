@@ -20,8 +20,22 @@ const theme = createMuiTheme({
     fontWeightRegular: 400,
     fontWeightMedium: 900,
   },
+  // palette: {
+  //   type: 'light',
+  // },
   palette: {
-    type: 'light',
+    primary: {
+      light: '#819ca9',
+      main: '#546e7a',
+      dark: '#29434e',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#5e92f3',
+      main: '#1565c0',
+      dark: '#003c8f',
+      contrastText: '#fff',
+    },
   },
 });
 

@@ -132,7 +132,7 @@ class Settings extends React.Component {
   render() {
     return (
       <div className={this.props.classes.page}>
-        <Typography type="headline" component="h2" paragraph={true}>
+        <Typography variant="headline" component="h2" paragraph={true}>
           Settings
         </Typography>
         <Link to="/" className={this.props.classes.close}>
@@ -194,7 +194,7 @@ class Settings extends React.Component {
               margin="normal"
               type="url"
             />
-            <Button onClick={this.props.logout} raised>
+            <Button onClick={this.props.logout} variant="raised">
               Sign Out
             </Button>
           </FormGroup>
@@ -262,7 +262,7 @@ class Settings extends React.Component {
               </FormGroup>
             </FormControl>
 
-            <Button onClick={this.getSyndicationProviders} raised>
+            <Button onClick={this.getSyndicationProviders} variant="raised">
               Update Syndication Providers
             </Button>
           </FormGroup>
