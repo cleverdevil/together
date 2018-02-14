@@ -31,10 +31,16 @@ const styles = theme => ({
   button: {
     textAlign: 'left',
     color: theme.palette.primary.main,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   highlightedButton: {
     textAlign: 'left',
     color: theme.palette.primary.contrastText,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
   },
   addButton: {
     textAlign: 'center',
