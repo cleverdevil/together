@@ -8,6 +8,7 @@ import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import WebMercatorViewport from 'viewport-mercator-project';
 import MapMarker from './map-marker';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const markerSize = 18;
 
@@ -102,7 +103,7 @@ class CheckinMap extends React.Component {
     return (
       <ReactMapGL
         width={this.props.containerWidth}
-        height={window.innerHeight - 72} // 72 = height of the title
+        height={window.innerHeight - 64} // 64 = height of the title
         latitude={this.state.lat}
         longitude={this.state.lng}
         zoom={this.state.zoom}

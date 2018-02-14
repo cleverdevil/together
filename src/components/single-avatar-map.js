@@ -5,6 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import MapMarker from './map-marker';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const styles = theme => ({
   map: {

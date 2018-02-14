@@ -23,7 +23,6 @@ import VisitIcon from 'material-ui-icons/Link';
 import ReadIcon from 'material-ui-icons/PanoramaFishEye';
 import UnreadIcon from 'material-ui-icons/Lens';
 import Popover from 'material-ui/Popover';
-import ReactMapGL, { Marker } from 'react-map-gl';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
 import {
