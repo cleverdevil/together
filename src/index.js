@@ -7,5 +7,10 @@ import Store from './store';
 
 const StoreInstance = Store();
 
-ReactDOM.render(<Provider store={StoreInstance}><App /></Provider>, document.getElementById('root'));
+ReactDOM.render(
+  <Provider store={StoreInstance}>
+    <App />
+  </Provider>,
+  document.getElementById('root'),
+);
 registerServiceWorker();

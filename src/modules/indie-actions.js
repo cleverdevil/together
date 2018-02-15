@@ -23,7 +23,9 @@ export function repost(url) {
       'repost-of': [url],
     },
   };
-  const syndication = localStorage.getItem('together-setting-repostSyndication');
+  const syndication = localStorage.getItem(
+    'together-setting-repostSyndication',
+  );
   if (syndication && syndication.length > 0) {
     mf.properties['mp-syndicate-to'] = syndication;
   }
@@ -39,7 +41,7 @@ export function reply(url, content) {
       properties: {
         'in-reply-to': [url],
         content: [content],
-      }
+      },
     },
   });
 }

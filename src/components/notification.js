@@ -55,9 +55,9 @@ class Notification extends React.Component {
         }}
         message={<span id="message-id">{this.state.message}</span>}
       />
-    )
+    );
   }
-};
+}
 
 Notification.propTypes = {
   notifications: PropTypes.array.isRequired,
@@ -70,9 +70,14 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    removeNotification: removeNotification,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      removeNotification: removeNotification,
+    },
+    dispatch,
+  );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Notification));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(Notification),
+);

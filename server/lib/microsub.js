@@ -4,7 +4,7 @@ const { URL } = require('url');
 
 const defaultSettings = {
   me: '',
-  scope: 'post create delete update',
+  scope: 'post create delete update read follow mute block channels',
   token: '',
   authEndpoint: '',
   tokenEndpoint: '',
@@ -19,12 +19,20 @@ const microsubError = (message, status = null, error = null) => {
   };
 };
 
-const validateResponse = (res) => {
+const validateResponse = res => {
   return new Promise((resolve, reject) => {
     if (res.ok) {
       resolve(res.json());
     } else {
-      reject(microsubError('Error from microsub server', res.status));
+      res
+        .text()
+        .then(text => {
+          console.log(text);
+          reject(microsubError('Error from microsub server', res.status));
+        })
+        .catch(() =>
+          reject(microsubError('Error from microsub server', res.status)),
+        );
     }
   });
 };
@@ -42,6 +50,8 @@ class Microsub {
     this.preview = this.preview.bind(this);
     this.getFollowing = this.getFollowing.bind(this);
     this.getTimeline = this.getTimeline.bind(this);
+    this.markRead = this.markRead.bind(this);
+    this.markUnread = this.markUnread.bind(this);
   }
 
   getChannels() {
@@ -52,14 +62,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
         .then(res => validateResponse(res))
-        .then((channels) => {
+        .then(channels => {
           resolve(channels.channels);
         })
-        .catch((err) => {;
+        .catch(err => {
           reject(microsubError('Error getting channels', null, err));
         });
     });
@@ -77,14 +87,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((newChannel) => {
+        .then(res => res.json())
+        .then(newChannel => {
           resolve(newChannel);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error creating channel', null, err));
         });
     });
@@ -99,10 +109,10 @@ class Microsub {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => {
+        .then(res => {
           if (res.status == 200) {
             resolve();
           } else {
@@ -110,11 +120,11 @@ class Microsub {
             return res.text();
           }
         })
-        .then((data) => {
+        .then(data => {
           console.log(data);
           reject(microsubError('Error deleting channel'));
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error deleting channel', null, err));
         });
     });
@@ -128,14 +138,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((results) => {
+        .then(res => res.json())
+        .then(results => {
           resolve(results.results);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error searching', null, err));
         });
     });
@@ -152,14 +162,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((results) => {
+        .then(res => res.json())
+        .then(results => {
           resolve(results);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error following', null, err));
         });
     });
@@ -176,14 +186,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((results) => {
+        .then(res => res.json())
+        .then(results => {
           resolve(results);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error unfollowing', null, err));
         });
     });
@@ -197,14 +207,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((results) => {
+        .then(res => res.json())
+        .then(results => {
           resolve(results);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error getting preview', null, err));
         });
     });
@@ -218,14 +228,14 @@ class Microsub {
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((results) => {
+        .then(res => res.json())
+        .then(results => {
           resolve(results);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error getting following', null, err));
         });
     });
@@ -250,15 +260,75 @@ class Microsub {
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          'Authorization': 'Bearer ' + this.options.token,
+          Authorization: 'Bearer ' + this.options.token,
         }),
       })
-        .then((res) => res.json())
-        .then((results) => {
+        .then(res => res.json())
+        .then(results => {
           resolve(results);
         })
-        .catch((err) => {
+        .catch(err => {
           reject(microsubError('Error getting timeline', null, err));
+        });
+    });
+  }
+
+  markRead(channel, entry = null, last_read_entry = null) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(this.options.microsubEndpoint);
+      url.searchParams.append('action', 'timeline');
+      url.searchParams.append('channel', channel);
+      url.searchParams.append('method', 'mark_read');
+      if (last_read_entry) {
+        url.searchParams.append('last_read_entry', last_read_entry);
+      } else if (entry) {
+        entry = entry.split(',');
+        if (entry.length === 1) {
+          entry = entry[0];
+        }
+        url.searchParams.append('entry', entry);
+      }
+      fetch(url.toString(), {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: 'Bearer ' + this.options.token,
+        }),
+      })
+        .then(res => res.json())
+        .then(results => {
+          resolve(results);
+        })
+        .catch(err => {
+          console.log(err);
+          reject(microsubError('Error marking read', null, err));
+        });
+    });
+  }
+
+  markUnread(channel, entry) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(this.options.microsubEndpoint);
+      url.searchParams.append('action', 'timeline');
+      url.searchParams.append('channel', channel);
+      url.searchParams.append('method', 'mark_unread');
+      entry = entry.split(',');
+      if (entry.length === 1) {
+        entry = entry[0];
+      }
+      url.searchParams.append('entry', entry);
+      fetch(url.toString(), {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: 'Bearer ' + this.options.token,
+        }),
+      })
+        .then(res => res.json())
+        .then(results => {
+          resolve(results);
+        })
+        .catch(err => {
+          console.log(err);
+          reject(microsubError('Error marking unread', null, err));
         });
     });
   }

@@ -21,7 +21,6 @@ import TogetherCard from './card';
 import microsub from '../modules/microsub-api';
 import { addNotification, selectChannel } from '../actions';
 
-
 const styles = theme => ({
   container: {
     position: 'absolute',
@@ -30,7 +29,6 @@ const styles = theme => ({
     alignItems: 'flex-end',
     right: 0,
     bottom: 0,
-    width: 300,
     padding: 10,
     maxWidth: 'calc(100vw - 90px)',
     maxHeight: '100vh',
@@ -41,10 +39,12 @@ const styles = theme => ({
   },
   search: {
     marginBottom: 10,
-    width: '100%',
+    width: 320,
+    maxWidth: '100%',
   },
   results: {
-    width: '100%',
+    width: 320,
+    maxWidth: '100%',
     marginTop: 10,
     marginBottom: 10,
     maxHeight: 'calc(100vh - 240px)',
@@ -64,7 +64,7 @@ const styles = theme => ({
     left: 0,
     width: '100%',
     zIndex: 9999, // To appear on top of maps
-  }
+  },
 });
 
 class AddFeed extends React.Component {
@@ -110,12 +110,12 @@ class AddFeed extends React.Component {
       results: [],
     });
     microsub('search', { params: [this.state.search] })
-      .then((results) => {
+      .then(results => {
         if (results.length < 1) {
           this.setState({
             loading: false,
             noResults: true,
-          })
+          });
         } else {
           this.setState({
             loading: false,
@@ -123,10 +123,10 @@ class AddFeed extends React.Component {
           });
         }
       })
-      .catch((err) => {
+      .catch(err => {
         this.setState({ loading: false });
         console.log(err);
-      })
+      });
     return false;
   }
 
@@ -146,12 +146,12 @@ class AddFeed extends React.Component {
     const channel = this.props.currentChannel;
     if (feed && channel) {
       microsub('follow', { params: [feed, channel] })
-        .then((res) => {
+        .then(res => {
           this.props.addNotification(`Added ${feed} to your channel`);
           this.props.selectChannel(channel);
           this.handleCancel();
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
           this.props.addNotification(`Error following ${feed}`, 'error');
         });
@@ -163,13 +163,13 @@ class AddFeed extends React.Component {
   getPreview(url) {
     this.setState({ loading: true });
     microsub('preview', { params: [url] })
-      .then((preview) => {
+      .then(preview => {
         this.setState({
           preview: preview,
           loading: false,
         });
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   }
 
   renderResults() {
@@ -182,21 +182,41 @@ class AddFeed extends React.Component {
         </Card>
       );
     }
-    if (!this.state.results || this.state.results.length === 0 || this.state.preview) {
+    if (
+      !this.state.results ||
+      this.state.results.length === 0 ||
+      this.state.preview
+    ) {
       return null;
     }
     return (
       <Card className={this.props.classes.results}>
         <List>
           {this.state.results.map((result, i) => (
-            <ListItem button onClick={() => this.handleResultSelect(result)} key={`search-result-${i}`}>
-              <Avatar alt="" src={result.photo}>{result.photo ? null : result.url.replace('https://', '').replace('http://', '').replace('www.', '')[0]}</Avatar>
-              <ListItemText primary={result.name || result.url} secondary={result.url} />
+            <ListItem
+              button
+              onClick={() => this.handleResultSelect(result)}
+              key={`search-result-${i}`}
+            >
+              <Avatar alt="" src={result.photo}>
+                {result.photo
+                  ? null
+                  : result.url
+                      .replace('https://', '')
+                      .replace('http://', '')
+                      .replace('www.', '')[0]}
+              </Avatar>
+              <ListItemText
+                primary={result.name || result.url}
+                secondary={result.url}
+              />
             </ListItem>
           ))}
-          </List>
+        </List>
         <CardActions className={this.props.classes.fixedCardActions}>
-          <Button dense onClick={this.handleCancel}>Cancel</Button>
+          <Button dense onClick={this.handleCancel}>
+            Cancel
+          </Button>
         </CardActions>
       </Card>
     );
@@ -212,28 +232,36 @@ class AddFeed extends React.Component {
         {this.state.selectedResult && (
           <ListItem>
             <Avatar alt="" src={this.state.selectedResult.photo}>
-              {this.state.selectedResult.photo ?
-                null : this.state.selectedResult.url.replace('https://', '').replace('http://', '').replace('www.', '')[0]}
+              {this.state.selectedResult.photo
+                ? null
+                : this.state.selectedResult.url
+                    .replace('https://', '')
+                    .replace('http://', '')
+                    .replace('www.', '')[0]}
             </Avatar>
             <ListItemText
-              primary={this.state.selectedResult.name || this.state.selectedResult.url}
+              primary={
+                this.state.selectedResult.name || this.state.selectedResult.url
+              }
               secondary={this.state.selectedResult.url}
             />
           </ListItem>
         )}
         {preview.items.map((item, i) => (
-          <TogetherCard post={item} embedMode="photo" key={`search-preview-${i}`}/>
+          <TogetherCard
+            post={item}
+            embedMode="photo"
+            key={`search-preview-${i}`}
+          />
         ))}
         <CardActions className={this.props.classes.fixedCardActions}>
-          <Button
-            dense  
-            color="primary"
-            onClick={this.handleFollow}
-          >
+          <Button dense color="primary" onClick={this.handleFollow}>
             Follow
           </Button>
-          <Button dense onClick={() => this.setState({preview: null})}>Back to Results</Button>
-        </CardActions>  
+          <Button dense onClick={() => this.setState({ preview: null })}>
+            Back to Results
+          </Button>
+        </CardActions>
       </Card>
     );
   }
@@ -244,7 +272,7 @@ class AddFeed extends React.Component {
     }
     return (
       <Card className={this.props.classes.search}>
-        <form onSubmit={this.handleSearch} >
+        <form onSubmit={this.handleSearch}>
           <CardContent>
             <TextField
               required
@@ -252,7 +280,7 @@ class AddFeed extends React.Component {
               autoFocus={true}
               type="search"
               label="Who / What do you want to add?"
-              onChange={(e) => this.setState({search: e.target.value})}
+              onChange={e => this.setState({ search: e.target.value })}
             />
           </CardContent>
           <CardActions>
@@ -261,7 +289,7 @@ class AddFeed extends React.Component {
             </Button>
             <Button dense onClick={this.handleCancel}>
               Cancel
-              </Button>
+            </Button>
           </CardActions>
         </form>
       </Card>
@@ -278,16 +306,22 @@ class AddFeed extends React.Component {
         {this.renderResults()}
         {this.renderPreview()}
         <Button
-          fab
+          variant="fab"
           color="primary"
           aria-label="Add New Subscription"
           className={this.props.classes.fabButton}
-          onClick={() => this.setState({searching: true})}
+          onClick={() => this.setState({ searching: true })}
         >
           <AddIcon />
         </Button>
-        {this.state.loading && <CircularProgress size={58} color="accent" className={this.props.classes.fabProgress} />}
-    </div>
+        {this.state.loading && (
+          <CircularProgress
+            size={58}
+            color="accent"
+            className={this.props.classes.fabProgress}
+          />
+        )}
+      </div>
     );
   }
 }
@@ -303,10 +337,15 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    addNotification: addNotification,
-    selectChannel: selectChannel,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      addNotification: addNotification,
+      selectChannel: selectChannel,
+    },
+    dispatch,
+  );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(AddFeed));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(AddFeed),
+);

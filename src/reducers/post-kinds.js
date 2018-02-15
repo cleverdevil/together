@@ -16,70 +16,77 @@ const postKinds = [
     name: 'All',
     icon: AllIcon,
     selected: true,
-    filter: (post) => true,
+    filter: post => true,
   },
   {
     id: 'note',
     name: 'Notes',
     icon: NoteIcon,
     selected: false,
-    filter: (post) => (post.content && !post.name && !Array.isArray(post.photo) && !post.checkin && !post.video && !post.audio && !post.type !== 'event'),
+    filter: post =>
+      post.content &&
+      !post.name &&
+      !Array.isArray(post.photo) &&
+      !post.checkin &&
+      !post.video &&
+      !post.audio &&
+      !post.type !== 'event',
   },
   {
     id: 'photo',
     name: 'Photos',
     icon: PhotoIcon,
     selected: false,
-    filter: (post) => (post.photo),
+    filter: post => post.photo,
   },
   {
     id: 'post',
     name: 'Articles',
     icon: ArticleIcon,
     selected: false,
-    filter: (post) => (post.name && post.content),
+    filter: post => post.name && post.content,
   },
   {
     id: 'audio',
     name: 'Podcasts & Music',
     icon: AudioIcon,
     selected: false,
-    filter: (post) => (post.audio),
+    filter: post => post.audio,
   },
   {
     id: 'video',
     name: 'Videos',
     icon: VideoIcon,
     selected: false,
-    filter: (post) => (post.video),
+    filter: post => post.video,
   },
   {
     id: 'checkins',
     name: 'Checkins',
     icon: CheckinIcon,
     selected: false,
-    filter: (post) => (post.checkin),
+    filter: post => post.checkin,
   },
   {
     id: 'event',
     name: 'Events',
     icon: EventIcon,
     selected: false,
-    filter: (post) => (post.type === 'event'),
+    filter: post => post.type === 'event',
   },
   {
     id: 'like',
     name: 'Likes',
     icon: LikeIcon,
     selected: false,
-    filter: (post) => (post['like-of']),
+    filter: post => post['like-of'],
   },
   {
     id: 'repost',
     name: 'Reposts',
     icon: RepostIcon,
     selected: false,
-    filter: (post) => (post['repost-of']),
+    filter: post => post['repost-of'],
   },
 ];
 
@@ -88,7 +95,7 @@ const defaultState = fromJS(postKinds);
 export default (state = defaultState, payload) => {
   switch (payload.type) {
     case 'SELECT_POST_KIND': {
-      return state.map((postKind) => {
+      return state.map(postKind => {
         postKind = postKind.set('selected', false);
         if (postKind.get('id') === payload.postKindId) {
           postKind = postKind.set('selected', true);

@@ -11,15 +11,12 @@ import Button from 'material-ui/Button';
 import SendIcon from 'material-ui-icons/Send';
 // import {} from '../actions';
 
-
 const styles = theme => ({
   container: {
     display: 'block',
     overflow: 'hidden',
   },
-  input: {
-
-  },
+  input: {},
   submitButton: {
     float: 'right',
   },
@@ -28,7 +25,15 @@ const styles = theme => ({
   },
 });
 
-const propertyKeys = ['content', 'in-reply-to', 'like-of', 'bookmark-of', 'name', 'category', 'photo'];
+const propertyKeys = [
+  'content',
+  'in-reply-to',
+  'like-of',
+  'bookmark-of',
+  'name',
+  'category',
+  'photo',
+];
 
 class MicropubForm extends React.Component {
   constructor(props) {
@@ -37,12 +42,12 @@ class MicropubForm extends React.Component {
     this.state = {
       shownFields: {},
     };
-    propertyKeys.forEach((key) => {
+    propertyKeys.forEach(key => {
       if (this.props[key]) {
         this.state[key] = this.props[key];
       }
     });
-    props.shownFields.forEach(key => this.state.shownFields[key] = true);
+    props.shownFields.forEach(key => (this.state.shownFields[key] = true));
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -58,9 +63,9 @@ class MicropubForm extends React.Component {
     e.preventDefault();
     let micropub = {
       type: ['h-entry'],
-      properties: {}
+      properties: {},
     };
-    propertyKeys.forEach((key) => {
+    propertyKeys.forEach(key => {
       if (this.state[key]) {
         let value = this.state[key];
         if (!Array.isArray(value)) {
@@ -75,8 +80,11 @@ class MicropubForm extends React.Component {
   render() {
     const shownFields = this.state.shownFields;
     return (
-      <form className={this.props.classes.container} onSubmit={this.handleSubmit}>
-        {shownFields.content &&
+      <form
+        className={this.props.classes.container}
+        onSubmit={this.handleSubmit}
+      >
+        {shownFields.content && (
           <TextField
             id="micropub-form-content"
             label="Content"
@@ -88,8 +96,15 @@ class MicropubForm extends React.Component {
             multiline={true}
             rows={2}
           />
-        }
-        <Button raised color="primary" type="submit" className={this.props.classes.submitButton}>Send <SendIcon className={this.props.classes.submitButtonIcon} /></Button>  
+        )}
+        <Button
+          variant="raised"
+          color="primary"
+          type="submit"
+          className={this.props.classes.submitButton}
+        >
+          Send <SendIcon className={this.props.classes.submitButtonIcon} />
+        </Button>
       </form>
     );
   }
@@ -107,13 +122,13 @@ MicropubForm.propTypes = {
 };
 
 function mapStateToProps(state, props) {
-  return {
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-  }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(MicropubForm));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(MicropubForm),
+);

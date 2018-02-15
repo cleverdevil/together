@@ -12,7 +12,11 @@ import {
   FormControlLabel,
   FormHelperText,
 } from 'material-ui/Form';
-import List, { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
+import List, {
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+} from 'material-ui/List';
 import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 import Button from 'material-ui/Button';
@@ -20,7 +24,6 @@ import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import microsubApi from '../modules/microsub-api';
-
 
 const styles = theme => ({
   page: {
@@ -32,7 +35,7 @@ const styles = theme => ({
   },
   divider: {
     marginTop: 24,
-    marginBottom: 24, 
+    marginBottom: 24,
   },
   close: {
     position: 'absolute',
@@ -50,8 +53,15 @@ class ChannelSettings extends React.Component {
     super(props);
     let uid = null;
     let name = 'Channel';
-    if (props.channels.length && props.match && props.match.params && props.match.params.channelUid) {
-      let selectedChannel = props.channels.find(channel => channel.uid == props.match.params.channelUid);
+    if (
+      props.channels.length &&
+      props.match &&
+      props.match.params &&
+      props.match.params.channelUid
+    ) {
+      let selectedChannel = props.channels.find(
+        channel => channel.uid == props.match.params.channelUid,
+      );
       if (selectedChannel) {
         uid = selectedChannel.uid;
         name = selectedChannel.name;
@@ -71,8 +81,16 @@ class ChannelSettings extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (!this.state.uid && newProps.channels.length && newProps.match && newProps.match.params && newProps.match.params.channelUid) {
-      let selectedChannel = newProps.channels.find(channel => channel.uid == newProps.match.params.channelUid);
+    if (
+      !this.state.uid &&
+      newProps.channels.length &&
+      newProps.match &&
+      newProps.match.params &&
+      newProps.match.params.channelUid
+    ) {
+      let selectedChannel = newProps.channels.find(
+        channel => channel.uid == newProps.match.params.channelUid,
+      );
       if (selectedChannel) {
         this.setState({
           uid: selectedChannel.uid,
@@ -85,26 +103,26 @@ class ChannelSettings extends React.Component {
 
   getFollowing(uid = this.state.uid) {
     microsubApi('getFollowing', { params: [uid] })
-      .then((res) => {
+      .then(res => {
         if (res.items) {
           this.setState({ following: res.items });
         }
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   }
 
   handleDelete() {
     console.log('deleting ' + this.state.uid);
     if (this.state.uid) {
       microsubApi('deleteChannel', { params: [this.state.uid] })
-      .then((res) => {
-        console.log(res);
-        if (!res.error) {
-          // Should be deleted
-          this.setState({ uid: null });
-        }
-      })
-      .catch((err) => console.log(err));
+        .then(res => {
+          console.log(res);
+          if (!res.error) {
+            // Should be deleted
+            this.setState({ uid: null });
+          }
+        })
+        .catch(err => console.log(err));
     }
   }
 
@@ -112,23 +130,26 @@ class ChannelSettings extends React.Component {
     this.setState({ name: e.target.value });
     // TODO: Only send this request when typing is finished.
     microsubApi('createChannel', { params: [e.target.value, this.state.uid] })
-      .then((res) => {
+      .then(res => {
         if (!res.error) {
           // Should be renamed
           console.log(res);
         }
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   }
 
   handleUnsubscribe(url) {
     microsubApi('unfollow', { params: [url, this.state.uid] })
-      .then((unfollowed) => {
+      .then(unfollowed => {
         this.setState(state => ({
-          following: state.following.filter(item => !(item.type == unfollowed.type && item.url == unfollowed.url))
+          following: state.following.filter(
+            item =>
+              !(item.type == unfollowed.type && item.url == unfollowed.url),
+          ),
         }));
       })
-      .catch((err) => console.log(err));
+      .catch(err => console.log(err));
   }
 
   renderFollowing() {
@@ -140,11 +161,14 @@ class ChannelSettings extends React.Component {
         <FormLabel component="legend">Following</FormLabel>
         <FormGroup>
           <List>
-            {this.state.following.map((item) => (
+            {this.state.following.map(item => (
               <ListItem key={`list-following-${item.url}`}>
                 <ListItemText primary={`${item.url} (${item.type})`} />
                 <ListItemSecondaryAction>
-                  <IconButton aria-label={`Unfollow ${item.url}`} onClick={() => this.handleUnsubscribe(item.url)}>
+                  <IconButton
+                    aria-label={`Unfollow ${item.url}`}
+                    onClick={() => this.handleUnsubscribe(item.url)}
+                  >
                     <CloseIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
@@ -159,13 +183,18 @@ class ChannelSettings extends React.Component {
   render() {
     return (
       <div className={this.props.classes.page}>
-        <Typography type="headline" component="h2" paragraph={true}>{this.state.name} Settings</Typography>
+        <Typography variant="headline" component="h2" paragraph={true}>
+          {this.state.name} Settings
+        </Typography>
         <Link to="/" className={this.props.classes.close}>
           <IconButton>
             <CloseIcon />
           </IconButton>
         </Link>
-        <FormControl component="fieldset" className={this.props.classes.fieldset}>
+        <FormControl
+          component="fieldset"
+          className={this.props.classes.fieldset}
+        >
           <FormGroup>
             <TextField
               label="Name"
@@ -198,8 +227,9 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-  }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ChannelSettings));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(ChannelSettings),
+);

@@ -8,6 +8,7 @@ import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import WebMercatorViewport from 'viewport-mercator-project';
 import MapMarker from './map-marker';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const markerSize = 18;
 
@@ -36,10 +37,18 @@ class CheckinMap extends React.Component {
     let posts = this.props.posts.map((post, i) => {
       let lat = false;
       let lng = false;
-      if (post.location && this.isNumeric(post.location.latitude) && this.isNumeric(post.location.longitude)) {
+      if (
+        post.location &&
+        this.isNumeric(post.location.latitude) &&
+        this.isNumeric(post.location.longitude)
+      ) {
         lat = parseFloat(post.location.latitude);
         lng = parseFloat(post.location.longitude);
-      } else if (post.checkin && this.isNumeric(post.checkin.latitude) && this.isNumeric(post.checkin.longitude)) {
+      } else if (
+        post.checkin &&
+        this.isNumeric(post.checkin.latitude) &&
+        this.isNumeric(post.checkin.longitude)
+      ) {
         lat = parseFloat(post.checkin.latitude);
         lng = parseFloat(post.checkin.longitude);
       }
@@ -75,10 +84,13 @@ class CheckinMap extends React.Component {
     this.setState({ markers: posts });
 
     if (bounds) {
-      const viewport = new WebMercatorViewport({ width: this.props.containerWidth, height: document.body.clientHeight });
+      const viewport = new WebMercatorViewport({
+        width: this.props.containerWidth,
+        height: document.body.clientHeight,
+      });
       // This doesn't work at the moment for reasons I don't understand
       // const bound = viewport.fitBounds(bounds, { padding: 20 });
-      
+
       // this.setState({
       //   lat: bound.latitude,
       //   lng: bound.longitude,
@@ -91,14 +103,14 @@ class CheckinMap extends React.Component {
     return (
       <ReactMapGL
         width={this.props.containerWidth}
-        height={window.innerHeight - 72} // 72 = height of the title
+        height={window.innerHeight - 64} // 64 = height of the title
         latitude={this.state.lat}
         longitude={this.state.lng}
         zoom={this.state.zoom}
         className={this.props.classes.map}
         mapStyle="mapbox://styles/mapbox/basic-v9"
         mapboxApiAccessToken="pk.eyJ1IjoiZ3JhbnRjb2RlcyIsImEiOiJjamJ3ZTk3czYyOHAxMzNyNmo4cG4zaGFqIn0.9tRVGo4SgVgns3khwoO0gA"
-        onViewportChange={(viewport) => {
+        onViewportChange={viewport => {
           const { width, height, latitude, longitude, zoom } = viewport;
           this.setState({
             lat: latitude,
@@ -109,7 +121,11 @@ class CheckinMap extends React.Component {
       >
         {this.state.markers.map((post, i) => {
           return (
-            <Marker latitude={post.marker.lat} longitude={post.marker.lng} key={`marker-${i}`}>
+            <Marker
+              latitude={post.marker.lat}
+              longitude={post.marker.lng}
+              key={`marker-${i}`}
+            >
               <MapMarker author={post.author} post={post} />
             </Marker>
           );
@@ -118,7 +134,7 @@ class CheckinMap extends React.Component {
     );
   }
 }
-  
+
 CheckinMap.defaultProps = {
   posts: [],
 };
@@ -128,9 +144,9 @@ CheckinMap.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-
-  }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(Dimensions()((withStyles(styles)(CheckinMap))));
+export default connect(null, mapDispatchToProps)(
+  Dimensions()(withStyles(styles)(CheckinMap)),
+);

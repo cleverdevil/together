@@ -20,7 +20,10 @@ for (const key in emptyState) {
 export default (state = initialState, payload) => {
   switch (payload.type) {
     case 'SET_SETTING': {
-      localStorage.setItem(`together-setting-${payload.key}`, JSON.stringify(payload.value));
+      localStorage.setItem(
+        `together-setting-${payload.key}`,
+        JSON.stringify(payload.value),
+      );
       return state.set(payload.key, payload.value);
     }
     case 'LOGOUT': {
@@ -28,7 +31,7 @@ export default (state = initialState, payload) => {
         localStorage.removeItem(`together-setting-${key}`);
         return emptyState[key];
       });
-    }  
+    }
     default: {
       return state;
     }

@@ -4,10 +4,10 @@ export const setUserOption = (key, value) => {
     key: key,
     value: value,
   };
-}
+};
 
 export const logout = () => {
   return {
     type: 'LOGOUT',
-  }
-}
+  };
+};

@@ -15,19 +15,19 @@ const styles = theme => ({
   marker: {
     width: markerSize,
     height: markerSize,
-    marginTop: 0 - (markerSize / 2), 
-    marginLeft: 0 - (markerSize / 2), 
-    fontSize: markerSize - (markerSize / 2),
+    marginTop: 0 - markerSize / 2,
+    marginLeft: 0 - markerSize / 2,
+    fontSize: markerSize - markerSize / 2,
     pointer: 'cursor',
     transition: 'transform .2s',
     '&:hover': {
       transform: 'scale(1.05)',
-    }
+    },
   },
   popover: {
     padding: '13px 20px',
     maxWidth: 200,
-  }
+  },
 });
 
 class MapMarker extends React.Component {
@@ -80,6 +80,7 @@ class MapMarker extends React.Component {
         <Avatar
           className={this.props.classes.marker}
           {...avatarData}
+          style={{ background: avatarData.color }}
           aria-label={avatarData.alt}
           onClick={this.handleClick}
         >
@@ -101,9 +102,7 @@ MapMarker.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-
-  }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(MapMarker));

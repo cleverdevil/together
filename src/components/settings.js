@@ -21,7 +21,6 @@ import CloseIcon from 'material-ui-icons/Close';
 import { setUserOption, setSetting, logout, addNotification } from '../actions';
 import micropubApi from '../modules/micropub-api';
 
-
 const styles = theme => ({
   page: {
     padding: theme.spacing.unit * 2,
@@ -32,7 +31,7 @@ const styles = theme => ({
   },
   divider: {
     marginTop: 24,
-    marginBottom: 24, 
+    marginBottom: 24,
   },
   close: {
     position: 'absolute',
@@ -48,13 +47,16 @@ const styles = theme => ({
 class Settings extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-    }
+    this.state = {};
     this.handleChange = this.handleChange.bind(this);
     this.handleUserOptionChange = this.handleUserOptionChange.bind(this);
     this.getSyndicationProviders = this.getSyndicationProviders.bind(this);
-    this.handleLikeSyndicationChange = this.handleLikeSyndicationChange.bind(this);
-    this.handleRepostSyndicationChange = this.handleRepostSyndicationChange.bind(this);
+    this.handleLikeSyndicationChange = this.handleLikeSyndicationChange.bind(
+      this,
+    );
+    this.handleRepostSyndicationChange = this.handleRepostSyndicationChange.bind(
+      this,
+    );
   }
 
   componentDidMount() {
@@ -67,11 +69,11 @@ class Settings extends React.Component {
     this.setState({
       [name]: event.target.value,
     });
-  }
+  };
 
   handleUserOptionChange = name => event => {
     this.props.setUserOption(name, event.target.value);
-  }
+  };
 
   handleLikeSyndicationChange(event, checked) {
     const provider = event.target.value;
@@ -105,29 +107,43 @@ class Settings extends React.Component {
     micropubApi('query', {
       param: 'syndicate-to',
     })
-      .then((syndicationProviders) => {
+      .then(syndicationProviders => {
         if (syndicationProviders['syndicate-to']) {
-          this.props.setSetting('syndicationProviders', syndicationProviders['syndicate-to']);
+          this.props.setSetting(
+            'syndicationProviders',
+            syndicationProviders['syndicate-to'],
+          );
         } else {
-          this.props.addNotification('Error getting your syndication options', 'error');
+          this.props.addNotification(
+            'Error getting your syndication options',
+            'error',
+          );
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
-        this.props.addNotification('Error getting your syndication options', 'error');
+        this.props.addNotification(
+          'Error getting your syndication options',
+          'error',
+        );
       });
   }
 
   render() {
     return (
       <div className={this.props.classes.page}>
-        <Typography type="headline" component="h2" paragraph={true}>Settings</Typography>
+        <Typography variant="headline" component="h2" paragraph={true}>
+          Settings
+        </Typography>
         <Link to="/" className={this.props.classes.close}>
           <IconButton>
             <CloseIcon />
           </IconButton>
         </Link>
-        <FormControl component="fieldset" className={this.props.classes.fieldset}>
+        <FormControl
+          component="fieldset"
+          className={this.props.classes.fieldset}
+        >
           <FormLabel component="legend">User options</FormLabel>
           <FormGroup>
             <TextField
@@ -178,18 +194,23 @@ class Settings extends React.Component {
               margin="normal"
               type="url"
             />
-            <Button onClick={this.props.logout} raised>Sign Out</Button>
+            <Button onClick={this.props.logout} variant="raised">
+              Sign Out
+            </Button>
           </FormGroup>
         </FormControl>
         <Divider className={this.props.classes.divider} />
-        <FormControl component="fieldset" className={this.props.classes.fieldset}>
+        <FormControl
+          component="fieldset"
+          className={this.props.classes.fieldset}
+        >
           <FormLabel component="legend">Together options</FormLabel>
           <FormGroup>
             <FormControlLabel
               control={
                 <Checkbox
                   checked={this.props.settings.reactions}
-                  onChange={() => { }}
+                  onChange={() => {}}
                 />
               }
               label="Emoji Reaction Support"
@@ -198,12 +219,16 @@ class Settings extends React.Component {
             <FormControl component="div">
               <FormLabel component="span">Like Syndication</FormLabel>
               <FormGroup>
-                {this.props.settings.syndicationProviders.map((provider) => (
+                {this.props.settings.syndicationProviders.map(provider => (
                   <FormControlLabel
-                    key={`like-syndication-setting-${provider.uid}`}  
+                    key={`like-syndication-setting-${provider.uid}`}
                     control={
                       <Checkbox
-                        checked={(this.props.settings.likeSyndication.indexOf(provider.uid) > -1)}
+                        checked={
+                          this.props.settings.likeSyndication.indexOf(
+                            provider.uid,
+                          ) > -1
+                        }
                         value={provider.uid}
                         onChange={this.handleLikeSyndicationChange}
                       />
@@ -217,12 +242,16 @@ class Settings extends React.Component {
             <FormControl component="div">
               <FormLabel component="span">Repost Syndication</FormLabel>
               <FormGroup>
-                {this.props.settings.syndicationProviders.map((provider) => (
+                {this.props.settings.syndicationProviders.map(provider => (
                   <FormControlLabel
                     key={`repost-syndication-setting-${provider.uid}`}
                     control={
                       <Checkbox
-                        checked={(this.props.settings.repostSyndication.indexOf(provider.uid) > -1)}
+                        checked={
+                          this.props.settings.repostSyndication.indexOf(
+                            provider.uid,
+                          ) > -1
+                        }
                         value={provider.uid}
                         onChange={this.handleRepostSyndicationChange}
                       />
@@ -233,19 +262,19 @@ class Settings extends React.Component {
               </FormGroup>
             </FormControl>
 
-            <Button onClick={this.getSyndicationProviders} raised>Update Syndication Providers</Button>
+            <Button onClick={this.getSyndicationProviders} variant="raised">
+              Update Syndication Providers
+            </Button>
           </FormGroup>
         </FormControl>
       </div>
     );
   }
 }
-  
-Settings.defaultProps = {
-};
 
-Settings.propTypes = {
-};
+Settings.defaultProps = {};
+
+Settings.propTypes = {};
 
 function mapStateToProps(state, props) {
   return {
@@ -255,13 +284,17 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    setUserOption: setUserOption,
-    setSetting: setSetting,
-    logout: logout,
-    addNotification: addNotification,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      setUserOption: setUserOption,
+      setSetting: setSetting,
+      logout: logout,
+      addNotification: addNotification,
+    },
+    dispatch,
+  );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Settings));
-  
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(Settings),
+);

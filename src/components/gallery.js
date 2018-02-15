@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { withStyles } from 'material-ui/styles';
-import { GridList, GridListTile, GridListTileBar } from 'material-ui/GridList';
+import GridList, { GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
@@ -21,8 +21,8 @@ class Gallery extends React.Component {
   }
 
   render() {
-    const contentWidth = (document.getElementById('root').clientWidth - 49);
-    const columnCount = Math.floor(contentWidth / 300)
+    const contentWidth = document.getElementById('root').clientWidth - 49;
+    const columnCount = Math.floor(contentWidth / 300);
     const cellHeight = Math.floor(contentWidth / columnCount);
     return (
       <div>
@@ -33,15 +33,21 @@ class Gallery extends React.Component {
             if (typeof post.photo === 'string') {
               post.photo = [post.photo];
             }
-            return post.photo.map((photo) => (
-              <GridListTile key={photo} cols={1} onClick={() => this.setState({selectedPhoto: photo, selectedPost: post})}>
+            return post.photo.map(photo => (
+              <GridListTile
+                key={photo}
+                cols={1}
+                onClick={() =>
+                  this.setState({ selectedPhoto: photo, selectedPost: post })
+                }
+              >
                 <img src={photo} alt="" />
                 <GridListTileBar
                   title={post.name || (post.content && post.content.text) || ''}
                   subtitle={avatarData.alt}
                   actionIcon={
                     <Avatar
-                      style={{marginRight: 14}}
+                      style={{ marginRight: 14, background: avatarData.color }}
                       {...avatarData}
                       aria-label={avatarData.alt}
                     >
@@ -53,7 +59,10 @@ class Gallery extends React.Component {
             ));
           })}
         </GridList>
-        <FullscreenPhoto photo={this.state.selectedPhoto} post={this.state.selectedPost} />
+        <FullscreenPhoto
+          photo={this.state.selectedPhoto}
+          post={this.state.selectedPost}
+        />
       </div>
     );
   }
@@ -68,9 +77,7 @@ Gallery.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-
-  }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
 export default connect(null, mapDispatchToProps)(withStyles(styles)(Gallery));

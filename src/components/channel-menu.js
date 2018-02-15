@@ -4,13 +4,21 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { Link } from 'react-router-dom';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import List, {
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+} from 'material-ui/List';
 import AddIcon from 'material-ui-icons/Add';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
-import { selectChannel, toggleChannelsMenu, addChannel, addNotification } from '../actions';
+import {
+  selectChannel,
+  toggleChannelsMenu,
+  addChannel,
+  addNotification,
+} from '../actions';
 import microsub from '../modules/microsub-api';
-
 
 const styles = theme => ({
   drawer: {
@@ -18,22 +26,36 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    background: theme.palette.shades.dark.background.appBar,
+    background: theme.palette.primary.dark,
   },
   button: {
     textAlign: 'left',
-    color: theme.palette.shades.dark.text.icon,
+    color: theme.palette.primary.main,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   highlightedButton: {
     textAlign: 'left',
-    color: theme.palette.secondary['500'],
+    color: theme.palette.primary.contrastText,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
   },
   addButton: {
     textAlign: 'center',
-    color: theme.palette.primary['500'],
+    color: theme.palette.primary.main,
   },
   addForm: {
-    background: theme.palette.shades.light.background.appBar,
+    background: theme.palette.background.default,
+  },
+  unread: {
+    background: theme.palette.primary.main,
+    color: theme.palette.background.default,
+    fontWeight: 'bold',
+    fontSize: '0.5em',
+    padding: '.2em .5em',
+    borderRadius: '1em',
   },
 });
 
@@ -52,12 +74,12 @@ class ChannelMenu extends React.Component {
   componentDidMount() {
     if (this.props.microsubEndpoint) {
       microsub('getChannels')
-        .then((channels) => {
-          channels.forEach((channel) => {
-            this.props.addChannel(channel.name, channel.uid);
+        .then(channels => {
+          channels.forEach(channel => {
+            this.props.addChannel(channel.name, channel.uid, channel.unread);
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log('Error getting channels');
           console.log(err);
         });
@@ -65,14 +87,17 @@ class ChannelMenu extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.microsubEndpoint && this.props.microsubEndpoint !== newProps.microsubEndpoint) {
+    if (
+      newProps.microsubEndpoint &&
+      this.props.microsubEndpoint !== newProps.microsubEndpoint
+    ) {
       microsub('getChannels')
-        .then((channels) => {
-          channels.forEach((channel) => {
-            this.props.addChannel(channel.name, channel.uid);
+        .then(channels => {
+          channels.forEach(channel => {
+            this.props.addChannel(channel.name, channel.uid, channel.uread);
           });
         })
-        .catch((err) => {
+        .catch(err => {
           console.log('Error getting channels');
           console.log(err);
         });
@@ -88,14 +113,14 @@ class ChannelMenu extends React.Component {
   handleAddChannel(e) {
     e.preventDefault();
     microsub('createChannel', { params: [this.state.newChannelName] })
-      .then((newChannel) => {
+      .then(newChannel => {
         this.setState({
           newChannelName: '',
           newChannel: false,
         });
         this.props.addChannel(newChannel.name, newChannel.uid);
       })
-      .catch((err) => {
+      .catch(err => {
         this.props.addNotification('Error creating channel', 'error');
       });
     return false;
@@ -104,13 +129,10 @@ class ChannelMenu extends React.Component {
   renderChannelForm() {
     if (!this.state.newChannel) {
       return (
-        <ListItem
-          onClick={() => this.setState({newChannel: true})}
-          button
-        >
+        <ListItem onClick={() => this.setState({ newChannel: true })} button>
           <ListItemText
-            title="Add New Channel"  
-            classes={{ text: this.props.classes.addButton }}
+            title="Add New Channel"
+            classes={{ primary: this.props.classes.addButton }}
             primary={<AddIcon />}
           />
         </ListItem>
@@ -127,9 +149,11 @@ class ChannelMenu extends React.Component {
           required={true}
           autoFocus={true}
           value={this.state.newChannelName}
-          onChange={(e) => this.setState({newChannelName: e.target.value})}
+          onChange={e => this.setState({ newChannelName: e.target.value })}
         />
-        <Button style={{width: '100%'}} type="submit">Add Channel</Button>
+        <Button style={{ width: '100%' }} type="submit">
+          Add Channel
+        </Button>
       </form>
     );
   }
@@ -138,24 +162,40 @@ class ChannelMenu extends React.Component {
     return (
       <div className={this.props.classes.drawer}>
         <List>
-          {this.props.channels.map((channel) => {
+          {this.props.channels.map(channel => {
             let textClassName = this.props.classes.button;
             if (channel.uid === this.props.selectedChannel) {
               textClassName = this.props.classes.highlightedButton;
             }
+            let unreadCount = null;
+            if (channel.unread) {
+              unreadCount = (
+                <span className={this.props.classes.unread}>
+                  {channel.unread}
+                </span>
+              );
+            }
             return (
-              <Link to={`/channel/${channel.uid}`} key={`channel-${channel.uid}`} style={{ textDecoration: 'none' }} onClick={this.handleClose}>
+              <Link
+                to={`/channel/${channel.uid}`}
+                key={`channel-${channel.uid}`}
+                style={{ textDecoration: 'none' }}
+                onClick={this.handleClose}
+              >
                 <ListItem button>
                   <ListItemText
-                    classes={{ text: textClassName }}
+                    classes={{ primary: textClassName }}
                     primary={channel.name}
                   />
+                  <ListItemSecondaryAction>
+                    {unreadCount}
+                  </ListItemSecondaryAction>
                 </ListItem>
               </Link>
             );
           })}
         </List>
-        <div style={{ flexGrow: 1 }}></div>
+        <div style={{ flexGrow: 1 }} />
         {this.renderChannelForm()}
       </div>
     );
@@ -180,12 +220,17 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    selectChannel: selectChannel,
-    toggleChannelsMenu: toggleChannelsMenu,
-    addChannel: addChannel,
-    addNotification: addNotification,
-  }, dispatch);
+  return bindActionCreators(
+    {
+      selectChannel: selectChannel,
+      toggleChannelsMenu: toggleChannelsMenu,
+      addChannel: addChannel,
+      addNotification: addNotification,
+    },
+    dispatch,
+  );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ChannelMenu));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  withStyles(styles)(ChannelMenu),
+);
