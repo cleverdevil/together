@@ -64,7 +64,7 @@ class TogetherCard extends React.Component {
     this.state = {
       popoverOpen: false,
       popoverAnchor: null,
-      read: props.post._is_read,
+      read: props.post._is_read || props.read,
     };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
@@ -327,12 +327,21 @@ class TogetherCard extends React.Component {
     }
 
     let cardStyle = {};
-    if (this.props.embedMode === 'photo' || this.props.embedMode === 'marker') {
+    if (
+      this.props.embedMode === 'photo' ||
+      this.props.embedMode === 'marker' ||
+      this.props.embedMode === 'classic'
+    ) {
       cardStyle.boxShadow = 'none';
     }
     if (this.props.embedMode === 'marker') {
       cardStyle.margin = '-13px -20px';
       cardStyle.background = 'none';
+    }
+    if (this.props.embedMode === 'classic') {
+      cardStyle.margin = 0;
+      cardStyle.minHeight = '100%';
+      cardStyle.maxWidth = 700;
     }
 
     return (
@@ -427,10 +436,12 @@ class TogetherCard extends React.Component {
 
 TogetherCard.defaultProps = {
   post: {},
+  read: false,
   embedMode: '',
 };
 
 TogetherCard.propTypes = {
+  read: PropTypes.bool.isRequired,
   post: PropTypes.object.isRequired,
   embedMode: PropTypes.string,
 };

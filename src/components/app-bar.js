@@ -32,12 +32,8 @@ const styles = theme => ({
   },
   menuButton: {
     display: 'none',
-    [theme.breakpoints.down('md')]: {
-      display: 'block',
-      marginLeft: -24,
-      marginRight: 20,
-    },
     [theme.breakpoints.down('sm')]: {
+      display: 'block',
       marginLeft: -16,
       marginRight: 0,
     },

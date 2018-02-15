@@ -5,7 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import AppBar from './components/app-bar';
-import Timeline from './components/timeline.js';
+import MainPosts from './components/main-posts';
 import PostKindMenu from './components/post-kind-menu.js';
 import ChannelMenu from './components/channel-menu.js';
 import Settings from './components/settings';
@@ -62,7 +62,7 @@ const style = theme => ({
     width: 200,
     display: 'flex',
     height: '100%',
-    [theme.breakpoints.down('md')]: {
+    [theme.breakpoints.down('sm')]: {
       width: 200,
       position: 'absolute',
       right: '100%',
@@ -106,8 +106,12 @@ class App extends Component {
                 <PostKindMenu />
               </Grid>
               <Grid item className={this.props.classes.main}>
-                <Route exact path="/" component={Timeline} />
-                <Route exact path="/channel/:channelUid" component={Timeline} />
+                <Route exact path="/" component={MainPosts} />
+                <Route
+                  exact
+                  path="/channel/:channelUid"
+                  component={MainPosts}
+                />
                 <Route
                   exact
                   path="/channel/:channelUid/edit"
