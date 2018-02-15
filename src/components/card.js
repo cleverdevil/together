@@ -307,6 +307,13 @@ class TogetherCard extends React.Component {
             dangerouslySetInnerHTML={{ __html: contentObject.value }}
           />
         );
+      } else if (contentObject.text) {
+        content = (
+          <Typography
+            component="p"
+            dangerouslySetInnerHTML={{ __html: contentObject.text }}
+          />
+        );
       }
     }
     return (
