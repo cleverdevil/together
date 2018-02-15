@@ -86,7 +86,11 @@ class TogetherCard extends React.Component {
 
     return (
       <ListItem dense button onClick={this.handleClick} style={readStyle}>
-        <Avatar {...avatarData} aria-label={avatarData.alt}>
+        <Avatar
+          {...avatarData}
+          aria-label={avatarData.alt}
+          style={{ background: avatarData.color }}
+        >
           {avatarData.src ? null : avatarData.initials}
         </Avatar>
         <ListItemText primary={this.getPreviewText()} secondary={date} />
