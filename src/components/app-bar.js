@@ -14,8 +14,9 @@ import EditIcon from 'material-ui-icons/Edit';
 import ReadIcon from 'material-ui-icons/DoneAll';
 import {
   toggleChannelsMenu,
-  setChannelUnread,
+  updateChannel,
   addNotification,
+  updatePost,
 } from '../actions';
 import microsub from '../modules/microsub-api';
 
@@ -52,8 +53,13 @@ class TogetherAppBar extends React.Component {
         params: [this.props.selectedChannel, '', this.props.items[0]._id],
       })
         .then(res => {
+          this.props.items.forEach(post => {
+            if (!post._is_read) {
+              this.props.updatePost(post._id, '_is_read', true);
+            }
+          });
+          this.props.updateChannel(this.props.selectedChannel, 'unread', 0);
           this.props.addNotification(`Marked ${res.updated} items as read`);
-          this.props.setChannelUnread(this.props.selectedChannel, 0);
         })
         .catch(err => {
           console.log(err);
@@ -133,7 +139,7 @@ function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
     channels: state.channels.toJS(),
-    items: state.timeline.toJS(),
+    items: state.posts.toJS(),
   };
 }
 
@@ -141,8 +147,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       toggleChannelsMenu: toggleChannelsMenu,
-      setChannelUnread: setChannelUnread,
+      updateChannel: updateChannel,
       addNotification: addNotification,
+      updatePost: updatePost,
     },
     dispatch,
   );

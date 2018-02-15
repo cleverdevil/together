@@ -3,21 +3,19 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
-import { Link } from 'react-router-dom';
-import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 import { LinearProgress } from 'material-ui/Progress';
 import AddFeed from './add-feed';
 import microsub from '../modules/microsub-api';
 
-import Card from './compressed-post';
 import Gallery from './gallery';
 import Checkins from './checkins';
 import ClassicView from './classic-view';
 import Timeline from './timeline';
+import layouts from '../modules/layouts';
 
 import {
-  addToTimeline,
+  addPosts,
   setTimelineAfter,
   setTimelineBefore,
   selectChannel,
@@ -32,6 +30,7 @@ const styles = theme => ({
     top: 0,
     right: 0,
     left: 0,
+    zIndex: 9999,
   },
 });
 
@@ -84,9 +83,7 @@ class MainPosts extends React.Component {
         .then(res => {
           this.setState({ loading: false });
           if (res.items) {
-            res.items.forEach(item => {
-              this.props.addToTimeline(item);
-            });
+            this.props.addPosts(res.items);
           }
           if (res.paging) {
             if (res.paging.before) {
@@ -111,9 +108,7 @@ class MainPosts extends React.Component {
     })
       .then(res => {
         if (res.items) {
-          res.items.forEach(item => {
-            this.props.addToTimeline(item);
-          });
+          this.props.addPosts(res.items);
         }
         if (res.paging && res.paging.after) {
           this.props.setTimelineAfter(res.paging.after);
@@ -129,30 +124,39 @@ class MainPosts extends React.Component {
   }
 
   renderTimelinePosts() {
+    const channels = this.props.channels;
     let posts = this.props.items;
-    if (this.props.postKind && this.props.postKind.filter) {
-      posts = posts.filter(this.props.postKind.filter);
+    let currentLayout = layouts[0];
+    const currentChannel = this.props.channels.find(
+      channel => channel.uid == this.props.selectedChannel,
+    );
+    if (currentChannel) {
+      const foundLayout = layouts.find(
+        layout => layout.id == currentChannel.layout,
+      );
+      if (foundLayout) {
+        currentLayout = foundLayout;
+      }
     }
-    if (
-      this.props.postKind &&
-      this.props.postKind.id &&
-      this.props.postKind.id === 'photo'
-    ) {
-      return <Gallery posts={posts} loadMore={this.handleLoadMore} />;
-    } else if (
-      this.props.postKind &&
-      this.props.postKind.id &&
-      this.props.postKind.id === 'checkins'
-    ) {
-      return <Checkins posts={posts} loadMore={this.handleLoadMore} />;
-    } else if (
-      this.props.postKind &&
-      this.props.postKind.id &&
-      this.props.postKind.id === 'classic'
-    ) {
-      return <ClassicView posts={posts} loadMore={this.handleLoadMore} />;
-    } else {
-      return <Timeline posts={posts} loadMore={this.handleLoadMore} />;
+    if (currentLayout && currentLayout.filter) {
+      posts = posts.filter(currentLayout.filter);
+    }
+    switch (currentLayout.id) {
+      case 'gallery':
+        return <Gallery posts={posts} loadMore={this.handleLoadMore} />;
+        break;
+      case 'map':
+        return <Checkins posts={posts} loadMore={this.handleLoadMore} />;
+        break;
+      case 'classic':
+        return <ClassicView posts={posts} loadMore={this.handleLoadMore} />;
+        break;
+      case 'timeline':
+        return <Timeline posts={posts} loadMore={this.handleLoadMore} />;
+        break;
+      default:
+        return <Timeline posts={posts} loadMore={this.handleLoadMore} />;
+        break;
     }
   }
 
@@ -198,15 +202,14 @@ function mapStateToProps(state, props) {
     timelineAfter: state.app.get('timelineAfter'),
     selectedChannel: state.app.get('selectedChannel'),
     channels: state.channels.toJS(),
-    items: state.timeline.toJS(),
-    postKind: state.postKinds.find(postKind => postKind.get('selected')).toJS(),
+    items: state.posts.toJS(),
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      addToTimeline: addToTimeline,
+      addPosts: addPosts,
       setTimelineAfter: setTimelineAfter,
       setTimelineBefore: setTimelineBefore,
       selectChannel: selectChannel,

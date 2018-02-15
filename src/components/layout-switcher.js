@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
-import { selectPostKind } from '../actions';
+import { updateChannel } from '../actions';
+import layouts from '../modules/layouts';
 
 const styles = theme => ({
   menu: {
@@ -28,36 +29,44 @@ const styles = theme => ({
   },
 });
 
-class PostKindMenu extends React.Component {
+class LayoutSwitcher extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
   }
 
-  handleClick(postKind) {
-    if (!postKind.selected) {
-      this.props.selectPostKind(postKind.id);
-    }
+  handleClick(layout) {
+    this.props.updateChannel(this.props.selectedChannel, 'layout', layout.id);
   }
 
   render() {
+    let currentLayout = layouts[0].id;
+    const currentChannel = this.props.channels.find(
+      channel => channel.uid == this.props.selectedChannel,
+    );
+    if (currentChannel && currentChannel.layout) {
+      currentLayout = currentChannel.layout;
+    }
+
     return (
       <div className={this.props.classes.menu}>
-        {this.props.postKinds.map(postKind => {
-          const Icon = postKind.icon;
+        {layouts.map(layout => {
+          const Icon = layout.icon;
           return (
             <Tooltip
-              title={postKind.name}
-              key={'post-kind-menu-' + postKind.id}
+              title={layout.name}
+              key={'layout-switcher-' + layout.id}
               placement="right"
             >
               <IconButton
                 className={
                   this.props.classes.icon +
                   ' ' +
-                  (postKind.selected ? this.props.classes.iconSelected : '')
+                  (currentLayout == layout.id
+                    ? this.props.classes.iconSelected
+                    : '')
                 }
-                onClick={() => this.handleClick(postKind)}
+                onClick={() => this.handleClick(layout)}
               >
                 <Icon />
               </IconButton>
@@ -69,27 +78,30 @@ class PostKindMenu extends React.Component {
   }
 }
 
-PostKindMenu.defaultProps = {};
+LayoutSwitcher.defaultProps = {
+  channels: [],
+};
 
-PostKindMenu.propTypes = {
-  postKinds: PropTypes.array.isRequired,
+LayoutSwitcher.propTypes = {
+  channels: PropTypes.array.isRequired,
 };
 
 function mapStateToProps(state, props) {
   return {
-    postKinds: state.postKinds.toJS(),
+    selectedChannel: state.app.get('selectedChannel'),
+    channels: state.channels.toJS(),
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      selectPostKind: selectPostKind,
+      updateChannel: updateChannel,
     },
     dispatch,
   );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(PostKindMenu),
+  withStyles(styles)(LayoutSwitcher),
 );

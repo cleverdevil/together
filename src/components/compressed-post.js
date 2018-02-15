@@ -1,25 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
-
 import { withStyles } from 'material-ui/styles';
-import Card, {
-  CardHeader,
-  CardActions,
-  CardContent,
-  CardMedia,
-} from 'material-ui/Card';
-import { GridList, GridListTile } from 'material-ui/GridList';
-import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
-import Typography from 'material-ui/Typography';
-import {
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-} from 'material-ui/List';
-import Menu, { MenuItem } from 'material-ui/Menu';
+import { ListItem, ListItemText } from 'material-ui/List';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 
@@ -28,9 +11,6 @@ const styles = theme => ({});
 class TogetherCard extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      read: props.post._is_read,
-    };
     this.handleClick = this.handleClick.bind(this);
     this.getPreviewText = this.getPreviewText.bind(this);
   }
@@ -38,7 +18,6 @@ class TogetherCard extends React.Component {
   handleClick() {
     if (this.props.onClick) {
       this.props.onClick();
-      this.setState({ read: true });
     }
   }
 
@@ -80,7 +59,7 @@ class TogetherCard extends React.Component {
     }
 
     let readStyle = {};
-    if (this.state.read) {
+    if (item._is_read) {
       readStyle.opacity = 0.5;
     }
 
@@ -109,11 +88,4 @@ TogetherCard.propTypes = {
   embedMode: PropTypes.string,
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return bindActionCreators({
-
-//   }, dispatch);
-// }
-
-// export default connect(null, mapDispatchToProps)(withStyles(styles)(TogetherCard));
 export default withStyles(styles)(TogetherCard);

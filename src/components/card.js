@@ -29,6 +29,7 @@ import {
   addNotification,
   incrementChannelUnread,
   decrementChannelUnread,
+  updatePost,
 } from '../actions';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
@@ -62,9 +63,9 @@ class TogetherCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      read: props.post._is_read,
       popoverOpen: false,
       popoverAnchor: null,
-      read: props.post._is_read || props.read,
     };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
@@ -130,14 +131,15 @@ class TogetherCard extends React.Component {
   }
 
   handleToggleRead(e) {
+    this.setState(state => ({ read: !state.read }));
     if (this.state.read === false) {
       microsub('markRead', {
         params: [this.props.selectedChannel, this.props.post._id],
       })
         .then(res => {
-          this.props.addNotification('Marked as read');
+          this.props.updatePost(this.props.post._id, '_is_read', true);
           this.props.decrementChannelUnread(this.props.selectedChannel);
-          this.setState({ read: true });
+          this.props.addNotification('Marked as read');
         })
         .catch(err => {
           console.log(err);
@@ -148,9 +150,9 @@ class TogetherCard extends React.Component {
         params: [this.props.selectedChannel, this.props.post._id],
       })
         .then(res => {
-          this.props.addNotification('Marked as unread');
+          this.props.updatePost(this.props.post._id, '_is_read', false);
           this.props.incrementChannelUnread(this.props.selectedChannel);
-          this.setState({ read: false });
+          this.props.addNotification('Marked as unread');
         })
         .catch(err => {
           console.log(err);
@@ -167,7 +169,9 @@ class TogetherCard extends React.Component {
       photos = photos[0];
     }
     if (typeof photos === 'string') {
-      return <img className={this.props.classes.fullImage} src={photos} />;
+      return (
+        <img className={this.props.classes.fullImage} src={photos} alt="" />
+      );
     } else if (Array.isArray(photos)) {
       let cols = photos.length > 3 ? 3 : photos.length;
       let cellHeight = 200;
@@ -208,8 +212,8 @@ class TogetherCard extends React.Component {
         introText = 'Bookmark of ';
         break;
     }
-    return urls.map(url => (
-      <CardContent>
+    return urls.map((url, i) => (
+      <CardContent key={'card-urls-' + i}>
         <Typography component="p">
           {introText}
           <a href={url} target="_blank">
@@ -434,12 +438,10 @@ class TogetherCard extends React.Component {
 
 TogetherCard.defaultProps = {
   post: {},
-  read: false,
   embedMode: '',
 };
 
 TogetherCard.propTypes = {
-  read: PropTypes.bool.isRequired,
   post: PropTypes.object.isRequired,
   embedMode: PropTypes.string,
 };
@@ -456,6 +458,7 @@ function mapDispatchToProps(dispatch) {
       addNotification: addNotification,
       decrementChannelUnread: decrementChannelUnread,
       incrementChannelUnread: incrementChannelUnread,
+      updatePost: updatePost,
     },
     dispatch,
   );

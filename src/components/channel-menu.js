@@ -76,7 +76,12 @@ class ChannelMenu extends React.Component {
       microsub('getChannels')
         .then(channels => {
           channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid, channel.unread);
+            this.props.addChannel(
+              channel.name,
+              channel.uid,
+              channel.unread,
+              localStorage.getItem(`channel-${channel.uid}-layout`),
+            );
           });
         })
         .catch(err => {

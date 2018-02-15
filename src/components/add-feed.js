@@ -5,18 +5,11 @@ import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import Avatar from 'material-ui/Avatar';
 import Card, { CardContent, CardActions } from 'material-ui/Card';
-import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
+import List, { ListItem, ListItemText } from 'material-ui/List';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
-import Dialog, {
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from 'material-ui/Dialog';
 import { CircularProgress } from 'material-ui/Progress';
 import AddIcon from 'material-ui-icons/Add';
-import { LinearProgress } from 'material-ui/Progress';
 import TogetherCard from './card';
 import microsub from '../modules/microsub-api';
 import { addNotification, selectChannel } from '../actions';

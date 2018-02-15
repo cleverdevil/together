@@ -9,12 +9,7 @@ import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import CompressedPost from './compressed-post';
 import TogetherCard from './card';
-import {
-  decrementChannelUnread,
-  addToTimeline,
-  setTimelineAfter,
-  setTimelineBefore,
-} from '../actions';
+import { decrementChannelUnread, updatePost } from '../actions';
 import microsub from '../modules/microsub-api';
 
 const styles = theme => ({
@@ -67,6 +62,7 @@ class ClassicView extends React.Component {
   }
 
   handlePostSelect(post) {
+    post._is_read = true;
     this.setState({ post: post });
     // Mark the post as read
     if (!post._is_read) {
@@ -74,6 +70,7 @@ class ClassicView extends React.Component {
         params: [this.props.selectedChannel, post._id],
       })
         .then(res => {
+          this.props.updatePost(post._id, '_is_read', true);
           this.props.decrementChannelUnread(this.props.selectedChannel);
         })
         .catch(err => {
@@ -106,11 +103,7 @@ class ClassicView extends React.Component {
         </List>
         {this.state.post && (
           <div className={this.props.classes.postColumn}>
-            <TogetherCard
-              post={this.state.post}
-              embedMode="classic"
-              read={true}
-            />
+            <TogetherCard post={this.state.post} embedMode="classic" />
             <IconButton
               aria-label="Close Post"
               className={this.props.classes.closePost}
@@ -145,6 +138,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       decrementChannelUnread: decrementChannelUnread,
+      updatePost: updatePost,
     },
     dispatch,
   );

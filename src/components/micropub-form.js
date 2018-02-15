@@ -3,13 +3,9 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
-// import { Link } from 'react-router-dom';
-import IconButton from 'material-ui/IconButton';
-import Tooltip from 'material-ui/Tooltip';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 import SendIcon from 'material-ui-icons/Send';
-// import {} from '../actions';
 
 const styles = theme => ({
   container: {
@@ -39,15 +35,20 @@ class MicropubForm extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      shownFields: {},
-    };
+    let shownFields = {};
+    props.shownFields.forEach(key => (shownFields[key] = true));
+
+    let stateKeys = {};
     propertyKeys.forEach(key => {
       if (this.props[key]) {
-        this.state[key] = this.props[key];
+        stateKeys[key] = this.props[key];
       }
     });
-    props.shownFields.forEach(key => (this.state.shownFields[key] = true));
+
+    this.state = {
+      shownFields: shownFields,
+      ...stateKeys,
+    };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);

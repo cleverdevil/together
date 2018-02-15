@@ -6,11 +6,9 @@ import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
-import WebMercatorViewport from 'viewport-mercator-project';
+// import WebMercatorViewport from 'viewport-mercator-project';
 import MapMarker from './map-marker';
 import 'mapbox-gl/dist/mapbox-gl.css';
-
-const markerSize = 18;
 
 const styles = theme => ({
   map: {},
@@ -84,13 +82,12 @@ class CheckinMap extends React.Component {
     this.setState({ markers: posts });
 
     if (bounds) {
-      const viewport = new WebMercatorViewport({
-        width: this.props.containerWidth,
-        height: document.body.clientHeight,
-      });
+      // const viewport = new WebMercatorViewport({
+      //   width: this.props.containerWidth,
+      //   height: document.body.clientHeight,
+      // });
       // This doesn't work at the moment for reasons I don't understand
       // const bound = viewport.fitBounds(bounds, { padding: 20 });
-
       // this.setState({
       //   lat: bound.latitude,
       //   lng: bound.longitude,

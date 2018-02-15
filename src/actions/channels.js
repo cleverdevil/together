@@ -5,20 +5,25 @@ export const selectChannel = uid => {
   };
 };
 
-export const addChannel = (name, uid, unread = 0) => {
+export const addChannel = (name, uid, unread = 0, layout = 'timeline') => {
   return {
     type: 'ADD_CHANNEL',
     name: name,
     uid: uid,
     unread: unread,
+    layout: layout,
   };
 };
 
-export const setChannelUnread = (uid, unread) => {
+export const updateChannel = (uid, key, value) => {
+  if (key === 'layout') {
+    localStorage.setItem(`channel-${uid}-layout`, value);
+  }
   return {
-    type: 'SET_CHANNEL_UNREAD',
+    type: 'UPDATE_CHANNEL',
     uid: uid,
-    unread: unread,
+    key: key,
+    value: value,
   };
 };
 

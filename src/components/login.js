@@ -6,7 +6,6 @@ import { withStyles } from 'material-ui/styles';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import Dialog, {
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,

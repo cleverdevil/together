@@ -1,5 +1,4 @@
 import { Map } from 'immutable';
-import notification from '../components/notification';
 
 const defaultState = new Map({
   channelsMenuOpen: false,

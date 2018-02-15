@@ -6,8 +6,8 @@ import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import AppBar from './components/app-bar';
 import MainPosts from './components/main-posts';
-import PostKindMenu from './components/post-kind-menu.js';
-import ChannelMenu from './components/channel-menu.js';
+import LayoutSwitcher from './components/layout-switcher';
+import ChannelMenu from './components/channel-menu';
 import Settings from './components/settings';
 import ChannelSettings from './components/channel-settings';
 import Login from './components/login';
@@ -103,7 +103,7 @@ class App extends Component {
                 <ChannelMenu />
               </Grid>
               <Grid item className={this.props.classes.postKindMenu}>
-                <PostKindMenu />
+                <LayoutSwitcher />
               </Grid>
               <Grid item className={this.props.classes.main}>
                 <Route exact path="/" component={MainPosts} />

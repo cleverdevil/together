@@ -1,7 +1,23 @@
-export const addToTimeline = post => {
+export const addPost = post => {
   return {
-    type: 'ADD_TO_TIMELINE',
+    type: 'ADD_POST',
     post: post,
+  };
+};
+
+export const addPosts = posts => {
+  return {
+    type: 'ADD_POSTS',
+    posts: posts,
+  };
+};
+
+export const updatePost = (id, key, value) => {
+  return {
+    type: 'UPDATE_POST',
+    id: id,
+    key: key,
+    value: value,
   };
 };
 

@@ -7,12 +7,7 @@ import Button from 'material-ui/Button';
 
 import Card from './card';
 
-import {
-  addToTimeline,
-  setTimelineAfter,
-  setTimelineBefore,
-  selectChannel,
-} from '../actions';
+import {} from '../actions';
 
 const styles = theme => ({
   timeline: {
@@ -54,25 +49,13 @@ Timeline.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
-    timelineBefore: state.app.get('timelineBefore'),
     timelineAfter: state.app.get('timelineAfter'),
-    selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
-    items: state.timeline.toJS(),
-    postKind: state.postKinds.find(postKind => postKind.get('selected')).toJS(),
+    items: state.posts.toJS(),
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      addToTimeline: addToTimeline,
-      setTimelineAfter: setTimelineAfter,
-      setTimelineBefore: setTimelineBefore,
-      selectChannel: selectChannel,
-    },
-    dispatch,
-  );
+  return bindActionCreators({}, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(

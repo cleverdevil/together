@@ -5,22 +5,14 @@ import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { Link } from 'react-router-dom';
 import Typography from 'material-ui/Typography';
-import {
-  FormLabel,
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  FormHelperText,
-} from 'material-ui/Form';
+import { FormLabel, FormControl, FormGroup } from 'material-ui/Form';
 import List, {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
 } from 'material-ui/List';
 import TextField from 'material-ui/TextField';
-import Checkbox from 'material-ui/Checkbox';
 import Button from 'material-ui/Button';
-import Divider from 'material-ui/Divider';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import microsubApi from '../modules/microsub-api';
