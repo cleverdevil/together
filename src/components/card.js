@@ -329,14 +329,12 @@ class TogetherCard extends React.Component {
     let cardStyle = {};
     if (
       this.props.embedMode === 'photo' ||
-      this.props.embedMode === 'marker' ||
       this.props.embedMode === 'classic'
     ) {
       cardStyle.boxShadow = 'none';
     }
     if (this.props.embedMode === 'marker') {
-      cardStyle.margin = '-13px -20px';
-      cardStyle.background = 'none';
+      cardStyle.padding = 10;
     }
     if (this.props.embedMode === 'classic') {
       cardStyle.margin = 0;
