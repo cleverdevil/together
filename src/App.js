@@ -61,11 +61,11 @@ const style = theme => ({
   channelMenu: {
     width: 200,
     display: 'flex',
-    height: '100%',
     [theme.breakpoints.down('sm')]: {
       width: 200,
       position: 'absolute',
       right: '100%',
+      height: '100%',
       transition: 'transform .3s',
     },
   },
