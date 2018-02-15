@@ -10,7 +10,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('build'));
+app.use('/', express.static('build'));
 
 app.all('/api/micropub/:method', micropubRoute);
 app.all('/api/microsub/:method', microsubRoute);
