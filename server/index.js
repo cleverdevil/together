@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -10,7 +11,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use('/', express.static('build'));
+app.use(express.static('build'));
 
 app.all('/api/micropub/:method', micropubRoute);
 app.all('/api/microsub/:method', microsubRoute);
@@ -32,6 +33,10 @@ app.post('/api/rels', (req, res, next) => {
         res.json({ error: 'Error getting rels' });
       });
   }
+});
+
+app.get('*', (req, res, next) => {
+  res.sendFile(path.join(__dirname + '/../build/index.html'));
 });
 
 app.listen(process.env.PORT || 10008);
