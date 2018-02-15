@@ -62,10 +62,11 @@ class ClassicView extends React.Component {
   }
 
   handlePostSelect(post) {
+    const read = post._is_read;
     post._is_read = true;
     this.setState({ post: post });
     // Mark the post as read
-    if (!post._is_read) {
+    if (!read) {
       microsub('markRead', {
         params: [this.props.selectedChannel, post._id],
       })
