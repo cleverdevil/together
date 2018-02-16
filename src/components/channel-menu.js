@@ -31,7 +31,7 @@ const styles = theme => ({
   },
   button: {
     textAlign: 'left',
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.light,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',

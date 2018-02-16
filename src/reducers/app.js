@@ -6,6 +6,7 @@ const defaultState = new Map({
   timelineBefore: '',
   timelineAfter: '',
   notifications: [],
+  theme: localStorage.getItem('app-theme') || 'light',
 });
 
 export default (state = defaultState, payload) => {
@@ -35,6 +36,11 @@ export default (state = defaultState, payload) => {
         notifications.splice(payload.notificationIndex, 1);
       }
       return state.set('notifications', notifications);
+    }
+    case 'TOGGLE_THEME': {
+      const newTheme = state.get('theme') == 'light' ? 'dark' : 'light';
+      localStorage.setItem('app-theme', newTheme);
+      return state.set('theme', newTheme);
     }
     default: {
       return state;

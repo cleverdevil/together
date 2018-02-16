@@ -58,7 +58,7 @@ const styles = theme => ({
     },
   },
   urlPreview: {
-    background: theme.palette.grey[200],
+    background: theme.palette.action.disabledBackground,
   },
 });
 

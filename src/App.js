@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { withStyles } from 'material-ui/styles';
-import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import AppBar from './components/app-bar';
 import MainPosts from './components/main-posts';
@@ -11,33 +10,6 @@ import Settings from './components/settings';
 import ChannelSettings from './components/channel-settings';
 import Login from './components/login';
 import Notification from './components/notification';
-
-const theme = createMuiTheme({
-  typography: {
-    fontFamily:
-      '"Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif',
-    fontWeightLight: 400,
-    fontWeightRegular: 400,
-    fontWeightMedium: 900,
-  },
-  // palette: {
-  //   type: 'light',
-  // },
-  palette: {
-    primary: {
-      light: '#819ca9',
-      main: '#546e7a',
-      dark: '#29434e',
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#5e92f3',
-      main: '#1565c0',
-      dark: '#003c8f',
-      contrastText: '#fff',
-    },
-  },
-});
 
 const style = theme => ({
   appWrapper: {
@@ -92,32 +64,26 @@ class App extends Component {
     }
     return (
       <Router>
-        <MuiThemeProvider theme={theme}>
-          <Grid container spacing={0} className={this.props.classes.appWrapper}>
-            <AppBar />
-            <Grid item container spacing={0} className={rootClasses.join(' ')}>
-              <Grid item className={channelMenuClasses.join(' ')}>
-                <ChannelMenu />
-              </Grid>
-              <Grid item className={this.props.classes.main}>
-                <Route exact path="/" component={MainPosts} />
-                <Route
-                  exact
-                  path="/channel/:channelUid"
-                  component={MainPosts}
-                />
-                <Route
-                  exact
-                  path="/channel/:channelUid/edit"
-                  component={ChannelSettings}
-                />
-                <Route exact path="/settings" component={Settings} />
-              </Grid>
-              <Login />
-              <Notification />
+        <Grid container spacing={0} className={this.props.classes.appWrapper}>
+          <AppBar />
+          <Grid item container spacing={0} className={rootClasses.join(' ')}>
+            <Grid item className={channelMenuClasses.join(' ')}>
+              <ChannelMenu />
             </Grid>
+            <Grid item className={this.props.classes.main}>
+              <Route exact path="/" component={MainPosts} />
+              <Route exact path="/channel/:channelUid" component={MainPosts} />
+              <Route
+                exact
+                path="/channel/:channelUid/edit"
+                component={ChannelSettings}
+              />
+              <Route exact path="/settings" component={Settings} />
+            </Grid>
+            <Login />
+            <Notification />
           </Grid>
-        </MuiThemeProvider>
+        </Grid>
       </Router>
     );
   }

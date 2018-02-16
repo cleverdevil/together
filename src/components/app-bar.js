@@ -20,6 +20,7 @@ import {
   updateChannel,
   addNotification,
   updatePost,
+  toggleTheme,
 } from '../actions';
 import microsub from '../modules/microsub-api';
 
@@ -93,7 +94,6 @@ class TogetherAppBar extends React.Component {
   }
 
   renderMenuContent(selectedChannel) {
-    console.log(process.env);
     return (
       <React.Fragment>
         {selectedChannel && (
@@ -107,6 +107,9 @@ class TogetherAppBar extends React.Component {
         <Link to="/settings" className={this.props.classes.menuItem}>
           <MenuItem>App Settings</MenuItem>
         </Link>
+        <MenuItem onClick={this.props.toggleTheme}>
+          {this.props.theme == 'light' ? 'Dark' : 'Light'} Mode
+        </MenuItem>
         <MenuItem>Version {version}</MenuItem>
         <LayoutSwitcher className={this.props.classes.layoutSwitcher} />
       </React.Fragment>
@@ -187,6 +190,7 @@ TogetherAppBar.propTypes = {};
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
+    theme: state.app.get('theme'),
     channels: state.channels.toJS(),
     items: state.posts.toJS(),
   };
@@ -199,6 +203,7 @@ function mapDispatchToProps(dispatch) {
       updateChannel: updateChannel,
       addNotification: addNotification,
       updatePost: updatePost,
+      toggleTheme: toggleTheme,
     },
     dispatch,
   );

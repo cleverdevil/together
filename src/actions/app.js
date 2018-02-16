@@ -20,3 +20,9 @@ export const removeNotification = (index = 0) => {
     type: 'REMOVE_NOTIFICATION',
   };
 };
+
+export const toggleTheme = () => {
+  return {
+    type: 'TOGGLE_THEME',
+  };
+};
