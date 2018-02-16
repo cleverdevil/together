@@ -57,6 +57,9 @@ const styles = theme => ({
       height: 'auto',
     },
   },
+  urlPreview: {
+    background: theme.palette.grey[200],
+  },
 });
 
 class TogetherCard extends React.Component {
@@ -213,7 +216,10 @@ class TogetherCard extends React.Component {
         break;
     }
     return urls.map((url, i) => (
-      <CardContent key={'card-urls-' + i}>
+      <CardContent
+        key={'card-urls-' + i}
+        className={this.props.classes.urlPreview}
+      >
         <Typography component="p">
           {introText}
           <a href={url} target="_blank">
