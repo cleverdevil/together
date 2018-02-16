@@ -27,6 +27,7 @@ const styles = theme => ({
     flexDirection: 'column',
     overflow: 'auto',
     background: theme.palette.primary.dark,
+    borderRight: '1px solid ' + theme.palette.divider,
   },
   button: {
     textAlign: 'left',

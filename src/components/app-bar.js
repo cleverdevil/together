@@ -8,10 +8,13 @@ import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
+import Menu, { MenuItem } from 'material-ui/Menu';
 import SettingsIcon from 'material-ui-icons/Settings';
 import ChannelsIcon from 'material-ui-icons/Menu';
 import EditIcon from 'material-ui-icons/Edit';
 import ReadIcon from 'material-ui-icons/DoneAll';
+import LayoutSwitcher from './layout-switcher';
+import { version } from '../../package.json';
 import {
   toggleChannelsMenu,
   updateChannel,
@@ -39,12 +42,33 @@ const styles = theme => ({
       marginRight: 0,
     },
   },
+  menuItem: {
+    display: 'block',
+    outline: 'none',
+    textDecoration: 'none',
+  },
+  layoutSwitcher: {
+    flexDirection: 'row',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.dark,
+    marginBottom: -8,
+    marginTop: 8,
+  },
 });
 
 class TogetherAppBar extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      anchorEl: null,
+    };
+    this.handleMenuClose = this.handleMenuClose.bind(this);
     this.handleMarkRead = this.handleMarkRead.bind(this);
+    this.renderMenuContent = this.renderMenuContent.bind(this);
+  }
+
+  handleMenuClose(e) {
+    this.setState({ anchorEl: null });
   }
 
   handleMarkRead() {
@@ -68,7 +92,29 @@ class TogetherAppBar extends React.Component {
     }
   }
 
+  renderMenuContent(selectedChannel) {
+    console.log(process.env);
+    return (
+      <React.Fragment>
+        {selectedChannel && (
+          <Link
+            to={`/channel/${selectedChannel.uid}/edit`}
+            className={this.props.classes.menuItem}
+          >
+            <MenuItem>Channel Settings</MenuItem>
+          </Link>
+        )}
+        <Link to="/settings" className={this.props.classes.menuItem}>
+          <MenuItem>App Settings</MenuItem>
+        </Link>
+        <MenuItem>Version {version}</MenuItem>
+        <LayoutSwitcher className={this.props.classes.layoutSwitcher} />
+      </React.Fragment>
+    );
+  }
+
   render() {
+    const menuOpen = Boolean(this.state.anchorEl);
     const selectedChannel = this.props.channels.find(
       channel => channel.uid === this.props.selectedChannel,
     );
@@ -100,32 +146,35 @@ class TogetherAppBar extends React.Component {
           </Typography>
 
           <div>
-            {selectedChannel && (
-              <React.Fragment>
-                <Link to={`/channel/${selectedChannel.uid}/edit`}>
-                  <IconButton
-                    aria-label="Edit Channel"
-                    className={this.props.classes.editButton}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Link>
-                {selectedChannel.unread ? (
-                  <IconButton
-                    aria-label="Mark all as Read"
-                    className={this.props.classes.editButton}
-                    onClick={this.handleMarkRead}
-                  >
-                    <ReadIcon />
-                  </IconButton>
-                ) : null}
-              </React.Fragment>
-            )}
-            <Link to="/settings">
-              <IconButton>
-                <SettingsIcon />
+            {selectedChannel && selectedChannel.unread ? (
+              <IconButton
+                aria-label="Mark all as Read"
+                className={this.props.classes.editButton}
+                onClick={this.handleMarkRead}
+              >
+                <ReadIcon />
               </IconButton>
-            </Link>
+            ) : null}
+            <IconButton
+              onClick={e => this.setState({ anchorEl: e.currentTarget })}
+            >
+              <SettingsIcon />
+            </IconButton>
+            <Menu
+              anchorEl={this.state.anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={menuOpen}
+              onClose={this.handleMenuClose}
+            >
+              {this.renderMenuContent(selectedChannel)}
+            </Menu>
           </div>
         </Toolbar>
       </AppBar>

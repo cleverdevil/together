@@ -14,9 +14,10 @@ const styles = theme => ({
     flexDirection: 'column',
     overflow: 'visible',
     background: theme.palette.primary.main,
+    color: theme.palette.primary.dark,
   },
   icon: {
-    color: theme.palette.primary.dark,
+    color: 'inherit',
     '&:hover': {
       color: theme.palette.primary.contrastText,
     },
@@ -49,7 +50,9 @@ class LayoutSwitcher extends React.Component {
     }
 
     return (
-      <div className={this.props.classes.menu}>
+      <div
+        className={[this.props.classes.menu, this.props.className].join(' ')}
+      >
         {layouts.map(layout => {
           const Icon = layout.icon;
           return (

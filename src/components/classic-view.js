@@ -23,7 +23,7 @@ const styles = theme => ({
   },
   previewColumn: {
     overflow: 'auto',
-    borderRight: '1px solid ' + theme.palette.grey[300],
+    borderRight: '1px solid ' + theme.palette.divider,
     [theme.breakpoints.up('sm')]: {
       maxWidth: 250,
     },

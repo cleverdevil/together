@@ -6,7 +6,6 @@ import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
 import Grid from 'material-ui/Grid';
 import AppBar from './components/app-bar';
 import MainPosts from './components/main-posts';
-import LayoutSwitcher from './components/layout-switcher';
 import ChannelMenu from './components/channel-menu';
 import Settings from './components/settings';
 import ChannelSettings from './components/channel-settings';
@@ -70,12 +69,10 @@ const style = theme => ({
     },
   },
   channelMenuOpen: {
-    transform: 'translateX(200px)',
-    overflow: 'visible',
-  },
-  postKindMenu: {
-    width: 48,
-    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      transform: 'translateX(200px)',
+      overflow: 'visible',
+    },
   },
   main: {
     background: theme.palette.background.default,
@@ -101,9 +98,6 @@ class App extends Component {
             <Grid item container spacing={0} className={rootClasses.join(' ')}>
               <Grid item className={channelMenuClasses.join(' ')}>
                 <ChannelMenu />
-              </Grid>
-              <Grid item className={this.props.classes.postKindMenu}>
-                <LayoutSwitcher />
               </Grid>
               <Grid item className={this.props.classes.main}>
                 <Route exact path="/" component={MainPosts} />
