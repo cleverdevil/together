@@ -16,6 +16,19 @@ export function like(url) {
   });
 }
 
+export function bookmark(url, name, content) {
+  return micropubApi('create', {
+    param: {
+      type: ['h-entry'],
+      properties: {
+        'bookmark-of': [url],
+        name: [name],
+        content: [content]
+      }
+    }
+  });
+}
+
 export function repost(url) {
   let mf = {
     type: ['h-entry'],

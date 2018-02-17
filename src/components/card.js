@@ -76,6 +76,8 @@ class TogetherCard extends React.Component {
       read: props.post._is_read,
       popoverOpen: false,
       popoverAnchor: null,
+      bookmarkPopoverOpen: false,
+      bookmarkPopoverAnchorL: null,
     };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
@@ -85,6 +87,7 @@ class TogetherCard extends React.Component {
     this.renderUrl = this.renderUrl.bind(this);
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
+    this.handleBookmark = this.handleBookmark.bind(this);
     this.handleReply = this.handleReply.bind(this);
     this.handleView = this.handleView.bind(this);
     this.handleToggleRead = this.handleToggleRead.bind(this);
@@ -116,7 +119,7 @@ class TogetherCard extends React.Component {
       popoverAnchor: e.target,
     });
   }
-
+  
   handleReplySend(micropub) {
     indieActions
       .reply(
@@ -128,6 +131,31 @@ class TogetherCard extends React.Component {
         this.props.addNotification(`Successfully posted reply`);
       })
       .catch(err => this.props.addNotification(`Error posting reply`, 'error'));
+  }
+  
+  handleBookmark(e) {
+    const url = this.props.post.url;
+    const name = (this.props.post.name ? this.props.post.name : '');
+    this.setState({
+      bookmarkOfUrl: url,
+      bookmarkOfName: name,
+      bookmarkPopoverOpen: true,
+      bookmarkPopoverAnchor: e.target
+    });
+  }
+  
+  handleBookmarkSend(micropub) {
+    indieActions
+      .bookmark(
+        micropub.properties['bookmark-of'][0],
+        micropub.properties['name'][0],
+        micropub.properties.content[0],
+      )
+      .then(() => {
+        this.setState({ bookmarkPopoverOpen: false });
+        this.props.addNotification(`Successfully posted bookmark`);
+      })
+      .catch(err => this.props.addNotification(`Error posting bookmark`, 'error'));
   }
 
   handleView(e) {
@@ -410,6 +438,11 @@ class TogetherCard extends React.Component {
               <RepostIcon />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Bookmark" placement="top">
+            <IconButton onClick={this.handleBookmark}>
+              <BookmarkIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Reply" placement="top">
             <IconButton onClick={this.handleReply}>
               <ReplyIcon />
@@ -452,6 +485,29 @@ class TogetherCard extends React.Component {
             <MicropubForm
               onSubmit={this.handleReplySend}
               in-reply-to={this.state.inReplyToUrl}
+            />
+          </div>
+        </Popover>
+        <Popover
+          open={this.state.bookmarkPopoverOpen}
+          anchorEl={this.state.bookmarkPopoverAnchor}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          onClose={() => this.setState({ bookmarkPopoverOpen: false })}
+          onBackdropClick={() => this.setState({ bookmarkPopoverOpen: false })}
+        >
+          <div
+            style={{
+              padding: 10,
+            }}
+          >
+            <MicropubForm
+              onSubmit={this.handleBookmarkSend}
+              bookmark-of={this.state.bookmarkOfUrl}
+              name={this.bookmarkOfName}
+              shownFields={['name', 'content']}
             />
           </div>
         </Popover>

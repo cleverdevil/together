@@ -37,7 +37,7 @@ class MicropubForm extends React.Component {
 
     let shownFields = {};
     props.shownFields.forEach(key => (shownFields[key] = true));
-
+    
     let stateKeys = {};
     propertyKeys.forEach(key => {
       if (this.props[key]) {
@@ -49,7 +49,7 @@ class MicropubForm extends React.Component {
       shownFields: shownFields,
       ...stateKeys,
     };
-
+    
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -85,6 +85,18 @@ class MicropubForm extends React.Component {
         className={this.props.classes.container}
         onSubmit={this.handleSubmit}
       >
+        {shownFields.name && (
+          <TextField
+            id="micropub-form-name"
+            label="Name"
+            fullWidth={true}
+            className={this.props.classes.input}
+            value={this.state.name}
+            onChange={this.handleChange('name')}
+            margin="normal"
+            multiline={false}
+          />
+        )}
         {shownFields.content && (
           <TextField
             id="micropub-form-content"
