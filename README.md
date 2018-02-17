@@ -31,6 +31,12 @@ use it, you'll need a website that supports
 [IndieAuth](https://indieweb.org/IndieAuth) and 
 [Microsub](https://indieweb.org/Microsub).
 
+## Running Locally
+
+You'll need `node` and [yarn](https://yarnpkg.com/en/) installed. Once you have
+them, you can simply check out the repository and run `yarn install`, followed
+by `yarn start`.
+
 ---
 
 Want to join in and get involved? Open some issues or submit PRs!
