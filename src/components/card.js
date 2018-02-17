@@ -365,19 +365,23 @@ class TogetherCard extends React.Component {
       cardStyle.maxWidth = 700;
     }
 
+    let authorNameLink = <a href={avatarData.href} target="_blank">{avatarData.alt}</a>
+
     return (
       <Card className={this.props.classes.card} style={cardStyle}>
         <CardHeader
-          title={avatarData.alt}
+          title={authorNameLink}
           subheader={date}
           avatar={
-            <Avatar
-              {...avatarData}
-              aria-label={avatarData.alt}
-              style={{ background: avatarData.color }}
-            >
-              {avatarData.src ? null : avatarData.initials}
-            </Avatar>
+            <a href={avatarData.href} target="_blank">
+              <Avatar
+                {...avatarData}
+                aria-label={avatarData.alt}
+                style={{ background: avatarData.color }}
+              >
+                {avatarData.src ? null : avatarData.initials}
+              </Avatar>
+            </a>
           }
         />
         {this.renderUrl(item['in-reply-to'], 'reply')}
