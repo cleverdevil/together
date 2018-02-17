@@ -29,6 +29,10 @@ const styles = theme => ({
     background: theme.palette.primary.dark,
     borderRight: '1px solid ' + theme.palette.divider,
   },
+  channelTextRoot: {
+    position: 'realtive',
+    padding: 0,
+  },
   button: {
     textAlign: 'left',
     color: theme.palette.primary.light,
@@ -51,11 +55,21 @@ const styles = theme => ({
     background: theme.palette.background.default,
   },
   unread: {
-    background: theme.palette.primary.main,
-    color: theme.palette.background.default,
+    position: 'absolute',
+    top: '50%',
+    right: 8,
+    marginTop: '-1em',
+    minWidth: '1em',
+    background:
+      theme.palette.type === 'dark'
+        ? theme.palette.secondary.dark
+        : theme.palette.secondary.main,
+    color: theme.palette.secondary.contrastText,
     fontWeight: 'bold',
-    fontSize: '0.5em',
-    padding: '.2em .5em',
+    fontSize: '0.6em',
+    textAlign: 'center',
+    lineHeight: 1,
+    padding: '.5em',
     borderRadius: '1em',
   },
 });
@@ -190,12 +204,16 @@ class ChannelMenu extends React.Component {
               >
                 <ListItem button>
                   <ListItemText
-                    classes={{ primary: textClassName }}
-                    primary={channel.name}
+                    classes={{
+                      primary: textClassName,
+                      root: this.props.classes.channelTextRoot,
+                    }}
+                    primary={
+                      <React.Fragment>
+                        {channel.name} {unreadCount}
+                      </React.Fragment>
+                    }
                   />
-                  <ListItemSecondaryAction>
-                    {unreadCount}
-                  </ListItemSecondaryAction>
                 </ListItem>
               </Link>
             );
