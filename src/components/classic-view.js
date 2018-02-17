@@ -30,10 +30,13 @@ const styles = theme => ({
   },
   postColumn: {
     flexGrow: 1,
-    overflow: 'auto',
+    // overflow: 'auto',
     position: 'absolute',
     width: '100%',
     height: '100%',
+    // iOS hack thing
+    overflowY: 'scroll',
+    '-webkit-overflow-scrolling': 'touch',
     [theme.breakpoints.up('sm')]: {
       position: 'relative',
     },
