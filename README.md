@@ -1,26 +1,36 @@
 ![together](together-logo.png)
 
-The future home of the together project: an [IndieWeb](http://indieweb.org)
+The together project is an [IndieWeb](http://indieweb.org)
 environment for reading, discovering, and interacting with content. You might
 call it a [reader](http://indieweb.org/reader).
 
-![Mockup of together](http://share.cleverdevil.io/gAZRQQvUMH.png "Mockup")
+<a href="https://cleverdevil.io/s/WEGNzGQDyX.jpg">
+  <img width="300" align="left" src="https://cleverdevil.io/s/WEGNzGQDyX.jpg">
+</a>
+<a href="https://cleverdevil.io/s/5wGwiSMpSA.jpg">
+  <img width="300" align="left" src="https://cleverdevil.io/s/5wGwiSMpSA.jpg">
+</a>
+<br>
+<a href="https://cleverdevil.io/s/dMFEtVZ4Mh.jpg">
+  <img width="300" align="left" src="https://cleverdevil.io/s/dMFEtVZ4Mh.jpg">
+</a>
+<a href="https://cleverdevil.io/s/LDB4IBtNaD.jpg">
+  <img width="300" align="left" src="https://cleverdevil.io/s/LDB4IBtNaD.jpg">
+</a>
+<br>
+<a href="https://cleverdevil.io/s/kBOkpX8GM5.jpg">
+  <img width="300" align="left" src="https://cleverdevil.io/s/kBOkpX8GM5.jpg">
+</a>
+
+<br>
 
 ---
 
-## Frontend Protoype
-
-This is a [React](https://facebook.github.io/react/) based frontend prototype. Currently for rapid experimentation and not in any sort of finished state.
-
-### Running locally
-
-Firstly you will need to have [node.js](https://nodejs.org/) and [yarn](https://yarnpkg.com/) installed locally. Then to run the app in development mode simply clone this repo and run `yarn install` and `yarn start` in the root directory.
-
-This will start a local server at `localhost:3000` and open it in your browser for you. Changes are then live injected when you save a file.
-
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
-
-You can find out more about working with Create React App [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
+Together is a [React](https://facebook.github.io/react/) based application. To
+use it, you'll need a website that supports
+[Micropub](https://indieweb.org/Micropub), 
+[IndieAuth](https://indieweb.org/IndieAuth) and 
+[Microsub](https://indieweb.org/Microsub).
 
 ---
 
