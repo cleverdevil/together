@@ -6,13 +6,17 @@ import { Link } from 'react-router-dom';
 import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
+import Popover from 'material-ui/Popover';
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import SettingsIcon from 'material-ui-icons/Settings';
 import ChannelsIcon from 'material-ui-icons/Menu';
+import NoteAddIcon from 'material-ui-icons/NoteAdd';
 import EditIcon from 'material-ui-icons/Edit';
 import ReadIcon from 'material-ui-icons/DoneAll';
+import MicropubForm from './micropub-form';
+import * as indieActions from '../modules/indie-actions';
 import LayoutSwitcher from './layout-switcher';
 import { version } from '../../package.json';
 import {
@@ -62,9 +66,13 @@ class TogetherAppBar extends React.Component {
     super(props);
     this.state = {
       anchorEl: null,
+      popoverOpen: false,
+      popoverAnchor: null
     };
     this.handleMenuClose = this.handleMenuClose.bind(this);
     this.handleMarkRead = this.handleMarkRead.bind(this);
+    this.handleCompose = this.handleCompose.bind(this);
+    this.handleComposeSend = this.handleComposeSend.bind(this);
     this.renderMenuContent = this.renderMenuContent.bind(this);
   }
 
@@ -91,6 +99,25 @@ class TogetherAppBar extends React.Component {
           this.props.addNotification('Error marking items as read', 'error');
         });
     }
+  }
+
+  handleCompose(e) {
+    this.setState({
+      popoverOpen: true,
+      popoverAnchor: e.target,
+    });
+  }
+
+  handleComposeSend(micropub) {
+    indieActions
+      .note(
+        micropub.properties.content[0],
+      )
+      .then(() => {
+        this.setState({ popoverOpen: false });
+        this.props.addNotification(`Successfully posted note`);
+      })
+      .catch(err => this.props.addNotification(`Error posting note`, 'error'));
   }
 
   renderMenuContent(selectedChannel) {
@@ -158,6 +185,15 @@ class TogetherAppBar extends React.Component {
                 <ReadIcon />
               </IconButton>
             ) : null}
+            
+            <IconButton
+              aria-label="Compose Note"
+              className={this.props.classes.editButton}
+              onClick={this.handleCompose}
+            >
+              <NoteAddIcon />
+            </IconButton>
+
             <IconButton
               onClick={e => this.setState({ anchorEl: e.currentTarget })}
             >
@@ -178,6 +214,26 @@ class TogetherAppBar extends React.Component {
             >
               {this.renderMenuContent(selectedChannel)}
             </Menu>
+            <Popover
+              open={this.state.popoverOpen}
+              anchorEl={this.state.popoverAnchor}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              onClose={() => this.setState({ popoverOpen: false })}
+              onBackdropClick={() => this.setState({ popoverOpen: false })}
+            >
+              <div
+                style={{
+                  padding: 10,
+                }}
+              >
+                <MicropubForm
+                  onSubmit={this.handleComposeSend}
+                />
+              </div>
+            </Popover>
           </div>
         </Toolbar>
       </AppBar>

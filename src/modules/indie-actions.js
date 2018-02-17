@@ -1,5 +1,16 @@
 import micropubApi from './micropub-api';
 
+export function note(content) {
+  return micropubApi('create', {
+    param: {
+      type: ['h-entry'],
+      properties: {
+        content: [content],
+      },
+    },
+  });
+}
+
 export function like(url) {
   let mf = {
     type: ['h-entry'],
