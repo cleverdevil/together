@@ -17,6 +17,7 @@ import Avatar from 'material-ui/Avatar';
 import Typography from 'material-ui/Typography';
 import DeveloperModeIcon from 'material-ui-icons/DeveloperMode';
 import LikeIcon from 'material-ui-icons/ThumbUp';
+import BookmarkIcon from 'material-ui-icons/Bookmark';
 import ReplyIcon from 'material-ui-icons/Reply';
 import RepostIcon from 'material-ui-icons/Repeat';
 import VisitIcon from 'material-ui-icons/Link';
@@ -209,16 +210,16 @@ class TogetherCard extends React.Component {
     let introText = '';
     switch (type) {
       case 'reply':
-        introText = 'In reply to ';
+        introText = <ReplyIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
         break;
       case 'like':
-        introText = 'Like of ';
+        introText = <LikeIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
         break;
       case 'repost':
-        introText = 'Repost of ';
+        introText = <RepostIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
         break;
       case 'bookmark':
-        introText = 'Bookmark of ';
+        introText = <BookmarkIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
         break;
     }
     return urls.map((url, i) => (
