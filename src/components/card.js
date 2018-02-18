@@ -210,16 +210,32 @@ class TogetherCard extends React.Component {
     let introText = '';
     switch (type) {
       case 'reply':
-        introText = <ReplyIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
+        introText = (
+          <ReplyIcon
+            style={{ margin: '0 10px -5px 0', width: '18px', height: '18px' }}
+          />
+        );
         break;
       case 'like':
-        introText = <LikeIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
+        introText = (
+          <LikeIcon
+            style={{ margin: '0 10px -5px 0', width: '18px', height: '18px' }}
+          />
+        );
         break;
       case 'repost':
-        introText = <RepostIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
+        introText = (
+          <RepostIcon
+            style={{ margin: '0 10px -5px 0', width: '18px', height: '18px' }}
+          />
+        );
         break;
       case 'bookmark':
-        introText = <BookmarkIcon style={{margin: '0 10px -5px 0', width: '18px', height: '18px'}} />;
+        introText = (
+          <BookmarkIcon
+            style={{ margin: '0 10px -5px 0', width: '18px', height: '18px' }}
+          />
+        );
         break;
     }
     return urls.map((url, i) => (
@@ -366,7 +382,11 @@ class TogetherCard extends React.Component {
       cardStyle.maxWidth = 700;
     }
 
-    let authorNameLink = <a href={avatarData.href} target="_blank">{avatarData.alt}</a>
+    let authorNameLink = (
+      <a href={avatarData.href} target="_blank">
+        {avatarData.alt}
+      </a>
+    );
 
     return (
       <Card className={this.props.classes.card} style={cardStyle}>

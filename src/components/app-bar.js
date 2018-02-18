@@ -67,7 +67,7 @@ class TogetherAppBar extends React.Component {
     this.state = {
       anchorEl: null,
       popoverOpen: false,
-      popoverAnchor: null
+      popoverAnchor: null,
     };
     this.handleMenuClose = this.handleMenuClose.bind(this);
     this.handleMarkRead = this.handleMarkRead.bind(this);
@@ -110,9 +110,7 @@ class TogetherAppBar extends React.Component {
 
   handleComposeSend(micropub) {
     indieActions
-      .note(
-        micropub.properties.content[0],
-      )
+      .note(micropub.properties.content[0])
       .then(() => {
         this.setState({ popoverOpen: false });
         this.props.addNotification(`Successfully posted note`);
@@ -185,7 +183,7 @@ class TogetherAppBar extends React.Component {
                 <ReadIcon />
               </IconButton>
             ) : null}
-            
+
             <IconButton
               aria-label="Compose Note"
               className={this.props.classes.editButton}
@@ -229,9 +227,7 @@ class TogetherAppBar extends React.Component {
                   padding: 10,
                 }}
               >
-                <MicropubForm
-                  onSubmit={this.handleComposeSend}
-                />
+                <MicropubForm onSubmit={this.handleComposeSend} />
               </div>
             </Popover>
           </div>
