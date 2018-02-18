@@ -77,6 +77,7 @@ class Gallery extends React.Component {
     super(props);
     this.state = {
       open: this.props.open,
+      selectedPost: false,
     };
     this.handleClose = this.handleClose.bind(this);
   }
@@ -112,30 +113,30 @@ class Gallery extends React.Component {
             }
             return post.photo.map(photo => (
               <div className={this.props.classes.popup}>
-                <IconButton
-                  className={this.props.classes.infoButton}
-                  onClick={() => this.setState({ showInfo: true })}
-                >
-                  <InfoIcon />
-                </IconButton>
                 <img
                   className={this.props.classes.popupImage}
                   src={photo}
                   alt=""
                 />
-                <Drawer
-                  open={this.state.showInfo}
-                  onClose={() => this.setState({ showInfo: false })}
-                  classes={{
-                    paperAnchorLeft: this.props.classes.drawer,
-                  }}
+                <IconButton
+                  className={this.props.classes.infoButton}
+                  onClick={() => this.setState({ selectedPost: post })}
                 >
-                  <TogetherCard post={post} embedMode="photo" />
-                </Drawer>
+                  <InfoIcon />
+                </IconButton>
               </div>
             ));
           })}
         </Carousel>
+        <Drawer
+          open={this.state.selectedPost}
+          onClose={() => this.setState({ selectedPost: false })}
+          classes={{
+            paperAnchorLeft: this.props.classes.drawer,
+          }}
+        >
+          <TogetherCard post={this.state.selectedPost} embedMode="photo" />
+        </Drawer>
         <IconButton
           className={this.props.classes.popupClose}
           onClick={this.handleClose}
