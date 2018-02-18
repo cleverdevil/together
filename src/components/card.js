@@ -48,8 +48,8 @@ const styles = theme => ({
     '& a': {
       color:
         theme.palette.type === 'dark'
-          ? theme.palette.secondary.main
-          : theme.palette.secondary.light,
+          ? theme.palette.secondary.light
+          : theme.palette.secondary.main,
     },
   },
   fullImage: {
