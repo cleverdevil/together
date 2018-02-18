@@ -10,7 +10,7 @@ import Card, {
   CardContent,
   CardMedia,
 } from 'material-ui/Card';
-import { GridList, GridListTile } from 'material-ui/GridList';
+import GridList, { GridListTile } from 'material-ui/GridList';
 import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import Avatar from 'material-ui/Avatar';
@@ -192,8 +192,8 @@ class TogetherCard extends React.Component {
       }
       return (
         <GridList cellHeight={cellHeight} cols={cols} spacing={0}>
-          {photos.map(photo => (
-            <GridListTile key={photo} cols={1}>
+          {photos.map((photo, i) => (
+            <GridListTile key={`card-photo-${i}`} cols={1}>
               <img src={photo} alt="" />
             </GridListTile>
           ))}
