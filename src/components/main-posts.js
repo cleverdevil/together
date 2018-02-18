@@ -143,19 +143,44 @@ class MainPosts extends React.Component {
     }
     switch (currentLayout.id) {
       case 'gallery':
-        return <Gallery posts={posts} loadMore={this.handleLoadMore} />;
+        return (
+          <Gallery
+            posts={posts}
+            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+          />
+        );
         break;
       case 'map':
-        return <Checkins posts={posts} loadMore={this.handleLoadMore} />;
+        return (
+          <Checkins
+            posts={posts}
+            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+          />
+        );
         break;
       case 'classic':
-        return <ClassicView posts={posts} loadMore={this.handleLoadMore} />;
+        return (
+          <ClassicView
+            posts={posts}
+            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+          />
+        );
         break;
       case 'timeline':
-        return <Timeline posts={posts} loadMore={this.handleLoadMore} />;
+        return (
+          <Timeline
+            posts={posts}
+            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+          />
+        );
         break;
       default:
-        return <Timeline posts={posts} loadMore={this.handleLoadMore} />;
+        return (
+          <Timeline
+            posts={posts}
+            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+          />
+        );
         break;
     }
   }

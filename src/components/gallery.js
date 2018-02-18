@@ -6,10 +6,16 @@ import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import GridList, { GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
+import Button from 'material-ui/Button';
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 
-const styles = theme => ({});
+const styles = theme => ({
+  loadMore: {
+    width: '100%',
+    marginTop: 16,
+  },
+});
 
 class Gallery extends React.Component {
   constructor(props) {
@@ -63,6 +69,14 @@ class Gallery extends React.Component {
           photo={this.state.selectedPhoto}
           post={this.state.selectedPost}
         />
+        {this.props.loadMore && (
+          <Button
+            onClick={this.props.loadMore}
+            className={this.props.classes.loadMore}
+          >
+            Load More
+          </Button>
+        )}
       </div>
     );
   }

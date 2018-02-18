@@ -31,9 +31,9 @@ class Timeline extends React.Component {
         {this.props.posts.map((item, i) => (
           <Card post={item} key={'card-' + i} />
         ))}
-        {this.props.timelineAfter ? (
+        {this.props.loadMore && (
           <Button onClick={this.props.loadMore}>Load More</Button>
-        ) : null}
+        )}
       </div>
     );
   }
@@ -48,10 +48,7 @@ Timeline.propTypes = {
 };
 
 function mapStateToProps(state, props) {
-  return {
-    timelineAfter: state.app.get('timelineAfter'),
-    items: state.posts.toJS(),
-  };
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {

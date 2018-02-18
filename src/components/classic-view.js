@@ -94,7 +94,7 @@ class ClassicView extends React.Component {
               onClick={() => this.handlePostSelect(post)}
             />
           ))}
-          {this.props.timelineAfter ? (
+          {this.props.loadMore && (
             <ListItem>
               <Button
                 onClick={this.props.loadMore}
@@ -103,7 +103,7 @@ class ClassicView extends React.Component {
                 Load More
               </Button>
             </ListItem>
-          ) : null}
+          )}
         </List>
         {this.state.post && (
           <div className={this.props.classes.postColumn}>
@@ -133,8 +133,6 @@ ClassicView.propTypes = {
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
-    timelineBefore: state.app.get('timelineBefore'),
-    timelineAfter: state.app.get('timelineAfter'),
   };
 }
 
