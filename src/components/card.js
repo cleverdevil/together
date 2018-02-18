@@ -10,6 +10,8 @@ import Card, {
   CardContent,
   CardMedia,
 } from 'material-ui/Card';
+import Collapse from 'material-ui/transitions/Collapse';
+import classnames from 'classnames';
 import GridList, { GridListTile } from 'material-ui/GridList';
 import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
@@ -23,6 +25,7 @@ import RepostIcon from 'material-ui-icons/Repeat';
 import VisitIcon from 'material-ui-icons/Link';
 import ReadIcon from 'material-ui-icons/PanoramaFishEye';
 import UnreadIcon from 'material-ui-icons/Lens';
+import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
 import Popover from 'material-ui/Popover';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
@@ -67,6 +70,16 @@ const styles = theme => ({
   urlPreview: {
     background: theme.palette.action.disabledBackground,
   },
+  expand: {
+    transform: 'rotate(0deg)',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+    marginLeft: 'auto',
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)',
+  },
 });
 
 class TogetherCard extends React.Component {
@@ -76,6 +89,7 @@ class TogetherCard extends React.Component {
       read: props.post._is_read,
       popoverOpen: false,
       popoverAnchor: null,
+      expanded: true
     };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
@@ -88,6 +102,7 @@ class TogetherCard extends React.Component {
     this.handleReply = this.handleReply.bind(this);
     this.handleView = this.handleView.bind(this);
     this.handleToggleRead = this.handleToggleRead.bind(this);
+    this.handleExpandClick = this.handleExpandClick.bind(this);
   }
 
   handleLike(e) {
@@ -169,6 +184,10 @@ class TogetherCard extends React.Component {
           this.props.addNotification('Error marking as unread', 'error');
         });
     }
+  }
+
+  handleExpandClick() {
+    this.setState(state => ({ expanded: !state.expanded }));
   }
 
   renderPhotos(photos) {
@@ -348,8 +367,10 @@ class TogetherCard extends React.Component {
     return (
       <CardContent>
         {title}
-        {summary}
-        {content}
+        <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+          {summary}
+          {content}
+        </Collapse>
       </CardContent>
     );
   }
@@ -451,6 +472,17 @@ class TogetherCard extends React.Component {
           <Tooltip title="Log to console" placement="top">
             <IconButton onClick={() => console.log(item)} aria-label="Log">
               <DeveloperModeIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Collapse" placement="top">
+            <IconButton
+              className={classnames(this.props.classes.expand, {
+                [this.props.classes.expandOpen]: this.state.expanded,
+              })}
+              onClick={this.handleExpandClick}
+              aria-expanded={this.state.expanded}
+            >
+              <ExpandMoreIcon />
             </IconButton>
           </Tooltip>
         </CardActions>
