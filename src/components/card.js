@@ -48,8 +48,8 @@ const styles = theme => ({
     '& a': {
       color:
         theme.palette.type === 'dark'
-          ? theme.palette.secondary.light
-          : theme.palette.secondary.main,
+          ? theme.palette.secondary.main
+          : theme.palette.secondary.light,
     },
   },
   fullImage: {
@@ -65,6 +65,10 @@ const styles = theme => ({
     '& img': {
       maxWidth: '100%',
       height: 'auto',
+    },
+    '& blockquote': {
+      'border-left': '4px solid ' + theme.palette.divider,
+      'padding-left': '1em'
     },
   },
   urlPreview: {
