@@ -15,8 +15,10 @@ import CloseIcon from 'material-ui-icons/Close';
 import Slide from 'material-ui/transitions/Slide';
 import TogetherCard from './card';
 import Carousel from 'nuka-carousel';
+import TogetherSliderDecorators from './gallery-slider-decorators'
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
+
 
 const styles = theme => ({
   loadMore: {
@@ -106,6 +108,7 @@ class Gallery extends React.Component {
         <Carousel
           className={this.props.classes.carousel}
           slideIndex={this.props.startIndex}
+          decorators={TogetherSliderDecorators}
         >
           {this.props.posts.map(post => {
             if (typeof post.photo === 'string') {
