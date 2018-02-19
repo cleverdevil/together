@@ -5,6 +5,7 @@ const emptyState = {
   syndicationProviders: [],
   likeSyndication: [],
   repostSyndication: [],
+  noteSyndication: [],
 };
 
 let initialState = new Map();

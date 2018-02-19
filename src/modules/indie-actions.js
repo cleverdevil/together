@@ -1,13 +1,18 @@
 import micropubApi from './micropub-api';
 
 export function note(content) {
-  return micropubApi('create', {
-    param: {
+  let mf = {
       type: ['h-entry'],
       properties: {
         content: [content],
       },
-    },
+  };
+  const syndication = localStorage.getItem('together-setting-noteSyndication');
+  if (syndication && syndication.length > 0) {
+    mf.properties['mp-syndicate-to'] = JSON.parse(syndication);
+  }
+  return micropubApi('create', {
+    param: mf, 
   });
 }
 
@@ -20,7 +25,7 @@ export function like(url) {
   };
   const syndication = localStorage.getItem('together-setting-likeSyndication');
   if (syndication && syndication.length > 0) {
-    mf.properties['mp-syndicate-to'] = syndication;
+    mf.properties['mp-syndicate-to'] = JSON.parse(syndication);
   }
   return micropubApi('create', {
     param: mf,
@@ -38,7 +43,7 @@ export function repost(url) {
     'together-setting-repostSyndication',
   );
   if (syndication && syndication.length > 0) {
-    mf.properties['mp-syndicate-to'] = syndication;
+    mf.properties['mp-syndicate-to'] = JSON.parse(syndication);
   }
   return micropubApi('create', {
     param: mf,

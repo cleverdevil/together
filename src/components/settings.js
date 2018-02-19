@@ -57,6 +57,9 @@ class Settings extends React.Component {
     this.handleRepostSyndicationChange = this.handleRepostSyndicationChange.bind(
       this,
     );
+    this.handleNoteSyndicationChange = this.handleNoteSyndicationChange.bind(
+      this,
+    );
   }
 
   componentDidMount() {
@@ -101,6 +104,21 @@ class Settings extends React.Component {
     this.props.setSetting('repostSyndication', options);
     // Have to force an update for some reason
     this.setState({ force: 'update' });
+  }
+
+  handleNoteSyndicationChange(event, checked) {
+    const provider = event.target.value;
+    let options = this.props.settings.noteSyndication;
+    const index = options.indexOf(provider);
+    if (index > -1) {
+      options.splice(index, 1);
+    } else {
+      options.push(provider);
+    }
+    this.props.setSetting('noteSyndication', options);
+    // Have to force an update for some reason
+    this.setState({ force: 'update' });
+
   }
 
   getSyndicationProviders() {
@@ -254,6 +272,29 @@ class Settings extends React.Component {
                         }
                         value={provider.uid}
                         onChange={this.handleRepostSyndicationChange}
+                      />
+                    }
+                    label={provider.name}
+                  />
+                ))}
+              </FormGroup>
+            </FormControl>
+
+            <FormControl component="div">
+              <FormLabel component="span">Note Syndication</FormLabel>
+              <FormGroup>
+                {this.props.settings.syndicationProviders.map(provider => (
+                  <FormControlLabel
+                    key={`note-syndication-setting-${provider.uid}`}
+                    control={
+                      <Checkbox
+                        checked={
+                          this.props.settings.noteSyndication.indexOf(
+                            provider.uid,
+                          ) > -1
+                        }
+                        value={provider.uid}
+                        onChange={this.handleNoteSyndicationChange}
                       />
                     }
                     label={provider.name}
