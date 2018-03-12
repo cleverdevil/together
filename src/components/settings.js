@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import { Link } from 'react-router-dom';
-import Typography from 'material-ui/Typography';
 import {
   FormLabel,
   FormControl,
@@ -16,18 +15,15 @@ import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 import Button from 'material-ui/Button';
 import Divider from 'material-ui/Divider';
-import IconButton from 'material-ui/IconButton';
-import CloseIcon from 'material-ui-icons/Close';
+import SettingsModal from './settings-modal';
 import { setUserOption, setSetting, logout, addNotification } from '../actions';
 import micropubApi from '../modules/micropub-api';
+import { ViewColumn } from 'material-ui-icons';
 
 const styles = theme => ({
-  page: {
-    padding: theme.spacing.unit * 2,
-  },
   fieldset: {
     width: '100%',
-    maxWidth: 500,
+    maxWidth: '24em',
   },
   divider: {
     marginTop: 24,
@@ -118,7 +114,6 @@ class Settings extends React.Component {
     this.props.setSetting('noteSyndication', options);
     // Have to force an update for some reason
     this.setState({ force: 'update' });
-
   }
 
   getSyndicationProviders() {
@@ -149,166 +144,161 @@ class Settings extends React.Component {
 
   render() {
     return (
-      <div className={this.props.classes.page}>
-        <Typography variant="headline" component="h2" paragraph={true}>
-          Settings
-        </Typography>
-        <Link to="/" className={this.props.classes.close}>
-          <IconButton>
-            <CloseIcon />
-          </IconButton>
-        </Link>
-        <FormControl
-          component="fieldset"
-          className={this.props.classes.fieldset}
-        >
-          <FormLabel component="legend">User options</FormLabel>
-          <FormGroup>
-            <TextField
-              id="me"
-              label="Me"
-              value={this.props.user.me}
-              onChange={this.handleUserOptionChange('me')}
-              margin="normal"
-              type="url"
-            />
-            <TextField
-              id="token"
-              label="Token"
-              value={this.props.user.token}
-              onChange={this.handleUserOptionChange('token')}
-              margin="normal"
-              type="text"
-            />
-            <TextField
-              id="microsub-endpoint"
-              label="Microsub Endpoint"
-              value={this.props.user.microsubEndpoint}
-              onChange={this.handleUserOptionChange('microsubEndpoint')}
-              margin="normal"
-              type="url"
-            />
-            <TextField
-              id="micropub-endpoint"
-              label="Micropub Endpoint"
-              value={this.props.user.micropubEndpoint}
-              onChange={this.handleUserOptionChange('micropubEndpoint')}
-              margin="normal"
-              type="url"
-            />
-            <TextField
-              id="media-endpoint"
-              label="Media Endpoint"
-              value={this.props.user.mediaEndpoint}
-              onChange={this.handleUserOptionChange('mediaEndpoint')}
-              margin="normal"
-              type="url"
-            />
-            <TextField
-              id="token-endpoint"
-              label="Token Endpoint"
-              value={this.props.user.tokenEndpoint}
-              onChange={this.handleUserOptionChange('tokenEndpoint')}
-              margin="normal"
-              type="url"
-            />
-            <Button onClick={this.props.logout} variant="raised">
-              Sign Out
-            </Button>
-          </FormGroup>
-        </FormControl>
-        <Divider className={this.props.classes.divider} />
-        <FormControl
-          component="fieldset"
-          className={this.props.classes.fieldset}
-        >
-          <FormLabel component="legend">Together options</FormLabel>
-          <FormGroup>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={this.props.settings.reactions}
-                  onChange={() => {}}
-                />
-              }
-              label="Emoji Reaction Support"
-            />
-
-            <FormControl component="div">
-              <FormLabel component="span">Like Syndication</FormLabel>
-              <FormGroup>
-                {this.props.settings.syndicationProviders.map(provider => (
-                  <FormControlLabel
-                    key={`like-syndication-setting-${provider.uid}`}
-                    control={
-                      <Checkbox
-                        checked={
-                          this.props.settings.likeSyndication.indexOf(
-                            provider.uid,
-                          ) > -1
-                        }
-                        value={provider.uid}
-                        onChange={this.handleLikeSyndicationChange}
-                      />
-                    }
-                    label={provider.name}
+      <SettingsModal title="Settings">
+        <div>
+          <FormControl
+            component="fieldset"
+            className={this.props.classes.fieldset}
+          >
+            <FormLabel component="legend">User options</FormLabel>
+            <FormGroup>
+              <TextField
+                id="me"
+                label="Me"
+                value={this.props.user.me}
+                onChange={this.handleUserOptionChange('me')}
+                margin="normal"
+                type="url"
+              />
+              <TextField
+                id="token"
+                label="Token"
+                value={this.props.user.token}
+                onChange={this.handleUserOptionChange('token')}
+                margin="normal"
+                type="text"
+              />
+              <TextField
+                id="microsub-endpoint"
+                label="Microsub Endpoint"
+                value={this.props.user.microsubEndpoint}
+                onChange={this.handleUserOptionChange('microsubEndpoint')}
+                margin="normal"
+                type="url"
+              />
+              <TextField
+                id="micropub-endpoint"
+                label="Micropub Endpoint"
+                value={this.props.user.micropubEndpoint}
+                onChange={this.handleUserOptionChange('micropubEndpoint')}
+                margin="normal"
+                type="url"
+              />
+              <TextField
+                id="media-endpoint"
+                label="Media Endpoint"
+                value={this.props.user.mediaEndpoint}
+                onChange={this.handleUserOptionChange('mediaEndpoint')}
+                margin="normal"
+                type="url"
+              />
+              <TextField
+                id="token-endpoint"
+                label="Token Endpoint"
+                value={this.props.user.tokenEndpoint}
+                onChange={this.handleUserOptionChange('tokenEndpoint')}
+                margin="normal"
+                type="url"
+              />
+              <Button onClick={this.props.logout} variant="raised">
+                Sign Out
+              </Button>
+            </FormGroup>
+          </FormControl>
+        </div>
+        <div>
+          <FormControl
+            component="fieldset"
+            className={this.props.classes.fieldset}
+          >
+            <FormLabel component="legend">Together options</FormLabel>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={this.props.settings.reactions}
+                    onChange={() => {}}
                   />
-                ))}
-              </FormGroup>
-            </FormControl>
+                }
+                label="Emoji Reaction Support"
+              />
 
-            <FormControl component="div">
-              <FormLabel component="span">Repost Syndication</FormLabel>
-              <FormGroup>
-                {this.props.settings.syndicationProviders.map(provider => (
-                  <FormControlLabel
-                    key={`repost-syndication-setting-${provider.uid}`}
-                    control={
-                      <Checkbox
-                        checked={
-                          this.props.settings.repostSyndication.indexOf(
-                            provider.uid,
-                          ) > -1
-                        }
-                        value={provider.uid}
-                        onChange={this.handleRepostSyndicationChange}
-                      />
-                    }
-                    label={provider.name}
-                  />
-                ))}
-              </FormGroup>
-            </FormControl>
+              <FormControl component="div">
+                <FormLabel component="span">Like Syndication</FormLabel>
+                <FormGroup>
+                  {this.props.settings.syndicationProviders.map(provider => (
+                    <FormControlLabel
+                      key={`like-syndication-setting-${provider.uid}`}
+                      control={
+                        <Checkbox
+                          checked={
+                            this.props.settings.likeSyndication.indexOf(
+                              provider.uid,
+                            ) > -1
+                          }
+                          value={provider.uid}
+                          onChange={this.handleLikeSyndicationChange}
+                        />
+                      }
+                      label={provider.name}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
 
-            <FormControl component="div">
-              <FormLabel component="span">Note Syndication</FormLabel>
-              <FormGroup>
-                {this.props.settings.syndicationProviders.map(provider => (
-                  <FormControlLabel
-                    key={`note-syndication-setting-${provider.uid}`}
-                    control={
-                      <Checkbox
-                        checked={
-                          this.props.settings.noteSyndication.indexOf(
-                            provider.uid,
-                          ) > -1
-                        }
-                        value={provider.uid}
-                        onChange={this.handleNoteSyndicationChange}
-                      />
-                    }
-                    label={provider.name}
-                  />
-                ))}
-              </FormGroup>
-            </FormControl>
+              <FormControl component="div">
+                <FormLabel component="span">Repost Syndication</FormLabel>
+                <FormGroup>
+                  {this.props.settings.syndicationProviders.map(provider => (
+                    <FormControlLabel
+                      key={`repost-syndication-setting-${provider.uid}`}
+                      control={
+                        <Checkbox
+                          checked={
+                            this.props.settings.repostSyndication.indexOf(
+                              provider.uid,
+                            ) > -1
+                          }
+                          value={provider.uid}
+                          onChange={this.handleRepostSyndicationChange}
+                        />
+                      }
+                      label={provider.name}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
 
-            <Button onClick={this.getSyndicationProviders} variant="raised">
-              Update Syndication Providers
-            </Button>
-          </FormGroup>
-        </FormControl>
-      </div>
+              <FormControl component="div">
+                <FormLabel component="span">Note Syndication</FormLabel>
+                <FormGroup>
+                  {this.props.settings.syndicationProviders.map(provider => (
+                    <FormControlLabel
+                      key={`note-syndication-setting-${provider.uid}`}
+                      control={
+                        <Checkbox
+                          checked={
+                            this.props.settings.noteSyndication.indexOf(
+                              provider.uid,
+                            ) > -1
+                          }
+                          value={provider.uid}
+                          onChange={this.handleNoteSyndicationChange}
+                        />
+                      }
+                      label={provider.name}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
+
+              <Button onClick={this.getSyndicationProviders} variant="raised">
+                Update Syndication Providers
+              </Button>
+            </FormGroup>
+          </FormControl>
+        </div>
+      </SettingsModal>
     );
   }
 }

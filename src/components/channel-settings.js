@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
+import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import Typography from 'material-ui/Typography';
 import { FormLabel, FormControl, FormGroup } from 'material-ui/Form';
@@ -15,28 +16,22 @@ import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
+import SettingsModal from './settings-modal';
 import microsubApi from '../modules/microsub-api';
 
 const styles = theme => ({
-  page: {
-    padding: theme.spacing.unit * 2,
-  },
   fieldset: {
+    display: 'block',
+    maxWidth: '100%',
+  },
+  following: {
+    display: 'block',
     width: '100%',
-    maxWidth: 500,
   },
-  divider: {
-    marginTop: 24,
-    marginBottom: 24,
-  },
-  close: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    zIndex: 10,
-    '&:hover button': {
-      color: theme.palette.primary['900'],
-    },
+  followingUrl: {
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
   },
 });
 
@@ -65,6 +60,7 @@ class ChannelSettings extends React.Component {
       name: name,
       following: [],
     };
+    this.handleClose = this.handleClose.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleUnsubscribe = this.handleUnsubscribe.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
@@ -90,6 +86,12 @@ class ChannelSettings extends React.Component {
         });
         this.getFollowing(selectedChannel.uid);
       }
+    }
+  }
+
+  handleClose() {
+    if (this.props.history) {
+      this.props.history.push('/channel/' + this.state.uid);
     }
   }
 
@@ -149,57 +151,62 @@ class ChannelSettings extends React.Component {
       return null;
     }
     return (
-      <FormControl component="fieldset" className={this.props.classes.fieldset}>
-        <FormLabel component="legend">Following</FormLabel>
-        <FormGroup>
-          <List>
-            {this.state.following.map(item => (
-              <ListItem key={`list-following-${item.url}`}>
-                <ListItemText primary={`${item.url} (${item.type})`} />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    aria-label={`Unfollow ${item.url}`}
-                    onClick={() => this.handleUnsubscribe(item.url)}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        </FormGroup>
-      </FormControl>
+      <div>
+        <FormControl
+          component="fieldset"
+          className={this.props.classes.fieldset}
+        >
+          <FormLabel component="legend">Following</FormLabel>
+          <FormGroup>
+            <List className={this.props.classes.following}>
+              {this.state.following.map(item => (
+                <ListItem key={`list-following-${item.url}`}>
+                  <ListItemText
+                    className={this.props.classes.followingUrl}
+                    primary={`${item.url} (${item.type})`}
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      aria-label={`Unfollow ${item.url}`}
+                      onClick={() => this.handleUnsubscribe(item.url)}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+            </List>
+          </FormGroup>
+        </FormControl>
+      </div>
     );
   }
 
   render() {
     return (
-      <div className={this.props.classes.page}>
-        <Typography variant="headline" component="h2" paragraph={true}>
-          {this.state.name} Settings
-        </Typography>
-        <Link to="/" className={this.props.classes.close}>
-          <IconButton>
-            <CloseIcon />
-          </IconButton>
-        </Link>
-        <FormControl
-          component="fieldset"
-          className={this.props.classes.fieldset}
-        >
-          <FormGroup>
-            <TextField
-              label="Name"
-              value={this.state.name}
-              onChange={this.handleNameChange}
-              margin="normal"
-              type="text"
-            />
-            <Button onClick={this.handleDelete}>Delete Channel</Button>
-          </FormGroup>
-        </FormControl>
+      <SettingsModal
+        title={`${this.state.name} Settings`}
+        onClose={this.handleClose}
+      >
+        <div>
+          <FormControl
+            component="fieldset"
+            className={this.props.classes.fieldset}
+          >
+            <FormGroup>
+              <TextField
+                label="Name"
+                value={this.state.name}
+                onChange={this.handleNameChange}
+                margin="normal"
+                type="text"
+              />
+              <Button onClick={this.handleDelete}>Delete Channel</Button>
+            </FormGroup>
+          </FormControl>
+        </div>
         {this.renderFollowing()}
-      </div>
+      </SettingsModal>
     );
   }
 }
@@ -222,6 +229,8 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(ChannelSettings),
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(
+    withStyles(styles)(ChannelSettings),
+  ),
 );
