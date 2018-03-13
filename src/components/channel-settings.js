@@ -6,17 +6,24 @@ import { withStyles } from 'material-ui/styles';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import Typography from 'material-ui/Typography';
-import { FormLabel, FormControl, FormGroup } from 'material-ui/Form';
+import {
+  FormLabel,
+  FormControl,
+  FormGroup,
+  FormControlLabel,
+} from 'material-ui/Form';
 import List, {
   ListItem,
   ListItemSecondaryAction,
   ListItemText,
 } from 'material-ui/List';
+import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import SettingsModal from './settings-modal';
+import { updateChannel } from '../actions';
 import microsubApi from '../modules/microsub-api';
 
 const styles = theme => ({
@@ -59,7 +66,10 @@ class ChannelSettings extends React.Component {
       uid: uid,
       name: name,
       following: [],
+      infiniteScroll: this.setting('infiniteScroll', null, uid),
+      autoRead: this.setting('autoRead', null, uid),
     };
+    this.setting = this.setting.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleUnsubscribe = this.handleUnsubscribe.bind(this);
@@ -83,9 +93,39 @@ class ChannelSettings extends React.Component {
         this.setState({
           uid: selectedChannel.uid,
           name: selectedChannel.name,
+          infiniteScroll: this.setting(
+            'infiniteScroll',
+            null,
+            selectedChannel.uid,
+          ),
+          autoRead: this.setting('autoRead', null, selectedChannel.uid),
         });
         this.getFollowing(selectedChannel.uid);
       }
+    }
+  }
+
+  setting(key, value = null, uid = false) {
+    if (!uid && this.state && this.state.uid) {
+      uid = this.state.uid;
+    }
+    if (!uid) {
+      return null;
+    }
+    if (value !== null) {
+      // Set the setting
+      window.localStorage.setItem(
+        `together-channel-${uid}-${key}`,
+        JSON.stringify(value),
+      );
+      return value;
+    } else {
+      // Return the setting
+      value = window.localStorage.getItem(`together-channel-${uid}-${key}`);
+      if (value) {
+        value = JSON.parse(value);
+      }
+      return value;
     }
   }
 
@@ -119,6 +159,12 @@ class ChannelSettings extends React.Component {
         .catch(err => console.log(err));
     }
   }
+
+  handleLocalChange = name => event => {
+    this.setting(name, event.target.checked);
+    this.setState({ [name]: event.target.checked });
+    this.props.updateChannel(this.state.uid, name, event.target.checked);
+  };
 
   handleNameChange(e) {
     this.setState({ name: e.target.value });
@@ -183,6 +229,7 @@ class ChannelSettings extends React.Component {
   }
 
   render() {
+    console.log(this.state.auto);
     return (
       <SettingsModal
         title={`${this.state.name} Settings`}
@@ -201,6 +248,26 @@ class ChannelSettings extends React.Component {
                 margin="normal"
                 type="text"
               />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={this.state.infiniteScroll}
+                    value="infiniteScrollChecked"
+                    onChange={this.handleLocalChange('infiniteScroll')}
+                  />
+                }
+                label="Infinite Scroll"
+              />
+              {/* <FormControlLabel
+                control={
+                  <Switch
+                    checked={this.state.autoRead}
+                    value="autoReadChecked"
+                    onChange={this.handleLocalChange('autoRead')}
+                  />
+                }
+                label="Auto Mark As Read"
+              /> */}
               <Button onClick={this.handleDelete}>Delete Channel</Button>
             </FormGroup>
           </FormControl>
@@ -226,7 +293,7 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({ updateChannel: updateChannel }, dispatch);
 }
 
 export default withRouter(

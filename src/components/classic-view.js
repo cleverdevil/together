@@ -7,6 +7,7 @@ import List, { ListItem } from 'material-ui/List';
 import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
+import ReactList from 'react-list';
 import CompressedPost from './compressed-post';
 import TogetherCard from './card';
 import { decrementChannelUnread, updatePost } from '../actions';
@@ -61,7 +62,25 @@ class ClassicView extends React.Component {
     this.state = {
       post: null,
     };
+    this.handleScroll = this.handleScroll.bind(this);
     this.handlePostSelect = this.handlePostSelect.bind(this);
+    this.renderItem = this.renderItem.bind(this);
+    this.renderLoadMore = this.renderLoadMore.bind(this);
+  }
+
+  handleScroll() {
+    const selectedChannel = this.props.channels.find(
+      channel => channel.uid == this.props.selectedChannel,
+    );
+    const [
+      firstVisibleIndex,
+      lastVisibleIndex,
+    ] = this.infiniteScroll.getVisibleRange();
+    if (lastVisibleIndex >= this.props.posts.length - 1) {
+      if (selectedChannel && selectedChannel.infiniteScroll) {
+        this.props.loadMore();
+      }
+    }
   }
 
   handlePostSelect(post) {
@@ -83,27 +102,52 @@ class ClassicView extends React.Component {
     }
   }
 
+  renderItem(index, key) {
+    return (
+      <CompressedPost
+        key={key}
+        post={this.props.posts[index]}
+        onClick={() => this.handlePostSelect(this.props.posts[index])}
+      />
+    );
+  }
+
+  renderLoadMore() {
+    const selectedChannel = this.props.channels.find(
+      channel => channel.uid == this.props.selectedChannel,
+    );
+    if (selectedChannel && selectedChannel.infiniteScroll) {
+      return null;
+    }
+    if (this.props.loadMore) {
+      return (
+        <Button
+          className={this.props.classes.loadMore}
+          onClick={this.props.loadMore}
+        >
+          Load More
+        </Button>
+      );
+    }
+    return null;
+  }
+
   render() {
     return (
       <div className={this.props.classes.wrapper}>
-        <List className={this.props.classes.previewColumn}>
-          {this.props.posts.map((post, i) => (
-            <CompressedPost
-              key={'preview-' + i}
-              post={post}
-              onClick={() => this.handlePostSelect(post)}
-            />
-          ))}
-          {this.props.loadMore && (
-            <ListItem>
-              <Button
-                onClick={this.props.loadMore}
-                className={this.props.classes.loadMore}
-              >
-                Load More
-              </Button>
-            </ListItem>
-          )}
+        <List
+          className={this.props.classes.previewColumn}
+          onScroll={this.handleScroll}
+        >
+          <ReactList
+            itemRenderer={this.renderItem}
+            length={this.props.posts.length}
+            type="variable"
+            ref={el => {
+              this.infiniteScroll = el;
+            }}
+          />
+          {this.renderLoadMore()}
         </List>
         {this.state.post && (
           <div className={this.props.classes.postColumn}>
@@ -133,6 +177,7 @@ ClassicView.propTypes = {
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
+    channels: state.channels.toJS(),
   };
 }
 

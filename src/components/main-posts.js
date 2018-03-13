@@ -102,25 +102,27 @@ class MainPosts extends React.Component {
   }
 
   handleLoadMore() {
-    this.setState({ loading: true });
-    microsub('getTimeline', {
-      params: [this.props.selectedChannel, this.props.timelineAfter],
-    })
-      .then(res => {
-        if (res.items) {
-          this.props.addPosts(res.items);
-        }
-        if (res.paging && res.paging.after) {
-          this.props.setTimelineAfter(res.paging.after);
-        } else {
-          this.props.setTimelineAfter('');
-        }
-        this.setState({ loading: false });
+    if (!this.state.loading) {
+      this.setState({ loading: true });
+      microsub('getTimeline', {
+        params: [this.props.selectedChannel, this.props.timelineAfter],
       })
-      .catch(err => {
-        this.setState({ loading: false });
-        console.log(err);
-      });
+        .then(res => {
+          if (res.items) {
+            this.props.addPosts(res.items);
+          }
+          if (res.paging && res.paging.after) {
+            this.props.setTimelineAfter(res.paging.after);
+          } else {
+            this.props.setTimelineAfter('');
+          }
+          this.setState({ loading: false });
+        })
+        .catch(err => {
+          this.setState({ loading: false });
+          console.log(err);
+        });
+    }
   }
 
   renderTimelinePosts() {

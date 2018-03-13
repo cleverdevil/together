@@ -15,10 +15,9 @@ import CloseIcon from 'material-ui-icons/Close';
 import Slide from 'material-ui/transitions/Slide';
 import TogetherCard from './card';
 import Carousel from 'nuka-carousel';
-import TogetherSliderDecorators from './gallery-slider-decorators'
+import TogetherSliderDecorators from './gallery-slider-decorators';
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
-
 
 const styles = theme => ({
   loadMore: {
@@ -78,6 +77,7 @@ class Gallery extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      photos: this.filterPhotos(props.posts),
       open: this.props.open,
       selectedPost: false,
     };
@@ -88,6 +88,26 @@ class Gallery extends React.Component {
     if (newProps.open != this.state.open) {
       this.setState({ open: newProps.open });
     }
+    if (newProps.posts && newProps.posts.length != this.props.posts.length) {
+      this.setState({ photos: this.filterPhotos(newProps.posts) });
+    }
+  }
+
+  filterPhotos(posts) {
+    const photoPosts = posts.filter(post => post.photo);
+    const photos = [];
+    photoPosts.forEach(post => {
+      if (typeof post.photo === 'string') {
+        post.photo = [post.photo];
+      }
+      post.photo.forEach(photo =>
+        photos.push({
+          photo: photo,
+          post: post,
+        }),
+      );
+    });
+    return photos;
   }
 
   handleClose() {
@@ -109,13 +129,20 @@ class Gallery extends React.Component {
           className={this.props.classes.carousel}
           slideIndex={this.props.startIndex}
           decorators={TogetherSliderDecorators}
-        >
-          {this.props.posts.map(post => {
-            if (typeof post.photo === 'string') {
-              post.photo = [post.photo];
+          afterSlide={index => {
+            if (
+              index >= this.state.photos.length - 1 &&
+              this.props.onLastPhoto
+            ) {
+              this.props.onLastPhoto();
             }
-            return post.photo.map(photo => (
-              <div className={this.props.classes.popup}>
+          }}
+        >
+          {this.state.photos.map((photo, i) => {
+            const post = photo.post;
+            photo = photo.photo;
+            return (
+              <div className={this.props.classes.popup} key={`slide-${i}`}>
                 <img
                   className={this.props.classes.popupImage}
                   src={photo}
@@ -128,7 +155,7 @@ class Gallery extends React.Component {
                   <InfoIcon />
                 </IconButton>
               </div>
-            ));
+            );
           })}
         </Carousel>
         <Drawer
@@ -158,6 +185,7 @@ Gallery.defaultProps = {
 Gallery.propTypes = {
   posts: PropTypes.array.isRequired,
   onClose: PropTypes.func,
+  onLastPhoto: PropTypes.func,
 };
 
 function mapDispatchToProps(dispatch) {

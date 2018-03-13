@@ -48,7 +48,7 @@ const style = theme => ({
   },
   main: {
     background: theme.palette.background.default,
-    overflow: 'auto',
+    overflow: 'hidden',
     flexGrow: 1,
     flexShrink: 1,
   },

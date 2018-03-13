@@ -16,6 +16,7 @@ import {
   selectChannel,
   toggleChannelsMenu,
   addChannel,
+  updateChannel,
   addNotification,
 } from '../actions';
 import microsub from '../modules/microsub-api';
@@ -96,6 +97,18 @@ class ChannelMenu extends React.Component {
               channel.uid,
               channel.unread,
               localStorage.getItem(`channel-${channel.uid}-layout`),
+            );
+            this.props.updateChannel(
+              channel.uid,
+              'infiniteScroll',
+              localStorage.getItem(
+                `together-channel-${channel.uid}-infiniteScroll`,
+              ),
+            );
+            this.props.updateChannel(
+              channel.uid,
+              'autoRead',
+              localStorage.getItem(`together-channel-${channel.uid}-autoRead`),
             );
           });
         })
@@ -249,6 +262,7 @@ function mapDispatchToProps(dispatch) {
       selectChannel: selectChannel,
       toggleChannelsMenu: toggleChannelsMenu,
       addChannel: addChannel,
+      updateChannel: updateChannel,
       addNotification: addNotification,
     },
     dispatch,
