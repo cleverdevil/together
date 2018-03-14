@@ -77,3 +77,7 @@ export function setOption(key, value) {
     }
   }
 }
+
+export function getOptions() {
+  return options;
+}

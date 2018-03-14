@@ -11,7 +11,11 @@ import TextField from 'material-ui/TextField';
 import { CircularProgress } from 'material-ui/Progress';
 import AddIcon from 'material-ui-icons/Add';
 import TogetherCard from './card';
-import microsub from '../modules/microsub-api';
+import { getOptions } from '../modules/microsub-api';
+import {
+  search as searchService,
+  follows as followService,
+} from '../modules/feathers-services';
 import { addNotification, selectChannel } from '../actions';
 
 const styles = theme => ({
@@ -102,7 +106,10 @@ class AddFeed extends React.Component {
       preview: false,
       results: [],
     });
-    microsub('search', { params: [this.state.search] })
+    let query = getOptions();
+    query.search = this.state.search;
+    searchService
+      .find({ query: query })
       .then(results => {
         if (results.length < 1) {
           this.setState({
@@ -138,7 +145,12 @@ class AddFeed extends React.Component {
     }
     const channel = this.props.currentChannel;
     if (feed && channel) {
-      microsub('follow', { params: [feed, channel] })
+      followService
+        .create({
+          url: feed,
+          channel: channel,
+          query: getOptions(),
+        })
         .then(res => {
           this.props.addNotification(`Added ${feed} to your channel`);
           this.props.selectChannel(channel);
@@ -155,7 +167,8 @@ class AddFeed extends React.Component {
 
   getPreview(url) {
     this.setState({ loading: true });
-    microsub('preview', { params: [url] })
+    searchService
+      .get(url, { query: getOptions() })
       .then(preview => {
         this.setState({
           preview: preview,

@@ -11,7 +11,8 @@ import ReactList from 'react-list';
 import CompressedPost from './compressed-post';
 import TogetherCard from './card';
 import { decrementChannelUnread, updatePost } from '../actions';
-import microsub from '../modules/microsub-api';
+import { getOptions } from '../modules/microsub-api';
+import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
   wrapper: {
@@ -89,9 +90,12 @@ class ClassicView extends React.Component {
     this.setState({ post: post });
     // Mark the post as read
     if (!read) {
-      microsub('markRead', {
-        params: [this.props.selectedChannel, post._id],
-      })
+      postsService
+        .update(post._id, {
+          channel: this.props.selectedChannel,
+          method: 'mark_read',
+          query: getOptions(),
+        })
         .then(res => {
           this.props.updatePost(post._id, '_is_read', true);
           this.props.decrementChannelUnread(this.props.selectedChannel);

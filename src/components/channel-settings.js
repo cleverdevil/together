@@ -24,7 +24,11 @@ import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import SettingsModal from './settings-modal';
 import { updateChannel } from '../actions';
-import microsubApi from '../modules/microsub-api';
+import { getOptions } from '../modules/microsub-api';
+import {
+  follows as followsService,
+  channels as channelsService,
+} from '../modules/feathers-services';
 
 const styles = theme => ({
   fieldset: {
@@ -136,7 +140,8 @@ class ChannelSettings extends React.Component {
   }
 
   getFollowing(uid = this.state.uid) {
-    microsubApi('getFollowing', { params: [uid] })
+    followsService
+      .get(uid, { query: getOptions() })
       .then(res => {
         if (res.items) {
           this.setState({ following: res.items });
@@ -148,7 +153,8 @@ class ChannelSettings extends React.Component {
   handleDelete() {
     console.log('deleting ' + this.state.uid);
     if (this.state.uid) {
-      microsubApi('deleteChannel', { params: [this.state.uid] })
+      channelsService
+        .remove(this.state.uid, { query: getOptions() })
         .then(res => {
           console.log(res);
           if (!res.error) {
@@ -169,7 +175,12 @@ class ChannelSettings extends React.Component {
   handleNameChange(e) {
     this.setState({ name: e.target.value });
     // TODO: Only send this request when typing is finished.
-    microsubApi('createChannel', { params: [e.target.value, this.state.uid] })
+
+    channelsService
+      .update(this.state.uid, {
+        name: e.target.value,
+        query: getOptions(),
+      })
       .then(res => {
         if (!res.error) {
           // Should be renamed
@@ -180,7 +191,12 @@ class ChannelSettings extends React.Component {
   }
 
   handleUnsubscribe(url) {
-    microsubApi('unfollow', { params: [url, this.state.uid] })
+    let query = getOptions();
+    query.channel = this.state.uid;
+    followsService
+      .remove(url, {
+        query: query,
+      })
       .then(unfollowed => {
         this.setState(state => ({
           following: state.following.filter(

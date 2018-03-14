@@ -38,7 +38,8 @@ import {
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
-import microsub from '../modules/microsub-api';
+import { getOptions } from '../modules/microsub-api';
+import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
   card: {
@@ -68,7 +69,7 @@ const styles = theme => ({
     },
     '& blockquote': {
       'border-left': '4px solid ' + theme.palette.divider,
-      'padding-left': '1em'
+      'padding-left': '1em',
     },
   },
   urlPreview: {
@@ -93,7 +94,7 @@ class TogetherCard extends React.Component {
       read: props.post._is_read,
       popoverOpen: false,
       popoverAnchor: null,
-      expanded: true
+      expanded: true,
     };
     this.renderPhotos = this.renderPhotos.bind(this);
     this.renderLocation = this.renderLocation.bind(this);
@@ -162,9 +163,12 @@ class TogetherCard extends React.Component {
   handleToggleRead(e) {
     this.setState(state => ({ read: !state.read }));
     if (this.state.read === false) {
-      microsub('markRead', {
-        params: [this.props.selectedChannel, this.props.post._id],
-      })
+      postsService
+        .update(this.props.post._id, {
+          channel: this.props.selectedChannel,
+          method: 'mark_read',
+          query: getOptions(),
+        })
         .then(res => {
           this.props.updatePost(this.props.post._id, '_is_read', true);
           this.props.decrementChannelUnread(this.props.selectedChannel);
@@ -175,9 +179,12 @@ class TogetherCard extends React.Component {
           this.props.addNotification('Error marking as read', 'error');
         });
     } else if (this.state.read === true) {
-      microsub('markUnread', {
-        params: [this.props.selectedChannel, this.props.post._id],
-      })
+      postsService
+        .update(this.props.post._id, {
+          method: 'mark_unread',
+          channel: this.props.selectedChannel,
+          query: getOptions(),
+        })
         .then(res => {
           this.props.updatePost(this.props.post._id, '_is_read', false);
           this.props.incrementChannelUnread(this.props.selectedChannel);

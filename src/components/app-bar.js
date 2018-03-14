@@ -26,7 +26,8 @@ import {
   updatePost,
   toggleTheme,
 } from '../actions';
-import microsub from '../modules/microsub-api';
+import { getOptions } from '../modules/microsub-api';
+import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
   root: {
@@ -82,9 +83,13 @@ class TogetherAppBar extends React.Component {
 
   handleMarkRead() {
     if (this.props.items && this.props.items[0] && this.props.items[0]._id) {
-      microsub('markRead', {
-        params: [this.props.selectedChannel, '', this.props.items[0]._id],
-      })
+      postsService
+        .update(null, {
+          query: getOptions(),
+          method: 'mark_read',
+          channel: this.props.selectedChannel,
+          last_read_entry: this.props.items[0]._id,
+        })
         .then(res => {
           this.props.items.forEach(post => {
             if (!post._is_read) {

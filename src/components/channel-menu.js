@@ -19,7 +19,8 @@ import {
   updateChannel,
   addNotification,
 } from '../actions';
-import microsub from '../modules/microsub-api';
+import { channels as channelsService } from '../modules/feathers-services';
+import { getOptions } from '../modules/microsub-api';
 
 const styles = theme => ({
   drawer: {
@@ -89,7 +90,8 @@ class ChannelMenu extends React.Component {
 
   componentDidMount() {
     if (this.props.microsubEndpoint) {
-      microsub('getChannels')
+      channelsService
+        .find({ query: getOptions() })
         .then(channels => {
           channels.forEach(channel => {
             this.props.addChannel(
@@ -124,7 +126,8 @@ class ChannelMenu extends React.Component {
       newProps.microsubEndpoint &&
       this.props.microsubEndpoint !== newProps.microsubEndpoint
     ) {
-      microsub('getChannels')
+      channelsService
+        .find({ query: getOptions() })
         .then(channels => {
           channels.forEach(channel => {
             this.props.addChannel(channel.name, channel.uid, channel.uread);
@@ -145,7 +148,8 @@ class ChannelMenu extends React.Component {
 
   handleAddChannel(e) {
     e.preventDefault();
-    microsub('createChannel', { params: [this.state.newChannelName] })
+    channelsService
+      .create({ name: this.state.newChannelName, query: getOptions() })
       .then(newChannel => {
         this.setState({
           newChannelName: '',
