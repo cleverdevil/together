@@ -11,7 +11,6 @@ import TextField from 'material-ui/TextField';
 import { CircularProgress } from 'material-ui/Progress';
 import AddIcon from 'material-ui-icons/Add';
 import TogetherCard from './card';
-import { getOptions } from '../modules/microsub-api';
 import {
   search as searchService,
   follows as followService,
@@ -106,10 +105,8 @@ class AddFeed extends React.Component {
       preview: false,
       results: [],
     });
-    let query = getOptions();
-    query.search = this.state.search;
     searchService
-      .find({ query: query })
+      .find({ query: { search: this.state.search } })
       .then(results => {
         if (results.length < 1) {
           this.setState({
@@ -149,7 +146,6 @@ class AddFeed extends React.Component {
         .create({
           url: feed,
           channel: channel,
-          query: getOptions(),
         })
         .then(res => {
           this.props.addNotification(`Added ${feed} to your channel`);
@@ -168,7 +164,7 @@ class AddFeed extends React.Component {
   getPreview(url) {
     this.setState({ loading: true });
     searchService
-      .get(url, { query: getOptions() })
+      .get(url)
       .then(preview => {
         this.setState({
           preview: preview,

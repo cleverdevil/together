@@ -20,7 +20,6 @@ import {
   addNotification,
 } from '../actions';
 import { channels as channelsService } from '../modules/feathers-services';
-import { getOptions } from '../modules/microsub-api';
 
 const styles = theme => ({
   drawer: {
@@ -89,9 +88,9 @@ class ChannelMenu extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.microsubEndpoint) {
+    if (this.props.me) {
       channelsService
-        .find({ query: getOptions() })
+        .find({})
         .then(channels => {
           channels.forEach(channel => {
             this.props.addChannel(
@@ -122,12 +121,9 @@ class ChannelMenu extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (
-      newProps.microsubEndpoint &&
-      this.props.microsubEndpoint !== newProps.microsubEndpoint
-    ) {
+    if (newProps.me && this.props.me !== newProps.me) {
       channelsService
-        .find({ query: getOptions() })
+        .find({})
         .then(channels => {
           channels.forEach(channel => {
             this.props.addChannel(channel.name, channel.uid, channel.uread);
@@ -149,7 +145,7 @@ class ChannelMenu extends React.Component {
   handleAddChannel(e) {
     e.preventDefault();
     channelsService
-      .create({ name: this.state.newChannelName, query: getOptions() })
+      .create({ name: this.state.newChannelName })
       .then(newChannel => {
         this.setState({
           newChannelName: '',
@@ -253,7 +249,7 @@ ChannelMenu.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
-    microsubEndpoint: state.user.get('microsubEndpoint'),
+    me: state.user.get('me'),
     selectedChannel: state.app.get('selectedChannel'),
     channels: state.channels.toJS(),
     open: state.app.get('channelsMenuOpen'),

@@ -1,19 +1,17 @@
-import micropubApi from './micropub-api';
+import { micropub as micropubService } from './feathers-services';
 
 export function note(content) {
   let mf = {
-      type: ['h-entry'],
-      properties: {
-        content: [content],
-      },
+    type: ['h-entry'],
+    properties: {
+      content: [content],
+    },
   };
   const syndication = localStorage.getItem('together-setting-noteSyndication');
   if (syndication && syndication.length > 0) {
     mf.properties['mp-syndicate-to'] = JSON.parse(syndication);
   }
-  return micropubApi('create', {
-    param: mf, 
-  });
+  return micropubService.create({ post: mf });
 }
 
 export function like(url) {
@@ -27,9 +25,7 @@ export function like(url) {
   if (syndication && syndication.length > 0) {
     mf.properties['mp-syndicate-to'] = JSON.parse(syndication);
   }
-  return micropubApi('create', {
-    param: mf,
-  });
+  return micropubService.create({ post: mf });
 }
 
 export function repost(url) {
@@ -45,18 +41,18 @@ export function repost(url) {
   if (syndication && syndication.length > 0) {
     mf.properties['mp-syndicate-to'] = JSON.parse(syndication);
   }
-  return micropubApi('create', {
-    param: mf,
-  });
+  return micropubService.create({ post: mf });
 }
 
 export function reply(url, content) {
-  return micropubApi('create', {
-    param: {
-      type: ['h-entry'],
-      properties: {
-        'in-reply-to': [url],
-        content: [content],
+  return micropubService.create({
+    post: {
+      param: {
+        type: ['h-entry'],
+        properties: {
+          'in-reply-to': [url],
+          content: [content],
+        },
       },
     },
   });

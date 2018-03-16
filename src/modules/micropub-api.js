@@ -79,25 +79,3 @@ export function setOption(key, value) {
     }
   }
 }
-
-export function getRels(url = options.me) {
-  console.log('running get rels function');
-  return new Promise((resolve, reject) => {
-    if (!url) {
-      console.log('missing url');
-      return reject('missing url');
-    }
-    console.log('requesting rels');
-    fetch(process.env.REACT_APP_API_SERVER + '/api/rels', {
-      method: 'post',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url: url }),
-    })
-      .then(res => res.json())
-      .then(rels => resolve(rels.rels))
-      .catch(err => reject(err));
-  });
-}

@@ -26,7 +26,6 @@ import {
   updatePost,
   toggleTheme,
 } from '../actions';
-import { getOptions } from '../modules/microsub-api';
 import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
@@ -85,7 +84,6 @@ class TogetherAppBar extends React.Component {
     if (this.props.items && this.props.items[0] && this.props.items[0]._id) {
       postsService
         .update(null, {
-          query: getOptions(),
           method: 'mark_read',
           channel: this.props.selectedChannel,
           last_read_entry: this.props.items[0]._id,

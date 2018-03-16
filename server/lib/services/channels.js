@@ -33,12 +33,15 @@ class ChannelsService {
 
   find(params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      if (!params.user.accessToken || !params.user.rels.microsub) {
+        reject('Missing user data');
+      }
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'channels');
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => validateResponse(res))
@@ -53,12 +56,12 @@ class ChannelsService {
 
   get(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'channels');
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => validateResponse(res))
@@ -73,13 +76,13 @@ class ChannelsService {
 
   create(params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'channels');
       url.searchParams.append('name', params.name);
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -94,14 +97,14 @@ class ChannelsService {
 
   update(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'channels');
       url.searchParams.append('channel', id);
       url.searchParams.append('name', params.name);
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -117,14 +120,14 @@ class ChannelsService {
   remove(id, params) {
     console.log(id, params);
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'channels');
       url.searchParams.append('method', 'delete');
       url.searchParams.append('channel', id);
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => {

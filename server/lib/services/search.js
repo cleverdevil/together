@@ -38,13 +38,13 @@ class SearchService {
   find(params) {
     return new Promise((resolve, reject) => {
       console.log(params);
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'search');
       url.searchParams.append('query', params.query.search);
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -64,13 +64,13 @@ class SearchService {
    */
   get(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'preview');
       url.searchParams.append('url', id);
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())

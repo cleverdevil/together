@@ -38,7 +38,6 @@ import {
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import * as indieActions from '../modules/indie-actions';
-import { getOptions } from '../modules/microsub-api';
 import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
@@ -167,7 +166,6 @@ class TogetherCard extends React.Component {
         .update(this.props.post._id, {
           channel: this.props.selectedChannel,
           method: 'mark_read',
-          query: getOptions(),
         })
         .then(res => {
           this.props.updatePost(this.props.post._id, '_is_read', true);
@@ -183,7 +181,6 @@ class TogetherCard extends React.Component {
         .update(this.props.post._id, {
           method: 'mark_unread',
           channel: this.props.selectedChannel,
-          query: getOptions(),
         })
         .then(res => {
           this.props.updatePost(this.props.post._id, '_is_read', false);

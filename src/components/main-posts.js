@@ -6,7 +6,6 @@ import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
 import { LinearProgress } from 'material-ui/Progress';
 import AddFeed from './add-feed';
-import { getOptions } from '../modules/microsub-api';
 import { posts as postsService } from '../modules/feathers-services';
 
 import Gallery from './gallery';
@@ -80,10 +79,8 @@ class MainPosts extends React.Component {
       newProps.selectedChannel != this.props.selectedChannel
     ) {
       this.setState({ loading: true });
-      let query = getOptions();
-      query.channel = newProps.selectedChannel;
       postsService
-        .find({ query: query })
+        .find({ query: { channel: newProps.selectedChannel } })
         .then(res => {
           this.setState({ loading: false });
           if (res.items) {
@@ -108,11 +105,13 @@ class MainPosts extends React.Component {
   handleLoadMore() {
     if (!this.state.loading) {
       this.setState({ loading: true });
-      let query = getOptions();
-      query.channel = this.props.selectedChannel;
-      query.after = this.props.timelineAfter;
       postsService
-        .find({ query: query })
+        .find({
+          query: {
+            channel: this.props.selectedChannel,
+            after: this.props.timelineAfter,
+          },
+        })
         .then(res => {
           if (res.items) {
             this.props.addPosts(res.items);

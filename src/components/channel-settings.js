@@ -24,7 +24,6 @@ import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import SettingsModal from './settings-modal';
 import { updateChannel } from '../actions';
-import { getOptions } from '../modules/microsub-api';
 import {
   follows as followsService,
   channels as channelsService,
@@ -141,7 +140,7 @@ class ChannelSettings extends React.Component {
 
   getFollowing(uid = this.state.uid) {
     followsService
-      .get(uid, { query: getOptions() })
+      .get(uid)
       .then(res => {
         if (res.items) {
           this.setState({ following: res.items });
@@ -154,7 +153,7 @@ class ChannelSettings extends React.Component {
     console.log('deleting ' + this.state.uid);
     if (this.state.uid) {
       channelsService
-        .remove(this.state.uid, { query: getOptions() })
+        .remove(this.state.uid)
         .then(res => {
           console.log(res);
           if (!res.error) {
@@ -179,7 +178,6 @@ class ChannelSettings extends React.Component {
     channelsService
       .update(this.state.uid, {
         name: e.target.value,
-        query: getOptions(),
       })
       .then(res => {
         if (!res.error) {
@@ -191,11 +189,9 @@ class ChannelSettings extends React.Component {
   }
 
   handleUnsubscribe(url) {
-    let query = getOptions();
-    query.channel = this.state.uid;
     followsService
       .remove(url, {
-        query: query,
+        query: { channel: this.state.uid },
       })
       .then(unfollowed => {
         this.setState(state => ({

@@ -17,7 +17,7 @@ import Button from 'material-ui/Button';
 import Divider from 'material-ui/Divider';
 import SettingsModal from './settings-modal';
 import { setUserOption, setSetting, logout, addNotification } from '../actions';
-import micropubApi from '../modules/micropub-api';
+import { micropub as micropubService } from '../modules/feathers-services';
 import { ViewColumn } from 'material-ui-icons';
 
 const styles = theme => ({
@@ -117,9 +117,8 @@ class Settings extends React.Component {
   }
 
   getSyndicationProviders() {
-    micropubApi('query', {
-      param: 'syndicate-to',
-    })
+    micropubService
+      .get(null, { query: 'syndicate-to' })
       .then(syndicationProviders => {
         if (syndicationProviders['syndicate-to']) {
           this.props.setSetting(

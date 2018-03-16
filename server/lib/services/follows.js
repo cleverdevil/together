@@ -33,13 +33,13 @@ class FollowsService {
 
   find(params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'follow');
       url.searchParams.append('channel', params.query.channel);
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -55,13 +55,13 @@ class FollowsService {
   // TODO: not sure if this should be .get or .find, but both work for now.
   get(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'follow');
       url.searchParams.append('channel', id);
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -76,7 +76,7 @@ class FollowsService {
 
   create(params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'follow');
       url.searchParams.append('url', params.url);
       if (params.channel) {
@@ -87,7 +87,7 @@ class FollowsService {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -102,7 +102,7 @@ class FollowsService {
 
   remove(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'unfollow');
       url.searchParams.append('url', id);
       if (params.query.channel) {
@@ -111,7 +111,7 @@ class FollowsService {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())

@@ -33,7 +33,7 @@ class PostsService {
 
   find(params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'timeline');
       if (params.query.channel) {
         url.searchParams.append('channel', params.query.channel);
@@ -50,7 +50,7 @@ class PostsService {
       fetch(url.toString(), {
         method: 'GET',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -65,7 +65,7 @@ class PostsService {
 
   update(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'timeline');
       url.searchParams.append('channel', params.channel);
       if (params.method) {
@@ -84,7 +84,7 @@ class PostsService {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())
@@ -100,7 +100,7 @@ class PostsService {
 
   remove(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.query.microsubEndpoint);
+      const url = new URL(params.user.rels.microsub);
       url.searchParams.append('action', 'timeline');
       url.searchParams.append('method', 'remove');
       url.searchParams.append('channel', params.channel);
@@ -112,7 +112,7 @@ class PostsService {
       fetch(url.toString(), {
         method: 'POST',
         headers: new Headers({
-          Authorization: 'Bearer ' + params.query.token,
+          Authorization: 'Bearer ' + params.user.accessToken,
         }),
       })
         .then(res => res.json())

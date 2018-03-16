@@ -11,9 +11,10 @@ import Dialog, {
   DialogTitle,
 } from 'material-ui/Dialog';
 import { LinearProgress } from 'material-ui/Progress';
-import micropubApi, { getOption, getRels } from '../modules/micropub-api';
+import micropubApi, { getOption } from '../modules/micropub-api';
 import { setOption as setMicrosubOption } from '../modules/microsub-api';
 import { setUserOption, addNotification } from '../actions';
+import { client } from '../modules/feathers-services';
 
 const styles = theme => ({});
 
@@ -40,58 +41,60 @@ class Login extends React.Component {
   }
 
   componentDidMount() {
-    if (
-      this.props.user &&
-      this.props.user.token &&
-      this.props.user.me &&
-      this.props.user.micropubEndpoint &&
-      this.props.user.microsubEndpoint
-    ) {
-      this.setState({ open: false });
-    } else {
-      const params = new URLSearchParams(window.location.search);
-      const me = getOption('me');
-      const code = params.get('code');
-      const state = params.get('state');
-      if (me && code && state && state == getOption('state')) {
-        this.setState({ loading: true });
-        micropubApi('getToken', {
-          param: code,
-          me: me,
-          state: state,
-          redirectUri: window.location.origin,
-        })
-          .then(res => {
-            this.props.setUserOption('token', res);
-            this.props.setUserOption('me', me);
-            // this.setState({ open: false });
-          })
-          .catch(err => console.log(err));
-        getRels(me)
-          .then(rels => {
-            if (!rels.microsub) {
-              this.props.addNotification(
-                "Couldn't find your microsub endpoint. This app is not going to work.",
-                'error',
-              );
-            } else {
-              setMicrosubOption('microsubEndpoint', rels.microsub[0]);
-              this.props.setUserOption('microsubEndpoint', rels.microsub[0]);
+    client
+      .authenticate()
+      .then(user => {
+        client.passport
+          .verifyJWT(user.accessToken)
+          .then(user => {
+            if (user.me && user.userId) {
+              this.setState({ open: false });
+              this.props.setUserOption('me', user.me);
             }
           })
-          .catch(err => {
-            console.log(err);
-            this.props.addNotification('Error getting your rel links', 'error');
-          });
-        window.history.pushState({}, document.title, '/');
-      }
-    }
+          .catch(err => console.log(err));
+      })
+      .catch(() => {
+        console.log('user not logged in');
+        // Not logged in yet so check for the parameters in the url
+        const params = new URLSearchParams(window.location.search);
+        const me = getOption('me');
+        const code = params.get('code');
+        const state = params.get('state');
+        if (me && code && state && state == getOption('state')) {
+          this.setState({ loading: true });
+          client
+            .authenticate({
+              me: me,
+              code: code,
+              state: state,
+              redirectUri: window.location.origin,
+              strategy: 'custom',
+              // strategy: 'jwt',
+            })
+            .then(response => {
+              console.log('Logged in');
+              console.log(response);
+              this.props.setUserOption('token', response.accessToken);
+              this.props.setUserOption('me', me);
+              this.setState({ open: false });
+              setMicrosubOption('microsubEndpoint', 'fakeendpoint');
+              this.props.setUserOption('microsubEndpoint', 'fakeendpoint');
+            })
+            .catch(err => {
+              console.log(err);
+              this.props.addNotification('Could not log in', 'error');
+            });
+          window.history.pushState({}, document.title, '/');
+        }
+      });
   }
 
   handleLogin(e) {
     e.preventDefault();
     this.setState({ loading: true });
     setMicrosubOption('me', this.state.me);
+    // TODO: Not sure what I want to do with this. Maybe extend / use the feathers authenticate method
     micropubApi('getAuthUrl', {
       me: this.state.me,
       state: 'together' + Date.now(),
