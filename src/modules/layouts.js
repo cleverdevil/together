@@ -5,7 +5,7 @@ import ClassicIcon from 'material-ui-icons/ChromeReaderMode';
 
 const layouts = [
   {
-    id: 'all',
+    id: 'timeline',
     name: 'Timeline',
     icon: AllIcon,
     filter: post => true,
