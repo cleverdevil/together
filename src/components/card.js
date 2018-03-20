@@ -37,8 +37,7 @@ import {
 } from '../actions';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
-import * as indieActions from '../modules/indie-actions';
-import { posts as postsService } from '../modules/feathers-services';
+import { posts as postsService, micropub } from '../modules/feathers-services';
 
 const styles = theme => ({
   card: {
@@ -90,7 +89,6 @@ class TogetherCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      read: props.post._is_read,
       popoverOpen: false,
       popoverAnchor: null,
       expanded: true,
@@ -111,16 +109,40 @@ class TogetherCard extends React.Component {
 
   handleLike(e) {
     const url = this.props.post.url;
-    indieActions
-      .like(url)
-      .then(() => this.props.addNotification(`Successfully liked ${url}`))
-      .catch(() => this.props.addNotification(`Error liking ${url}`, 'error'));
+    const mf2 = {
+      type: ['h-entry'],
+      properties: {
+        'like-of': [url],
+      },
+    };
+    if (
+      Array.isArray(this.props.likeSyndication) &&
+      this.props.likeSyndication.length
+    ) {
+      mf2.properties['mp-syndicate-to'] = this.props.likeSyndication;
+    }
+    micropub
+      .create({ post: mf2 })
+      .then(res => this.props.addNotification(`Successfully liked ${url}`))
+      .catch(err => this.props.addNotification(`Error liking ${url}`, 'error'));
   }
 
   handleRepost(e) {
     const url = this.props.post.url;
-    indieActions
-      .repost(url)
+    const mf2 = {
+      type: ['h-entry'],
+      properties: {
+        'repost-of': [url],
+      },
+    };
+    if (
+      Array.isArray(this.props.repostSyndication) &&
+      this.props.repostSyndication.length
+    ) {
+      mf2.properties['mp-syndicate-to'] = this.props.repostSyndication;
+    }
+    micropub
+      .create({ post: mf2 })
       .then(() => this.props.addNotification(`Successfully reposted ${url}`))
       .catch(() =>
         this.props.addNotification(`Error reposting ${url}`, 'error'),
@@ -136,15 +158,18 @@ class TogetherCard extends React.Component {
     });
   }
 
-  handleReplySend(micropub) {
-    indieActions
-      .reply(
-        micropub.properties['in-reply-to'][0],
-        micropub.properties.content[0],
-      )
-      .then(() => {
+  handleReplySend(mf2) {
+    if (
+      Array.isArray(this.props.noteSyndication) &&
+      this.props.noteSyndication.length
+    ) {
+      mf2.properties['mp-syndicate-to'] = this.props.noteSyndication;
+    }
+    micropub
+      .create({ post: mf2 })
+      .then(replyUrl => {
         this.setState({ popoverOpen: false });
-        this.props.addNotification(`Successfully posted reply`);
+        this.props.addNotification(`Successfully posted reply to ${replyUrl}`);
       })
       .catch(err => this.props.addNotification(`Error posting reply`, 'error'));
   }
@@ -160,35 +185,36 @@ class TogetherCard extends React.Component {
   }
 
   handleToggleRead(e) {
-    this.setState(state => ({ read: !state.read }));
-    if (this.state.read === false) {
+    if (this.props.post._is_read === false) {
+      this.props.updatePost(this.props.post._id, '_is_read', true);
       postsService
         .update(this.props.post._id, {
           channel: this.props.selectedChannel,
           method: 'mark_read',
         })
         .then(res => {
-          this.props.updatePost(this.props.post._id, '_is_read', true);
           this.props.decrementChannelUnread(this.props.selectedChannel);
           this.props.addNotification('Marked as read');
         })
         .catch(err => {
           console.log(err);
+          this.props.updatePost(this.props.post._id, '_is_read', false);
           this.props.addNotification('Error marking as read', 'error');
         });
-    } else if (this.state.read === true) {
+    } else if (this.props.post._is_read === true) {
+      this.props.updatePost(this.props.post._id, '_is_read', false);
       postsService
         .update(this.props.post._id, {
           method: 'mark_unread',
           channel: this.props.selectedChannel,
         })
         .then(res => {
-          this.props.updatePost(this.props.post._id, '_is_read', false);
           this.props.incrementChannelUnread(this.props.selectedChannel);
           this.props.addNotification('Marked as unread');
         })
         .catch(err => {
           console.log(err);
+          this.props.updatePost(this.props.post._id, '_is_read', true);
           this.props.addNotification('Error marking as unread', 'error');
         });
     }
@@ -465,11 +491,11 @@ class TogetherCard extends React.Component {
             </IconButton>
           </Tooltip>
           <Tooltip
-            title={'Mark as ' + (this.state.read ? 'Unread' : 'Read')}
+            title={'Mark as ' + (this.props.post._is_read ? 'Unread' : 'Read')}
             placement="top"
           >
             <IconButton onClick={this.handleToggleRead}>
-              {this.state.read ? <ReadIcon /> : <UnreadIcon />}
+              {this.props.post._is_read ? <ReadIcon /> : <UnreadIcon />}
             </IconButton>
           </Tooltip>
           <Tooltip title="View Original" placement="top">
@@ -533,6 +559,9 @@ TogetherCard.propTypes = {
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
+    likeSyndication: state.settings.get('likeSyndication') || [],
+    noteSyndication: state.settings.get('noteSyndication') || [],
+    repostSyndication: state.settings.get('repostSyndication') || [],
   };
 }
 

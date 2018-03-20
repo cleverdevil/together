@@ -11,10 +11,9 @@ import Dialog, {
   DialogTitle,
 } from 'material-ui/Dialog';
 import { LinearProgress } from 'material-ui/Progress';
-import micropubApi, { getOption } from '../modules/micropub-api';
-import { setOption as setMicrosubOption } from '../modules/microsub-api';
-import { setUserOption, addNotification } from '../actions';
-import { client } from '../modules/feathers-services';
+import { setUserOption, addNotification, setSetting } from '../actions';
+import { client, users } from '../modules/feathers-services';
+import loadUser from '../modules/load-user';
 
 const styles = theme => ({});
 
@@ -26,17 +25,19 @@ class Login extends React.Component {
       open: true,
     };
     this.handleLogin = this.handleLogin.bind(this);
+    this.handleVerifyJWT = this.handleVerifyJWT.bind(this);
   }
 
   componentWillReceiveProps(newProps) {
     if (
       newProps.user &&
-      newProps.user.token &&
+      newProps.user.accessToken &&
       newProps.user.me &&
-      newProps.user.micropubEndpoint &&
-      newProps.user.microsubEndpoint
+      this.state.open
     ) {
       this.setState({ open: false });
+    } else if (!newProps.user.me && !this.state.open) {
+      this.setState({ open: true });
     }
   }
 
@@ -44,24 +45,20 @@ class Login extends React.Component {
     client
       .authenticate()
       .then(user => {
-        client.passport
-          .verifyJWT(user.accessToken)
-          .then(user => {
-            if (user.me && user.userId) {
-              this.setState({ open: false });
-              this.props.setUserOption('me', user.me);
-            }
-          })
-          .catch(err => console.log(err));
+        this.handleVerifyJWT(user.accessToken);
       })
       .catch(() => {
-        console.log('user not logged in');
         // Not logged in yet so check for the parameters in the url
         const params = new URLSearchParams(window.location.search);
-        const me = getOption('me');
+        const me = localStorage.getItem('together-login-me');
         const code = params.get('code');
         const state = params.get('state');
-        if (me && code && state && state == getOption('state')) {
+        if (
+          me &&
+          code &&
+          state &&
+          state == localStorage.getItem('together-login-state')
+        ) {
           this.setState({ loading: true });
           client
             .authenticate({
@@ -70,41 +67,98 @@ class Login extends React.Component {
               state: state,
               redirectUri: window.location.origin,
               strategy: 'custom',
-              // strategy: 'jwt',
             })
             .then(response => {
-              console.log('Logged in');
-              console.log(response);
-              this.props.setUserOption('token', response.accessToken);
-              this.props.setUserOption('me', me);
-              this.setState({ open: false });
-              setMicrosubOption('microsubEndpoint', 'fakeendpoint');
-              this.props.setUserOption('microsubEndpoint', 'fakeendpoint');
+              localStorage.removeItem('together-login-me');
+              localStorage.removeItem('together-login-state');
+              this.handleVerifyJWT(response.accessToken)
+                .then(() => {
+                  window.history.pushState({}, document.title, '/');
+                })
+                .catch(err => console.log(err));
             })
             .catch(err => {
               console.log(err);
-              this.props.addNotification('Could not log in', 'error');
+              let notification = 'Could not log in';
+              if (err.message) {
+                notification += ': ' + err.message;
+              }
+              this.props.addNotification(notification, 'error');
+              this.setState({ loading: false });
             });
-          window.history.pushState({}, document.title, '/');
         }
       });
+  }
+
+  handleVerifyJWT(token) {
+    return new Promise((resolve, reject) => {
+      client.passport
+        .verifyJWT(token)
+        .then(user => {
+          if (user.userId) {
+            loadUser(
+              user.userId,
+              this.props.setSetting,
+              this.props.setUserOption,
+            )
+              .then(() => {
+                this.setState({ open: false, loading: false });
+                this.props.addNotification(
+                  'Successfully logged in as ' + user.me,
+                );
+                resolve();
+              })
+              .catch(err => {
+                this.setState({ loading: false });
+                this.props.addNotification('Error logging in', 'error');
+                reject(err);
+              });
+          } else {
+            this.setState({ loading: false });
+            this.props.addNotification('Error logging in', 'error');
+            reject('Could not get user id from JWT');
+          }
+        })
+        .catch(err => {
+          this.setState({ loading: false });
+          this.props.addNotification('Error logging in', 'error');
+          reject(err);
+        });
+    });
   }
 
   handleLogin(e) {
     e.preventDefault();
     this.setState({ loading: true });
-    setMicrosubOption('me', this.state.me);
-    // TODO: Not sure what I want to do with this. Maybe extend / use the feathers authenticate method
-    micropubApi('getAuthUrl', {
-      me: this.state.me,
-      state: 'together' + Date.now(),
-      redirectUri: window.location.origin,
+    const state = 'together' + Date.now();
+    localStorage.setItem('together-login-me', this.state.me);
+    localStorage.setItem('together-login-state', state);
+    fetch(process.env.REACT_APP_API_SERVER + '/api/getAuthUrl', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        me: this.state.me,
+        state: state,
+        redirectUri: window.location.origin,
+      }),
     })
-      .then(res => {
-        window.location.href = res;
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          this.props.addNotification('Error getting auth url', 'error');
+          this.setState({ loading: false });
+        }
       })
-      .catch(err => console.log(err));
-    return false;
+      .catch(err => {
+        this.props.addNotification('Error getting auth url', 'error');
+        this.setState({ loading: false });
+        console.log(err);
+      });
   }
 
   render() {
@@ -161,6 +215,7 @@ function mapDispatchToProps(dispatch) {
     {
       setUserOption: setUserOption,
       addNotification: addNotification,
+      setSetting: setSetting,
     },
     dispatch,
   );

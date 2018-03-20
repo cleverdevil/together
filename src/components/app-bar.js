@@ -16,7 +16,6 @@ import NoteAddIcon from 'material-ui-icons/NoteAdd';
 import EditIcon from 'material-ui-icons/Edit';
 import ReadIcon from 'material-ui-icons/DoneAll';
 import MicropubForm from './micropub-form';
-import * as indieActions from '../modules/indie-actions';
 import LayoutSwitcher from './layout-switcher';
 import { version } from '../../package.json';
 import {
@@ -25,8 +24,9 @@ import {
   addNotification,
   updatePost,
   toggleTheme,
+  logout,
 } from '../actions';
-import { posts as postsService } from '../modules/feathers-services';
+import { posts as postsService, micropub } from '../modules/feathers-services';
 
 const styles = theme => ({
   root: {
@@ -111,12 +111,20 @@ class TogetherAppBar extends React.Component {
     });
   }
 
-  handleComposeSend(micropub) {
-    indieActions
-      .note(micropub.properties.content[0])
-      .then(() => {
+  handleComposeSend(mf2) {
+    if (
+      Array.isArray(this.props.noteSyndication) &&
+      this.props.noteSyndication.length
+    ) {
+      mf2.properties['mp-syndicate-to'] = this.props.noteSyndication;
+    }
+    micropub
+      .create({
+        post: mf2,
+      })
+      .then(url => {
         this.setState({ popoverOpen: false });
-        this.props.addNotification(`Successfully posted note`);
+        this.props.addNotification(`Successfully posted note to ${url}`);
       })
       .catch(err => this.props.addNotification(`Error posting note`, 'error'));
   }
@@ -138,6 +146,7 @@ class TogetherAppBar extends React.Component {
         <MenuItem onClick={this.props.toggleTheme}>
           {this.props.theme == 'light' ? 'Dark' : 'Light'} Mode
         </MenuItem>
+        <MenuItem onClick={this.props.logout}>Logout</MenuItem>
         <MenuItem>Version {version}</MenuItem>
         <LayoutSwitcher className={this.props.classes.layoutSwitcher} />
       </React.Fragment>
@@ -248,6 +257,7 @@ function mapStateToProps(state, props) {
     theme: state.app.get('theme'),
     channels: state.channels.toJS(),
     items: state.posts.toJS(),
+    noteSyndication: state.settings.get('noteSyndication'),
   };
 }
 
@@ -259,6 +269,7 @@ function mapDispatchToProps(dispatch) {
       addNotification: addNotification,
       updatePost: updatePost,
       toggleTheme: toggleTheme,
+      logout: logout,
     },
     dispatch,
   );

@@ -136,6 +136,9 @@ class Gallery extends React.Component {
             ) {
               this.props.onLastPhoto();
             }
+            if (this.props.onChange) {
+              this.props.onChange(this.state.photos[index]);
+            }
           }}
         >
           {this.state.photos.map((photo, i) => {
@@ -165,7 +168,9 @@ class Gallery extends React.Component {
             paperAnchorLeft: this.props.classes.drawer,
           }}
         >
-          <TogetherCard post={this.state.selectedPost} embedMode="photo" />
+          {this.state.selectedPost && (
+            <TogetherCard post={this.state.selectedPost} embedMode="photo" />
+          )}
         </Drawer>
         <IconButton
           className={this.props.classes.popupClose}
@@ -185,6 +190,7 @@ Gallery.defaultProps = {
 Gallery.propTypes = {
   posts: PropTypes.array.isRequired,
   onClose: PropTypes.func,
+  onChange: PropTypes.func,
   onLastPhoto: PropTypes.func,
 };
 

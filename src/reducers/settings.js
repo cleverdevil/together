@@ -1,37 +1,56 @@
 import { Map } from 'immutable';
+import { users } from '../modules/feathers-services';
 
-const emptyState = {
-  reactions: false,
-  syndicationProviders: [],
-  likeSyndication: [],
-  repostSyndication: [],
-  noteSyndication: [],
-};
-
-let initialState = new Map();
-for (const key in emptyState) {
-  const localValue = localStorage.getItem(`together-setting-${key}`);
-  if (localValue) {
-    initialState = initialState.set(key, JSON.parse(localValue));
-  } else {
-    initialState = initialState.set(key, emptyState[key]);
-  }
-}
+let initialState = new Map({});
 
 export default (state = initialState, payload) => {
   switch (payload.type) {
     case 'SET_SETTING': {
-      localStorage.setItem(
-        `together-setting-${payload.key}`,
-        JSON.stringify(payload.value),
-      );
+      const userId = state.get('userId');
+      if (userId && payload.feathers) {
+        users
+          .update(userId, {
+            $set: {
+              [`settings.${payload.key}`]: payload.value,
+            },
+          })
+          .then(res => () => {
+            /* All good */
+          })
+          .catch(err => console.log(err));
+      }
       return state.set(payload.key, payload.value);
     }
+    case 'UPDATE_CHANNEL': {
+      const microsubProperties = ['uid', 'name', 'unread'];
+      if (microsubProperties.indexOf(payload.key) === -1) {
+        const userId = state.get('userId');
+        if (userId && payload.feathers) {
+          users
+            .update(userId, {
+              $set: {
+                [`settings.channels.${payload.uid}.${
+                  payload.key
+                }`]: payload.value,
+              },
+            })
+            .then(res => () => {
+              /* All good */
+            })
+            .catch(err => console.log(err));
+        }
+        let channels = Object.assign({}, state.get('channels') || {});
+        if (!channels[payload.uid]) {
+          channels[payload.uid] = {};
+        }
+        channels[payload.uid][payload.key] = payload.value;
+        return state.set('channels', channels);
+      } else {
+        return state;
+      }
+    }
     case 'LOGOUT': {
-      return state.map((value, key) => {
-        localStorage.removeItem(`together-setting-${key}`);
-        return emptyState[key];
-      });
+      return initialState;
     }
     default: {
       return state;

@@ -12,6 +12,8 @@ import CompressedPost from './compressed-post';
 import TogetherCard from './card';
 import { decrementChannelUnread, updatePost } from '../actions';
 import { posts as postsService } from '../modules/feathers-services';
+import getChannelSetting from '../modules/get-channel-setting';
+import channelSettings from './channel-settings';
 
 const styles = theme => ({
   wrapper: {
@@ -69,15 +71,17 @@ class ClassicView extends React.Component {
   }
 
   handleScroll() {
-    const selectedChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const infiniteScrollEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'infiniteScroll',
+      this.props.channelSettings,
     );
-    const [
-      firstVisibleIndex,
-      lastVisibleIndex,
-    ] = this.infiniteScroll.getVisibleRange();
-    if (lastVisibleIndex >= this.props.posts.length - 1) {
-      if (selectedChannel && selectedChannel.infiniteScroll) {
+    if (infiniteScrollEnabled) {
+      const [
+        firstVisibleIndex,
+        lastVisibleIndex,
+      ] = this.infiniteScroll.getVisibleRange();
+      if (lastVisibleIndex >= this.props.posts.length - 1) {
         this.props.loadMore();
       }
     }
@@ -115,10 +119,13 @@ class ClassicView extends React.Component {
   }
 
   renderLoadMore() {
-    const selectedChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const infiniteScrollEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'infiniteScroll',
+      this.props.channelSettings,
     );
-    if (selectedChannel && selectedChannel.infiniteScroll) {
+
+    if (infiniteScrollEnabled) {
       return null;
     }
     if (this.props.loadMore) {
@@ -179,7 +186,7 @@ ClassicView.propTypes = {
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
+    channelSettings: state.settings.get('channels'),
   };
 }
 

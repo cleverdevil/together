@@ -1,32 +1,8 @@
-const fetch = require('isomorphic-fetch');
-const Micropub = require('micropub-helper');
-const { URL } = require('url');
-
-const microsubError = (message, status = null, error = null) => {
-  return {
-    message: message,
-    status: status,
-    error: error,
-  };
-};
-
-const validateResponse = res => {
-  return new Promise((resolve, reject) => {
-    if (res.ok) {
-      resolve(res.json());
-    } else {
-      res
-        .text()
-        .then(text => {
-          console.log(text);
-          reject(microsubError('Error from microsub server', res.status));
-        })
-        .catch(() =>
-          reject(microsubError('Error from microsub server', res.status)),
-        );
-    }
-  });
-};
+const {
+  microsubError,
+  validateResponse,
+  request,
+} = require('../microsub-helpers');
 
 class SearchService {
   constructor() {}
@@ -37,23 +13,17 @@ class SearchService {
    */
   find(params) {
     return new Promise((resolve, reject) => {
-      console.log(params);
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'search');
-      url.searchParams.append('query', params.query.search);
-      fetch(url.toString(), {
+      request({
+        endpoint: params.user.settings.microsubEndpoint,
+        token: params.user.accessToken,
         method: 'POST',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
+        params: {
+          action: 'search',
+          query: params.query.search,
+        },
       })
-        .then(res => res.json())
-        .then(results => {
-          resolve(results.results);
-        })
-        .catch(err => {
-          reject(microsubError('Error searching', null, err));
-        });
+        .then(results => resolve(results.results))
+        .catch(err => reject(microsubError('Error searching', null, err)));
     });
   }
 
@@ -64,22 +34,19 @@ class SearchService {
    */
   get(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'preview');
-      url.searchParams.append('url', id);
-      fetch(url.toString(), {
+      request({
+        endpoint: params.user.settings.microsubEndpoint,
+        token: params.user.accessToken,
         method: 'GET',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
+        params: {
+          action: 'preview',
+          url: id,
+        },
       })
-        .then(res => res.json())
-        .then(results => {
-          resolve(results);
-        })
-        .catch(err => {
-          reject(microsubError('Error getting preview', null, err));
-        });
+        .then(results => resolve(results))
+        .catch(err =>
+          reject(microsubError('Error getting preview', null, err)),
+        );
     });
   }
 }

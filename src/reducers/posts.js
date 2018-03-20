@@ -20,6 +20,9 @@ export default (state = defaultState, payload) => {
     case 'SET_SELECTED_CHANNEL': {
       return state.clear();
     }
+    case 'LOGOUT': {
+      return defaultState;
+    }
     default: {
       return state;
     }

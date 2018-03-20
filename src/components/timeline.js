@@ -8,8 +8,10 @@ import ReactList from 'react-list';
 
 import Card from './card';
 
-import {} from '../actions';
+import { updatePost, decrementChannelUnread } from '../actions';
 import { selectChannel } from '../actions/channels';
+import getChannelSetting from '../modules/get-channel-setting';
+import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
   timeline: {
@@ -40,25 +42,42 @@ class Timeline extends React.Component {
   }
 
   handleScroll() {
-    const selectedChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const infiniteScrollEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'infiniteScroll',
+      this.props.channelSettings,
     );
     const [
       firstVisibleIndex,
       lastVisibleIndex,
     ] = this.infiniteScroll.getVisibleRange();
-    if (lastVisibleIndex >= this.props.posts.length - 1) {
-      if (selectedChannel && selectedChannel.infiniteScroll) {
-        this.props.loadMore();
-      }
+
+    if (
+      infiniteScrollEnabled &&
+      lastVisibleIndex >= this.props.posts.length - 1
+    ) {
+      this.props.loadMore();
     }
 
-    for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-      const post = this.props.posts[i];
-      if (!post._is_read) {
-        if (selectedChannel && selectedChannel.autoRead) {
-          console.log(post);
-          // TODO: Mark this post as read if the setting is enabled
+    const autoReadEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'autoRead',
+      this.props.channelSettings,
+    );
+    if (autoReadEnabled) {
+      for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+        const post = this.props.posts[i];
+        if (!post._is_read) {
+          this.props.updatePost(post._id, '_is_read', true);
+          postsService
+            .update(post._id, {
+              channel: this.props.selectedChannel,
+              method: 'mark_read',
+            })
+            .then(res =>
+              this.props.decrementChannelUnread(this.props.selectedChannel),
+            )
+            .catch(err => this.props.updatePost(post._id, '_is_read', false));
         }
       }
     }
@@ -69,13 +88,15 @@ class Timeline extends React.Component {
   }
 
   renderLoadMore() {
-    const selectedChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const infiniteScrollEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'infiniteScroll',
+      this.props.channelSettings,
     );
-    if (selectedChannel && selectedChannel.infiniteScroll) {
+
+    if (infiniteScrollEnabled) {
       return null;
-    }
-    if (this.props.loadMore) {
+    } else if (this.props.loadMore) {
       return (
         <Button
           className={this.props.classes.loadMore}
@@ -116,12 +137,18 @@ Timeline.propTypes = {
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
+    channelSettings: state.settings.get('channels'),
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators(
+    {
+      updatePost: updatePost,
+      decrementChannelUnread: decrementChannelUnread,
+    },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(

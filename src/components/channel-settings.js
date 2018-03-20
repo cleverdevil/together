@@ -28,6 +28,7 @@ import {
   follows as followsService,
   channels as channelsService,
 } from '../modules/feathers-services';
+import { getAll as getChannelSettings } from '../modules/get-channel-setting';
 
 const styles = theme => ({
   fieldset: {
@@ -65,14 +66,13 @@ class ChannelSettings extends React.Component {
         this.getFollowing(selectedChannel.uid);
       }
     }
+    const settings = getChannelSettings(uid, props.channelSettings);
     this.state = {
       uid: uid,
       name: name,
       following: [],
-      infiniteScroll: this.setting('infiniteScroll', null, uid),
-      autoRead: this.setting('autoRead', null, uid),
+      ...settings,
     };
-    this.setting = this.setting.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleUnsubscribe = this.handleUnsubscribe.bind(this);
@@ -93,42 +93,17 @@ class ChannelSettings extends React.Component {
         channel => channel.uid == newProps.match.params.channelUid,
       );
       if (selectedChannel) {
+        const settings = getChannelSettings(
+          selectedChannel.uid,
+          newProps.channelSettings,
+        );
         this.setState({
           uid: selectedChannel.uid,
           name: selectedChannel.name,
-          infiniteScroll: this.setting(
-            'infiniteScroll',
-            null,
-            selectedChannel.uid,
-          ),
-          autoRead: this.setting('autoRead', null, selectedChannel.uid),
+          ...settings,
         });
         this.getFollowing(selectedChannel.uid);
       }
-    }
-  }
-
-  setting(key, value = null, uid = false) {
-    if (!uid && this.state && this.state.uid) {
-      uid = this.state.uid;
-    }
-    if (!uid) {
-      return null;
-    }
-    if (value !== null) {
-      // Set the setting
-      window.localStorage.setItem(
-        `together-channel-${uid}-${key}`,
-        JSON.stringify(value),
-      );
-      return value;
-    } else {
-      // Return the setting
-      value = window.localStorage.getItem(`together-channel-${uid}-${key}`);
-      if (value) {
-        value = JSON.parse(value);
-      }
-      return value;
     }
   }
 
@@ -150,8 +125,11 @@ class ChannelSettings extends React.Component {
   }
 
   handleDelete() {
-    console.log('deleting ' + this.state.uid);
-    if (this.state.uid) {
+    if (
+      this.state.uid &&
+      window.confirm('Are you sure you want to delete this channel?')
+    ) {
+      console.log('deleting ' + this.state.uid);
       channelsService
         .remove(this.state.uid)
         .then(res => {
@@ -166,7 +144,6 @@ class ChannelSettings extends React.Component {
   }
 
   handleLocalChange = name => event => {
-    this.setting(name, event.target.checked);
     this.setState({ [name]: event.target.checked });
     this.props.updateChannel(this.state.uid, name, event.target.checked);
   };
@@ -241,7 +218,6 @@ class ChannelSettings extends React.Component {
   }
 
   render() {
-    console.log(this.state.auto);
     return (
       <SettingsModal
         title={`${this.state.name} Settings`}
@@ -270,7 +246,7 @@ class ChannelSettings extends React.Component {
                 }
                 label="Infinite Scroll"
               />
-              {/* <FormControlLabel
+              <FormControlLabel
                 control={
                   <Switch
                     checked={this.state.autoRead}
@@ -279,7 +255,7 @@ class ChannelSettings extends React.Component {
                   />
                 }
                 label="Auto Mark As Read"
-              /> */}
+              />
               <Button onClick={this.handleDelete}>Delete Channel</Button>
             </FormGroup>
           </FormControl>
@@ -301,6 +277,7 @@ ChannelSettings.propTypes = {
 function mapStateToProps(state, props) {
   return {
     channels: state.channels.toJS(),
+    channelSettings: state.settings.get('settings'),
   };
 }
 

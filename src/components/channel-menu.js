@@ -88,29 +88,12 @@ class ChannelMenu extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.me) {
+    if (this.props.userId) {
       channelsService
         .find({})
         .then(channels => {
           channels.forEach(channel => {
-            this.props.addChannel(
-              channel.name,
-              channel.uid,
-              channel.unread,
-              localStorage.getItem(`channel-${channel.uid}-layout`),
-            );
-            this.props.updateChannel(
-              channel.uid,
-              'infiniteScroll',
-              localStorage.getItem(
-                `together-channel-${channel.uid}-infiniteScroll`,
-              ),
-            );
-            this.props.updateChannel(
-              channel.uid,
-              'autoRead',
-              localStorage.getItem(`together-channel-${channel.uid}-autoRead`),
-            );
+            this.props.addChannel(channel.name, channel.uid, channel.unread);
           });
         })
         .catch(err => {
@@ -121,12 +104,12 @@ class ChannelMenu extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.me && this.props.me !== newProps.me) {
+    if (newProps.userId && this.props.userId !== newProps.userId) {
       channelsService
         .find({})
         .then(channels => {
           channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid, channel.uread);
+            this.props.addChannel(channel.name, channel.uid, channel.unread);
           });
         })
         .catch(err => {
@@ -249,7 +232,7 @@ ChannelMenu.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
-    me: state.user.get('me'),
+    userId: state.user.get('_id'),
     selectedChannel: state.app.get('selectedChannel'),
     channels: state.channels.toJS(),
     open: state.app.get('channelsMenuOpen'),

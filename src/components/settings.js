@@ -16,7 +16,7 @@ import Checkbox from 'material-ui/Checkbox';
 import Button from 'material-ui/Button';
 import Divider from 'material-ui/Divider';
 import SettingsModal from './settings-modal';
-import { setUserOption, setSetting, logout, addNotification } from '../actions';
+import { setUserOption, setSetting, addNotification } from '../actions';
 import { micropub as micropubService } from '../modules/feathers-services';
 import { ViewColumn } from 'material-ui-icons';
 
@@ -46,6 +46,7 @@ class Settings extends React.Component {
     this.state = {};
     this.handleChange = this.handleChange.bind(this);
     this.handleUserOptionChange = this.handleUserOptionChange.bind(this);
+    this.handleSettingChange = this.handleSettingChange.bind(this);
     this.getSyndicationProviders = this.getSyndicationProviders.bind(this);
     this.handleLikeSyndicationChange = this.handleLikeSyndicationChange.bind(
       this,
@@ -59,7 +60,10 @@ class Settings extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.settings.syndicationProviders.length < 1) {
+    if (
+      !this.props.settings.syndicationProviders ||
+      this.props.settings.syndicationProviders.length < 1
+    ) {
       this.getSyndicationProviders();
     }
   }
@@ -74,9 +78,13 @@ class Settings extends React.Component {
     this.props.setUserOption(name, event.target.value);
   };
 
+  handleSettingChange = name => event => {
+    this.props.setSetting(name, event.target.value);
+  };
+
   handleLikeSyndicationChange(event, checked) {
     const provider = event.target.value;
-    let options = this.props.settings.likeSyndication;
+    let options = this.props.settings.likeSyndication || [];
     const index = options.indexOf(provider);
     if (index > -1) {
       options.splice(index, 1);
@@ -90,7 +98,7 @@ class Settings extends React.Component {
 
   handleRepostSyndicationChange(event, checked) {
     const provider = event.target.value;
-    let options = this.props.settings.repostSyndication;
+    let options = this.props.settings.repostSyndication || [];
     const index = options.indexOf(provider);
     if (index > -1) {
       options.splice(index, 1);
@@ -104,7 +112,7 @@ class Settings extends React.Component {
 
   handleNoteSyndicationChange(event, checked) {
     const provider = event.target.value;
-    let options = this.props.settings.noteSyndication;
+    let options = this.props.settings.noteSyndication || [];
     const index = options.indexOf(provider);
     if (index > -1) {
       options.splice(index, 1);
@@ -118,7 +126,7 @@ class Settings extends React.Component {
 
   getSyndicationProviders() {
     micropubService
-      .get(null, { query: 'syndicate-to' })
+      .get(null, { query: { query: 'syndicate-to' } })
       .then(syndicationProviders => {
         if (syndicationProviders['syndicate-to']) {
           this.props.setSetting(
@@ -162,46 +170,43 @@ class Settings extends React.Component {
               <TextField
                 id="token"
                 label="Token"
-                value={this.props.user.token}
-                onChange={this.handleUserOptionChange('token')}
+                value={this.props.user.accessToken}
+                onChange={this.handleUserOptionChange('accessToken')}
                 margin="normal"
                 type="text"
               />
               <TextField
                 id="microsub-endpoint"
                 label="Microsub Endpoint"
-                value={this.props.user.microsubEndpoint}
-                onChange={this.handleUserOptionChange('microsubEndpoint')}
+                value={this.props.settings.microsubEndpoint}
+                onChange={this.handleSettingChange('microsubEndpoint')}
                 margin="normal"
                 type="url"
               />
               <TextField
                 id="micropub-endpoint"
                 label="Micropub Endpoint"
-                value={this.props.user.micropubEndpoint}
-                onChange={this.handleUserOptionChange('micropubEndpoint')}
+                value={this.props.settings.micropubEndpoint}
+                onChange={this.handleSettingChange('micropubEndpoint')}
                 margin="normal"
                 type="url"
               />
               <TextField
                 id="media-endpoint"
                 label="Media Endpoint"
-                value={this.props.user.mediaEndpoint}
-                onChange={this.handleUserOptionChange('mediaEndpoint')}
+                value={this.props.settings.mediaEndpoint}
+                onChange={this.handleSettingChange('mediaEndpoint')}
                 margin="normal"
                 type="url"
               />
               <TextField
                 id="token-endpoint"
                 label="Token Endpoint"
-                value={this.props.user.tokenEndpoint}
-                onChange={this.handleUserOptionChange('tokenEndpoint')}
+                value={this.props.settings.tokenEndpoint}
+                onChange={this.handleSettingChange('tokenEndpoint')}
                 margin="normal"
                 type="url"
               />
-              <Button onClick={this.props.logout} variant="raised">
-                Sign Out
-              </Button>
             </FormGroup>
           </FormControl>
         </div>
@@ -222,74 +227,90 @@ class Settings extends React.Component {
                 label="Emoji Reaction Support"
               />
 
-              <FormControl component="div">
-                <FormLabel component="span">Like Syndication</FormLabel>
-                <FormGroup>
-                  {this.props.settings.syndicationProviders.map(provider => (
-                    <FormControlLabel
-                      key={`like-syndication-setting-${provider.uid}`}
-                      control={
-                        <Checkbox
-                          checked={
-                            this.props.settings.likeSyndication.indexOf(
-                              provider.uid,
-                            ) > -1
-                          }
-                          value={provider.uid}
-                          onChange={this.handleLikeSyndicationChange}
-                        />
-                      }
-                      label={provider.name}
-                    />
-                  ))}
-                </FormGroup>
-              </FormControl>
+              {this.props.settings.syndicationProviders && (
+                <React.Fragment>
+                  <FormControl component="div">
+                    <FormLabel component="span">Like Syndication</FormLabel>
+                    <FormGroup>
+                      {this.props.settings.syndicationProviders.map(
+                        provider => (
+                          <FormControlLabel
+                            key={`like-syndication-setting-${provider.uid}`}
+                            control={
+                              <Checkbox
+                                checked={
+                                  this.props.settings.likeSyndication
+                                    ? this.props.settings.likeSyndication.indexOf(
+                                        provider.uid,
+                                      ) > -1
+                                    : false
+                                }
+                                value={provider.uid}
+                                onChange={this.handleLikeSyndicationChange}
+                              />
+                            }
+                            label={provider.name}
+                          />
+                        ),
+                      )}
+                    </FormGroup>
+                  </FormControl>
 
-              <FormControl component="div">
-                <FormLabel component="span">Repost Syndication</FormLabel>
-                <FormGroup>
-                  {this.props.settings.syndicationProviders.map(provider => (
-                    <FormControlLabel
-                      key={`repost-syndication-setting-${provider.uid}`}
-                      control={
-                        <Checkbox
-                          checked={
-                            this.props.settings.repostSyndication.indexOf(
-                              provider.uid,
-                            ) > -1
-                          }
-                          value={provider.uid}
-                          onChange={this.handleRepostSyndicationChange}
-                        />
-                      }
-                      label={provider.name}
-                    />
-                  ))}
-                </FormGroup>
-              </FormControl>
+                  <FormControl component="div">
+                    <FormLabel component="span">Repost Syndication</FormLabel>
+                    <FormGroup>
+                      {this.props.settings.syndicationProviders.map(
+                        provider => (
+                          <FormControlLabel
+                            key={`repost-syndication-setting-${provider.uid}`}
+                            control={
+                              <Checkbox
+                                checked={
+                                  this.props.settings.repostSyndication
+                                    ? this.props.settings.repostSyndication.indexOf(
+                                        provider.uid,
+                                      ) > -1
+                                    : false
+                                }
+                                value={provider.uid}
+                                onChange={this.handleRepostSyndicationChange}
+                              />
+                            }
+                            label={provider.name}
+                          />
+                        ),
+                      )}
+                    </FormGroup>
+                  </FormControl>
 
-              <FormControl component="div">
-                <FormLabel component="span">Note Syndication</FormLabel>
-                <FormGroup>
-                  {this.props.settings.syndicationProviders.map(provider => (
-                    <FormControlLabel
-                      key={`note-syndication-setting-${provider.uid}`}
-                      control={
-                        <Checkbox
-                          checked={
-                            this.props.settings.noteSyndication.indexOf(
-                              provider.uid,
-                            ) > -1
-                          }
-                          value={provider.uid}
-                          onChange={this.handleNoteSyndicationChange}
-                        />
-                      }
-                      label={provider.name}
-                    />
-                  ))}
-                </FormGroup>
-              </FormControl>
+                  <FormControl component="div">
+                    <FormLabel component="span">Note Syndication</FormLabel>
+                    <FormGroup>
+                      {this.props.settings.syndicationProviders.map(
+                        provider => (
+                          <FormControlLabel
+                            key={`note-syndication-setting-${provider.uid}`}
+                            control={
+                              <Checkbox
+                                checked={
+                                  this.props.settings.noteSyndication
+                                    ? this.props.settings.noteSyndication.indexOf(
+                                        provider.uid,
+                                      ) > -1
+                                    : false
+                                }
+                                value={provider.uid}
+                                onChange={this.handleNoteSyndicationChange}
+                              />
+                            }
+                            label={provider.name}
+                          />
+                        ),
+                      )}
+                    </FormGroup>
+                  </FormControl>
+                </React.Fragment>
+              )}
 
               <Button onClick={this.getSyndicationProviders} variant="raised">
                 Update Syndication Providers
@@ -318,7 +339,6 @@ function mapDispatchToProps(dispatch) {
     {
       setUserOption: setUserOption,
       setSetting: setSetting,
-      logout: logout,
       addNotification: addNotification,
     },
     dispatch,

@@ -7,10 +7,13 @@ import { withStyles } from 'material-ui/styles';
 import GridList, { GridListTile, GridListTileBar } from 'material-ui/GridList';
 import Avatar from 'material-ui/Avatar';
 import Button from 'material-ui/Button';
+import { Divider } from 'material-ui';
 import ReactList from 'react-list';
 import GallerySlider from './gallery-slider';
+import { updatePost, decrementChannelUnread } from '../actions';
 import authorToAvatarData from '../modules/author-to-avatar-data';
-import { Divider } from 'material-ui';
+import getChannelSetting from '../modules/get-channel-setting';
+import { posts as postsService } from '../modules/feathers-services';
 
 const styles = theme => ({
   galleryWrapper: {
@@ -34,7 +37,9 @@ class Gallery extends React.Component {
       photos: [],
       selectedPhotoIndex: false,
     };
+    this.markPostRead = this.markPostRead.bind(this);
     this.handleScroll = this.handleScroll.bind(this);
+    this.handleGallerySliderChange = this.handleGallerySliderChange.bind(this);
     this.renderItem = this.renderItem.bind(this);
     this.renderGallery = this.renderGallery.bind(this);
     this.renderLoadMore = this.renderLoadMore.bind(this);
@@ -61,9 +66,24 @@ class Gallery extends React.Component {
     }
   }
 
+  markPostRead(postId) {
+    this.props.updatePost(postId, '_is_read', true);
+    postsService
+      .update(postId, {
+        channel: this.props.selectedChannel,
+        method: 'mark_read',
+      })
+      .then(res =>
+        this.props.decrementChannelUnread(this.props.selectedChannel),
+      )
+      .catch(err => this.props.updatePost(postId, '_is_read', false));
+  }
+
   handleScroll() {
-    const selectedChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const infiniteScrollEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'infiniteScroll',
+      this.props.channelSettings,
     );
     const [
       firstVisibleIndex,
@@ -71,21 +91,40 @@ class Gallery extends React.Component {
     ] = this.infiniteScroll.getVisibleRange();
     const scrollEl = this.infiniteScroll.scrollParent;
     if (
-      scrollEl.scrollTop >
-      scrollEl.scrollHeight - scrollEl.clientHeight - 5
+      infiniteScrollEnabled &&
+      scrollEl.scrollTop > scrollEl.scrollHeight - scrollEl.clientHeight - 5
     ) {
-      if (selectedChannel && selectedChannel.infiniteScroll) {
-        this.props.loadMore();
-      }
+      this.props.loadMore();
     }
 
-    for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-      const post = this.props.posts[i];
+    const autoReadEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'autoRead',
+      this.props.channelSettings,
+    );
+
+    // This doesn't work with the ReactList type = simple
+    // if (autoReadEnabled) {
+    //   for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+    //     const post = this.props.posts[i];
+    //     if (!post._is_read) {
+    //       this.markPostRead(post._id);
+    //     }
+    //   }
+    // }
+  }
+
+  handleGallerySliderChange(post) {
+    post = post.post;
+    const autoReadEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'autoRead',
+      this.props.channelSettings,
+    );
+
+    if (autoReadEnabled) {
       if (!post._is_read) {
-        if (selectedChannel && selectedChannel.autoRead) {
-          console.log(post);
-          // TODO: Mark this post as read if the setting is enabled
-        }
+        this.markPostRead(post._id);
       }
     }
   }
@@ -98,7 +137,10 @@ class Gallery extends React.Component {
       <GridListTile
         key={key}
         cols={1}
-        onClick={e => this.setState({ selectedPhotoIndex: index })}
+        onClick={e => {
+          this.setState({ selectedPhotoIndex: index });
+          this.markPostRead(post._id);
+        }}
         style={{ height: cellHeight, width: 100 / columnCount + '%' }}
       >
         <img src={photo} alt="" />
@@ -133,10 +175,13 @@ class Gallery extends React.Component {
   }
 
   renderLoadMore() {
-    const selectedChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const infiniteScrollEnabled = getChannelSetting(
+      this.props.selectedChannel,
+      'infiniteScroll',
+      this.props.channelSettings,
     );
-    if (selectedChannel && selectedChannel.infiniteScroll) {
+
+    if (infiniteScrollEnabled) {
       return null;
     }
     if (this.props.loadMore) {
@@ -175,12 +220,15 @@ class Gallery extends React.Component {
           <GallerySlider
             posts={this.props.posts}
             startIndex={this.state.selectedPhotoIndex}
+            onChange={this.handleGallerySliderChange}
             onClose={() => this.setState({ selectedPhotoIndex: false })}
             onLastPhoto={() => {
-              const selectedChannel = this.props.channels.find(
-                channel => channel.uid == this.props.selectedChannel,
+              const infiniteScrollEnabled = getChannelSetting(
+                this.props.selectedChannel,
+                'infiniteScroll',
+                this.props.channelSettings,
               );
-              if (selectedChannel && selectedChannel.infiniteScroll) {
+              if (infiniteScrollEnabled) {
                 this.props.loadMore();
               }
             }}
@@ -201,13 +249,19 @@ Gallery.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators(
+    {
+      decrementChannelUnread: decrementChannelUnread,
+      updatePost: updatePost,
+    },
+    dispatch,
+  );
 }
 
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
+    channelSettings: state.settings.get('channels'),
   };
 }
 

@@ -1,3 +1,5 @@
+import { users } from '../modules/feathers-services';
+
 export const selectChannel = uid => {
   return {
     type: 'SET_SELECTED_CHANNEL',
@@ -15,15 +17,13 @@ export const addChannel = (name, uid, unread = 0, layout = 'timeline') => {
   };
 };
 
-export const updateChannel = (uid, key, value) => {
-  if (key === 'layout') {
-    localStorage.setItem(`channel-${uid}-layout`, value);
-  }
+export const updateChannel = (uid, key, value, feathers = true) => {
   return {
     type: 'UPDATE_CHANNEL',
     uid: uid,
     key: key,
     value: value,
+    feathers: feathers,
   };
 };
 

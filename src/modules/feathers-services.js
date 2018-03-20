@@ -10,7 +10,7 @@ const socket = io(process.env.REACT_APP_API_SERVER, {
 
 const client = feathers();
 
-client.configure(socketio(socket));
+client.configure(socketio(socket, { timeout: 10000 }));
 client.configure(
   authentication({
     storage: window.localStorage,
@@ -18,10 +18,15 @@ client.configure(
     service: 'users',
   }),
 );
+// Try to prevent login timeouts although I don't think it actually works
+// TODO: investigate how to fix this
+client.service('authentication').timeout = 20000;
+client.service('users').timeout = 20000;
 
 export const channels = client.service('api/channels');
 export const posts = client.service('api/posts');
 export const search = client.service('api/search');
 export const follows = client.service('api/follows');
 export const micropub = client.service('api/micropub');
+export const users = client.service('users');
 export { client };

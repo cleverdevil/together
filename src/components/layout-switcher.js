@@ -7,6 +7,7 @@ import IconButton from 'material-ui/IconButton';
 import Tooltip from 'material-ui/Tooltip';
 import { updateChannel } from '../actions';
 import layouts from '../modules/layouts';
+import getChannelSetting from '../modules/get-channel-setting';
 
 const styles = theme => ({
   menu: {
@@ -41,13 +42,12 @@ class LayoutSwitcher extends React.Component {
   }
 
   render() {
-    let currentLayout = layouts[0].id;
-    const currentChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
+    const uid = this.props.selectedChannel;
+    const currentLayout = getChannelSetting(
+      uid,
+      'layout',
+      this.props.channelSettings,
     );
-    if (currentChannel && currentChannel.layout) {
-      currentLayout = currentChannel.layout;
-    }
 
     return (
       <div
@@ -92,7 +92,7 @@ LayoutSwitcher.propTypes = {
 function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
+    channelSettings: state.settings.get('channels'),
   };
 }
 

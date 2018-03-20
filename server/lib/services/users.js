@@ -22,7 +22,10 @@ class UserService extends Service {
         .then(res => {
           if (res && res[0] && res[0].me == data.me) {
             const user = res[0];
-            return super.update(user._id, data, params);
+            const settings = Object.assign({}, user.settings, data.settings);
+            const update = Object.assign({}, user, data);
+            update.settings = settings;
+            return super.update(user._id, update, params);
           } else {
             return super.create(data, params);
           }

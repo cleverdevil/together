@@ -13,6 +13,7 @@ import Checkins from './checkins';
 import ClassicView from './classic-view';
 import Timeline from './timeline';
 import layouts from '../modules/layouts';
+import getChannelSetting from '../modules/get-channel-setting';
 
 import {
   addPosts,
@@ -39,6 +40,7 @@ class MainPosts extends React.Component {
     super(props);
     this.state = {
       loading: false,
+      layout: layouts[0],
     };
 
     this.handleLoadMore = this.handleLoadMore.bind(this);
@@ -47,6 +49,7 @@ class MainPosts extends React.Component {
 
   componentDidMount() {
     if (
+      this.props.user.me &&
       this.props.match &&
       this.props.match.params &&
       this.props.match.params.channelUid
@@ -57,7 +60,9 @@ class MainPosts extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
+    let newState = {};
     if (
+      newProps.user.me &&
       newProps.match &&
       newProps.match.params &&
       newProps.match.params.channelUid &&
@@ -70,15 +75,18 @@ class MainPosts extends React.Component {
       newProps.match.params &&
       !newProps.match.params.channelUid &&
       !newProps.selectedChannel &&
-      newProps.channels.length
+      newProps.channels.length &&
+      newProps.user.me
     ) {
       newProps.selectChannel(newProps.channels[0].uid);
     }
     if (
       newProps.selectedChannel &&
+      newProps.user.me &&
       newProps.selectedChannel != this.props.selectedChannel
     ) {
-      this.setState({ loading: true });
+      newState.loading = true;
+      newState.layout = layouts[0];
       postsService
         .find({ query: { channel: newProps.selectedChannel } })
         .then(res => {
@@ -100,6 +108,16 @@ class MainPosts extends React.Component {
           console.log(err);
         });
     }
+    newState.layout = layouts.find(
+      layout =>
+        layout.id ==
+        getChannelSetting(
+          newProps.selectedChannel,
+          'layout',
+          newProps.channelSettings,
+        ),
+    );
+    this.setState(newState);
   }
 
   handleLoadMore() {
@@ -131,24 +149,11 @@ class MainPosts extends React.Component {
   }
 
   renderTimelinePosts() {
-    const channels = this.props.channels;
     let posts = this.props.items;
-    let currentLayout = layouts[0];
-    const currentChannel = this.props.channels.find(
-      channel => channel.uid == this.props.selectedChannel,
-    );
-    if (currentChannel) {
-      const foundLayout = layouts.find(
-        layout => layout.id == currentChannel.layout,
-      );
-      if (foundLayout) {
-        currentLayout = foundLayout;
-      }
+    if (this.state.layout && this.state.layout.filter) {
+      posts = posts.filter(this.state.layout.filter);
     }
-    if (currentLayout && currentLayout.filter) {
-      posts = posts.filter(currentLayout.filter);
-    }
-    switch (currentLayout.id) {
+    switch (this.state.layout.id) {
       case 'gallery':
         return (
           <Gallery
@@ -235,6 +240,8 @@ function mapStateToProps(state, props) {
     selectedChannel: state.app.get('selectedChannel'),
     channels: state.channels.toJS(),
     items: state.posts.toJS(),
+    user: state.user.toJS(),
+    channelSettings: state.settings.get('channels') || {},
   };
 }
 

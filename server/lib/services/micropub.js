@@ -1,7 +1,3 @@
-const fetch = require('isomorphic-fetch');
-const Micropub = require('micropub-helper');
-const { URL } = require('url');
-
 class MicropubService {
   constructor() {}
 
@@ -12,26 +8,26 @@ class MicropubService {
    */
   get(id, params) {
     if (id) {
-      return micropub.querySource(id, params.query.properties || []);
+      return params.micropub.querySource(id, params.query.properties || []);
     } else {
-      return micropub.query(params.query.query);
+      return params.micropub.query(params.query.query);
     }
   }
 
-  create(params) {
-    if (params.undelete) {
-      return micropub.undelete(params.undelete);
+  create(data, params) {
+    if (data.undelete) {
+      return params.micropub.undelete(data.undelete);
     } else {
-      return micropub.create(params.post, params.type || 'json');
+      return params.micropub.create(data.post, data.type || 'json');
     }
   }
 
   update(id, params) {
-    return micropub.update(id, params.update);
+    return params.micropub.update(id, params.update);
   }
 
   remove(id, params) {
-    return micropub.delete(id);
+    return params.micropub.delete(id);
   }
 }
 

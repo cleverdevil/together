@@ -6,7 +6,7 @@ const defaultState = new Map({
   timelineBefore: '',
   timelineAfter: '',
   notifications: [],
-  theme: localStorage.getItem('app-theme') || 'light',
+  theme: localStorage.getItem('together-theme') || 'light',
 });
 
 export default (state = defaultState, payload) => {
@@ -39,8 +39,11 @@ export default (state = defaultState, payload) => {
     }
     case 'TOGGLE_THEME': {
       const newTheme = state.get('theme') == 'light' ? 'dark' : 'light';
-      localStorage.setItem('app-theme', newTheme);
+      localStorage.setItem('together-theme', newTheme);
       return state.set('theme', newTheme);
+    }
+    case 'LOGOUT': {
+      return defaultState;
     }
     default: {
       return state;

@@ -15,10 +15,15 @@ export default (state = defaultState, payload) => {
       );
     }
     case 'UPDATE_CHANNEL': {
-      return state.update(
-        state.findIndex(channel => channel.get('uid') === payload.uid),
-        channel => channel.set(payload.key, payload.value),
-      );
+      const microsubProperties = ['uid', 'name', 'unread'];
+      if (microsubProperties.indexOf(payload.key) > -1) {
+        return state.update(
+          state.findIndex(channel => channel.get('uid') === payload.uid),
+          channel => channel.set(payload.key, payload.value),
+        );
+      } else {
+        return state;
+      }
     }
     case 'REMOVE_CHANNEL': {
       return state.remove(
@@ -37,6 +42,9 @@ export default (state = defaultState, payload) => {
         state.findIndex(channel => channel.get('uid') === payload.uid),
         channel => channel.update('unread', unread => unread + 1),
       );
+    }
+    case 'LOGOUT': {
+      return defaultState;
     }
     default: {
       return state;

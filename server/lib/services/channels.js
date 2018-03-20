@@ -1,150 +1,122 @@
-const fetch = require('isomorphic-fetch');
-const Micropub = require('micropub-helper');
-const { URL } = require('url');
-
-const microsubError = (message, status = null, error = null) => {
-  return {
-    message: message,
-    status: status,
-    error: error,
-  };
-};
-
-const validateResponse = res => {
-  return new Promise((resolve, reject) => {
-    if (res.ok) {
-      resolve(res.json());
-    } else {
-      res
-        .text()
-        .then(text => {
-          console.log(text);
-          reject(microsubError('Error from microsub server', res.status));
-        })
-        .catch(() =>
-          reject(microsubError('Error from microsub server', res.status)),
-        );
-    }
-  });
-};
+const {
+  microsubError,
+  validateResponse,
+  request,
+} = require('../microsub-helpers');
 
 class ChannelsService {
   constructor() {}
 
   find(params) {
     return new Promise((resolve, reject) => {
-      if (!params.user.accessToken || !params.user.rels.microsub) {
-        reject('Missing user data');
-      }
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'channels');
-      fetch(url.toString(), {
+      request({
+        endpoint: params.user.settings.microsubEndpoint,
+        token: params.user.accessToken,
         method: 'GET',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
+        params: {
+          action: 'channels',
+        },
       })
-        .then(res => validateResponse(res))
-        .then(channels => {
-          resolve(channels.channels);
-        })
-        .catch(err => {
-          reject(microsubError('Error getting channels', null, err));
-        });
+        .then(channels =>
+          resolve(
+            channels.channels.map(channel => {
+              channel.userId = params.user.userId;
+              channel.layout = 'default';
+              return channel;
+            }),
+          ),
+        )
+        .catch(err =>
+          reject(microsubError('Error getting channels', null, err)),
+        );
     });
   }
 
   get(id, params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'channels');
-      fetch(url.toString(), {
+      request({
+        endpoint: params.user.settings.microsubEndpoint,
+        token: params.user.accessToken,
         method: 'GET',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
+        params: {
+          action: 'channels',
+        },
       })
-        .then(res => validateResponse(res))
-        .then(channels => {
-          resolve(channels.channels.find(channel => channel.uid == id));
-        })
-        .catch(err => {
-          reject(microsubError('Error getting channels', null, err));
-        });
+        .then(channels =>
+          resolve(channels.channels.find(channel => channel.uid == id)),
+        )
+        .catch(err =>
+          reject(microsubError('Error getting channels', null, err)),
+        );
     });
   }
 
   create(params) {
     return new Promise((resolve, reject) => {
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'channels');
-      url.searchParams.append('name', params.name);
-      fetch(url.toString(), {
+      request({
+        endpoint: params.user.settings.microsubEndpoint,
+        token: params.user.accessToken,
         method: 'POST',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
+        params: {
+          action: 'channels',
+          name: params.name,
+        },
       })
-        .then(res => res.json())
         .then(newChannel => {
+          channel.userId = params.user.userId;
+          channel.layout = 'default';
           resolve(newChannel);
         })
-        .catch(err => {
-          reject(microsubError('Error creating channel', null, err));
-        });
+        .catch(err =>
+          reject(microsubError('Error creating channel', null, err)),
+        );
     });
   }
 
-  update(id, params) {
+  update(id, data, params) {
+    console.log('Update thing');
     return new Promise((resolve, reject) => {
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'channels');
-      url.searchParams.append('channel', id);
-      url.searchParams.append('name', params.name);
-      fetch(url.toString(), {
-        method: 'POST',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
-      })
-        .then(res => res.json())
-        .then(newChannel => {
-          resolve(newChannel);
+      // console.log('updating');
+      // console.log(params);
+      if (data.name) {
+        request({
+          endpoint: params.user.settings.microsubEndpoint,
+          token: params.user.accessToken,
+          method: 'GET',
+          params: {
+            action: 'channels',
+            channel: id,
+            name: data.name,
+          },
         })
-        .catch(err => {
-          reject(microsubError('Error updating channel', null, err));
-        });
+          // Promise.resolve('')
+          .then(updatedChannel => resolve(id))
+          .catch(err =>
+            reject(microsubError('Error updating channel', null, err)),
+          );
+      } else {
+        resolve(id);
+      }
     });
   }
 
   remove(id, params) {
-    console.log(id, params);
+    // console.log(id, params);
     return new Promise((resolve, reject) => {
-      const url = new URL(params.user.rels.microsub);
-      url.searchParams.append('action', 'channels');
-      url.searchParams.append('method', 'delete');
-      url.searchParams.append('channel', id);
-      fetch(url.toString(), {
+      request({
+        endpoint: params.user.settings.microsubEndpoint,
+        token: params.user.accessToken,
         method: 'POST',
-        headers: new Headers({
-          Authorization: 'Bearer ' + params.user.accessToken,
-        }),
+        params: {
+          action: 'channels',
+          method: 'delete',
+          channel: id,
+        },
       })
-        .then(res => {
-          if (res.status == 200) {
-            resolve();
-          } else {
-            console.log(res);
-            return res.text();
-          }
-        })
-        .then(data => {
-          console.log(data);
-          reject(microsubError('Error deleting channel'));
-        })
-        .catch(err => {
-          reject(microsubError('Error deleting channel', null, err));
-        });
+        .then(() => resolve(id))
+        .catch(err =>
+          reject(microsubError('Error deleting channel', null, err)),
+        );
     });
   }
 }
