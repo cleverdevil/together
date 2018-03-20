@@ -23,7 +23,6 @@
     "express": "^4.16.3",
     "feathers-authentication-custom": "^0.1.0",
     "feathers-authentication-hooks": "^0.1.7",
-    "feathers-memory": "^2.1.1",
     "feathers-nedb": "^3.0.0",
     "immutable": "^3.8.2",
     "isomorphic-fetch": "^2.2.1",
