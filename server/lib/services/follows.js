@@ -44,14 +44,14 @@ class FollowsService {
     });
   }
 
-  create(params) {
+  create(data, params) {
     return new Promise((resolve, reject) => {
       let microsubParams = {
         action: 'follow',
-        url: params.url,
+        url: data.url,
       };
-      if (params.channel) {
-        microsubParams.channel = params.channel;
+      if (data.channel) {
+        microsubParams.channel = data.channel;
       } else {
         microsubParams.channel = 'default';
       }

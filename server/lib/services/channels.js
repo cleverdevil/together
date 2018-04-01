@@ -51,7 +51,7 @@ class ChannelsService {
     });
   }
 
-  create(params) {
+  create(data, params) {
     return new Promise((resolve, reject) => {
       request({
         endpoint: params.user.settings.microsubEndpoint,
@@ -59,12 +59,12 @@ class ChannelsService {
         method: 'POST',
         params: {
           action: 'channels',
-          name: params.name,
+          name: data.name,
         },
       })
         .then(newChannel => {
-          channel.userId = params.user.userId;
-          channel.layout = 'default';
+          newChannel.userId = params.user.userId;
+          newChannel.layout = 'default';
           resolve(newChannel);
         })
         .catch(err =>
@@ -74,22 +74,18 @@ class ChannelsService {
   }
 
   update(id, data, params) {
-    console.log('Update thing');
     return new Promise((resolve, reject) => {
-      // console.log('updating');
-      // console.log(params);
       if (data.name) {
         request({
           endpoint: params.user.settings.microsubEndpoint,
           token: params.user.accessToken,
-          method: 'GET',
+          method: 'POST',
           params: {
             action: 'channels',
             channel: id,
             name: data.name,
           },
         })
-          // Promise.resolve('')
           .then(updatedChannel => resolve(id))
           .catch(err =>
             reject(microsubError('Error updating channel', null, err)),
@@ -101,7 +97,6 @@ class ChannelsService {
   }
 
   remove(id, params) {
-    // console.log(id, params);
     return new Promise((resolve, reject) => {
       request({
         endpoint: params.user.settings.microsubEndpoint,
