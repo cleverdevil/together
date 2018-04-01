@@ -89,12 +89,18 @@ class TogetherAppBar extends React.Component {
           last_read_entry: this.props.items[0]._id,
         })
         .then(res => {
-          this.props.items.forEach(post => {
-            if (!post._is_read) {
-              this.props.updatePost(post._id, '_is_read', true);
-            }
-          });
-          this.props.updateChannel(this.props.selectedChannel, 'unread', 0);
+          if (res.channel && res.channel == this.props.selectedChannel) {
+            this.props.items.forEach(post => {
+              if (!post._is_read) {
+                this.props.updatePost(post._id, '_is_read', true);
+              }
+            });
+          }
+          this.props.updateChannel(
+            res.channel || this.props.selectedChannel,
+            'unread',
+            0,
+          );
           this.props.addNotification(`Marked ${res.updated} items as read`);
         })
         .catch(err => {

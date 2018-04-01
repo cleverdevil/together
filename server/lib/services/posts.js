@@ -64,7 +64,10 @@ class PostsService {
         method: 'POST',
         params: microsubParams,
       })
-        .then(results => resolve(results))
+        .then(results => {
+          results.channel = data.channel;
+          resolve(results);
+        })
         .catch(err => reject(microsubError('Error updating', null, err)));
     });
   }
