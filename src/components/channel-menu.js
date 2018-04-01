@@ -12,11 +12,13 @@ import List, {
 import AddIcon from 'material-ui-icons/Add';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import {
   selectChannel,
   toggleChannelsMenu,
   addChannel,
   updateChannel,
+  reorderChannels,
   addNotification,
 } from '../actions';
 import { channels as channelsService } from '../modules/feathers-services';
@@ -83,6 +85,7 @@ class ChannelMenu extends React.Component {
       newChannel: false,
     };
     this.handleAddChannel = this.handleAddChannel.bind(this);
+    this.onDragEnd = this.onDragEnd.bind(this);
     this.renderChannelForm = this.renderChannelForm.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
@@ -142,6 +145,20 @@ class ChannelMenu extends React.Component {
     return false;
   }
 
+  onDragEnd(result) {
+    if (!result.destination) {
+      return;
+    }
+    this.props.reorderChannels(result.source.index, result.destination.index);
+    channelsService
+      .patch(null, { order: this.props.channels.map(channel => channel.uid) })
+      .then(channels => this.props.addNotification('Channel order saved'))
+      .catch(err => {
+        console.log(err);
+        this.props.addNotification('Error saving channel order', 'error');
+      });
+  }
+
   renderChannelForm() {
     if (!this.state.newChannel) {
       return (
@@ -178,42 +195,71 @@ class ChannelMenu extends React.Component {
     return (
       <div className={this.props.classes.drawer}>
         <List>
-          {this.props.channels.map(channel => {
-            let textClassName = this.props.classes.button;
-            if (channel.uid === this.props.selectedChannel) {
-              textClassName = this.props.classes.highlightedButton;
-            }
-            let unreadCount = null;
-            if (channel.unread) {
-              unreadCount = (
-                <span className={this.props.classes.unread}>
-                  {channel.unread}
-                </span>
-              );
-            }
-            return (
-              <Link
-                to={`/channel/${channel.uid}`}
-                key={`channel-${channel.uid}`}
-                style={{ textDecoration: 'none' }}
-                onClick={this.handleClose}
-              >
-                <ListItem button>
-                  <ListItemText
-                    classes={{
-                      primary: textClassName,
-                      root: this.props.classes.channelTextRoot,
-                    }}
-                    primary={
-                      <React.Fragment>
-                        {channel.name} {unreadCount}
-                      </React.Fragment>
+          <DragDropContext onDragEnd={this.onDragEnd}>
+            <Droppable droppableId="droppable">
+              {(provided, snapshot) => (
+                <div ref={provided.innerRef}>
+                  {this.props.channels.map((channel, index) => {
+                    let textClassName = this.props.classes.button;
+                    if (channel.uid === this.props.selectedChannel) {
+                      textClassName = this.props.classes.highlightedButton;
                     }
-                  />
-                </ListItem>
-              </Link>
-            );
-          })}
+                    let unreadCount = null;
+                    if (channel.unread) {
+                      unreadCount = (
+                        <span className={this.props.classes.unread}>
+                          {channel.unread}
+                        </span>
+                      );
+                    }
+                    return (
+                      <Draggable
+                        key={channel.uid}
+                        draggableId={channel.uid}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div>
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              // style={getItemStyle(
+                              //   snapshot.isDragging,
+                              //   provided.draggableProps.style,
+                              // )}
+                            >
+                              <Link
+                                to={`/channel/${channel.uid}`}
+                                key={`channel-${channel.uid}`}
+                                style={{ textDecoration: 'none' }}
+                                onClick={this.handleClose}
+                              >
+                                <ListItem button>
+                                  <ListItemText
+                                    classes={{
+                                      primary: textClassName,
+                                      root: this.props.classes.channelTextRoot,
+                                    }}
+                                    primary={
+                                      <React.Fragment>
+                                        {channel.name} {unreadCount}
+                                      </React.Fragment>
+                                    }
+                                  />
+                                </ListItem>
+                              </Link>
+                            </div>
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         </List>
         <div style={{ flexGrow: 1 }} />
         {this.renderChannelForm()}
@@ -246,6 +292,7 @@ function mapDispatchToProps(dispatch) {
       toggleChannelsMenu: toggleChannelsMenu,
       addChannel: addChannel,
       updateChannel: updateChannel,
+      reorderChannels: reorderChannels,
       addNotification: addNotification,
     },
     dispatch,

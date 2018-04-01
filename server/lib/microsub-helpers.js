@@ -31,7 +31,13 @@ const request = ({ endpoint, token, params = {}, method = 'GET' }) =>
     const url = new URL(endpoint);
     Object.keys(params).forEach(key => {
       const value = params[key];
-      url.searchParams.append(key, value);
+      if (Array.isArray(value)) {
+        value.forEach(child => {
+          url.searchParams.append(key + '[]', child);
+        });
+      } else {
+        url.searchParams.append(key, value);
+      }
     });
     fetch(url.toString(), {
       method: method,

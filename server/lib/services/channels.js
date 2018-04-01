@@ -96,6 +96,41 @@ class ChannelsService {
     });
   }
 
+  patch(id, data, params) {
+    return new Promise((resolve, reject) => {
+      if (!data.order || !Array.isArray(data.order)) {
+        reject(microsubError('Operation not supported'));
+      } else {
+        request({
+          endpoint: params.user.settings.microsubEndpoint,
+          token: params.user.accessToken,
+          method: 'POST',
+          params: {
+            action: 'channels',
+            method: 'order',
+            channels: data.order,
+          },
+        })
+          .then(res => {
+            if (res.channels) {
+              resolve(res.channels);
+            } else {
+              reject(
+                microsubError(
+                  'Did not receive new channel order from server',
+                  null,
+                  err,
+                ),
+              );
+            }
+          })
+          .catch(err =>
+            reject(microsubError('Error ordering channels', null, err)),
+          );
+      }
+    });
+  }
+
   remove(id, params) {
     return new Promise((resolve, reject) => {
       request({

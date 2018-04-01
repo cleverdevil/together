@@ -25,6 +25,12 @@ export default (state = defaultState, payload) => {
         return state;
       }
     }
+    case 'REORDER_CHANNELS': {
+      const movedChannel = state.get(payload.source);
+      return state
+        .delete(payload.source)
+        .insert(payload.destination, movedChannel);
+    }
     case 'REMOVE_CHANNEL': {
       return state.remove(
         state.findIndex(channel => channel.get('uid') === payload.uid),

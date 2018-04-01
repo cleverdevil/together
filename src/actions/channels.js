@@ -47,3 +47,11 @@ export const removeChannel = uid => {
     uid: uid,
   };
 };
+
+export const reorderChannels = (source, destination) => {
+  return {
+    type: 'REORDER_CHANNELS',
+    source: source,
+    destination: destination,
+  };
+};
