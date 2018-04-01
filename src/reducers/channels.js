@@ -9,6 +9,7 @@ export default (state = defaultState, payload) => {
         new Map({
           name: payload.name,
           uid: payload.uid,
+          slug: encodeURIComponent(payload.uid),
           unread: payload.unread,
           layout: payload.layout,
         }),

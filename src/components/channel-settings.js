@@ -55,10 +55,10 @@ class ChannelSettings extends React.Component {
       props.channels.length &&
       props.match &&
       props.match.params &&
-      props.match.params.channelUid
+      props.match.params.channelSlug
     ) {
       let selectedChannel = props.channels.find(
-        channel => channel.uid == props.match.params.channelUid,
+        channel => channel.slug == props.match.params.channelSlug,
       );
       if (selectedChannel) {
         uid = selectedChannel.uid;
@@ -87,10 +87,10 @@ class ChannelSettings extends React.Component {
       newProps.channels.length &&
       newProps.match &&
       newProps.match.params &&
-      newProps.match.params.channelUid
+      newProps.match.params.channelSlug
     ) {
       let selectedChannel = newProps.channels.find(
-        channel => channel.uid == newProps.match.params.channelUid,
+        channel => channel.slug == newProps.match.params.channelSlug,
       );
       if (selectedChannel) {
         const settings = getChannelSettings(

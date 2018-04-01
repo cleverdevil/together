@@ -72,10 +72,10 @@ class App extends Component {
             </Grid>
             <Grid item className={this.props.classes.main}>
               <Route exact path="/" component={MainPosts} />
-              <Route exact path="/channel/:channelUid" component={MainPosts} />
+              <Route exact path="/channel/:channelSlug" component={MainPosts} />
               <Route
                 exact
-                path="/channel/:channelUid/edit"
+                path="/channel/:channelSlug/edit"
                 component={ChannelSettings}
               />
               <Route exact path="/settings" component={Settings} />

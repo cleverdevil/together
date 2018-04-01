@@ -52,9 +52,9 @@ class MainPosts extends React.Component {
       this.props.user.me &&
       this.props.match &&
       this.props.match.params &&
-      this.props.match.params.channelUid
+      this.props.match.params.channelSlug
     ) {
-      const channel = this.props.match.params.channelUid;
+      const channel = decodeURIComponent(this.props.match.params.channelSlug);
       this.props.selectChannel(channel);
     }
   }
@@ -65,15 +65,15 @@ class MainPosts extends React.Component {
       newProps.user.me &&
       newProps.match &&
       newProps.match.params &&
-      newProps.match.params.channelUid &&
-      newProps.match.params.channelUid != newProps.selectedChannel
+      newProps.match.params.channelSlug &&
+      newProps.match.params.channelSlug != newProps.selectedChannel
     ) {
-      const channel = newProps.match.params.channelUid;
+      const channel = decodeURIComponent(newProps.match.params.channelSlug);
       newProps.selectChannel(channel);
     } else if (
       newProps.match &&
       newProps.match.params &&
-      !newProps.match.params.channelUid &&
+      !newProps.match.params.channelSlug &&
       !newProps.selectedChannel &&
       newProps.channels.length &&
       newProps.user.me

@@ -230,7 +230,7 @@ class ChannelMenu extends React.Component {
                               // )}
                             >
                               <Link
-                                to={`/channel/${channel.uid}`}
+                                to={`/channel/${channel.slug}`}
                                 key={`channel-${channel.uid}`}
                                 style={{ textDecoration: 'none' }}
                                 onClick={this.handleClose}
