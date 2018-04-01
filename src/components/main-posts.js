@@ -108,7 +108,7 @@ class MainPosts extends React.Component {
           console.log(err);
         });
     }
-    newState.layout = layouts.find(
+    const foundLayout = layouts.find(
       layout =>
         layout.id ==
         getChannelSetting(
@@ -117,6 +117,9 @@ class MainPosts extends React.Component {
           newProps.channelSettings,
         ),
     );
+    if (foundLayout) {
+      newState.layout = foundLayout;
+    }
     this.setState(newState);
   }
 
