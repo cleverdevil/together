@@ -164,8 +164,11 @@ app.service('/api/micropub').hooks({
 
 app.service('users').hooks({
   before: {
+    get: [authHooks.restrictToOwner({ ownerField: '_id' })],
+    find: [authHooks.restrictToOwner({ ownerField: '_id' })],
     patch: [authHooks.restrictToOwner({ ownerField: '_id' })],
     update: [authHooks.restrictToOwner({ ownerField: '_id' })],
+    remove: [authHooks.restrictToOwner({ ownerField: '_id' })],
   },
 });
 
