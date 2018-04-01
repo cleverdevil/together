@@ -195,7 +195,11 @@ app.post('/api/getAuthUrl', (req, res, next) => {
 });
 
 app.get('*', (req, res, next) => {
-  res.sendFile(path.join(__dirname + '/../build/index.html'));
+  if (req.path.indexOf('/static/js/') === 0) {
+    res.send(404, 'File not found');
+  } else {
+    res.sendFile(path.join(__dirname + '/../build/index.html'));
+  }
 });
 
 app.listen(process.env.PORT || config.get('port'));
