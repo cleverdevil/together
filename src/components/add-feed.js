@@ -149,8 +149,12 @@ class AddFeed extends React.Component {
         })
         .then(res => {
           this.props.addNotification(`Added ${feed} to your channel`);
-          this.props.selectChannel(channel);
           this.handleCancel();
+          // Wait one second and reload the channel to see if the new posts are there.
+          setTimeout(() => {
+            this.props.selectChannel(null);
+            this.props.selectChannel(channel);
+          }, 1000);
         })
         .catch(err => {
           console.log(err);
