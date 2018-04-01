@@ -23,7 +23,7 @@ import Button from 'material-ui/Button';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
 import SettingsModal from './settings-modal';
-import { updateChannel } from '../actions';
+import { updateChannel, removeChannel } from '../actions';
 import {
   follows as followsService,
   channels as channelsService,
@@ -136,7 +136,9 @@ class ChannelSettings extends React.Component {
           console.log(res);
           if (!res.error) {
             // Should be deleted
+            this.props.removeChannel(this.state.uid);
             this.setState({ uid: null });
+            this.props.history.push('/');
           }
         })
         .catch(err => console.log(err));
@@ -282,7 +284,10 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateChannel: updateChannel }, dispatch);
+  return bindActionCreators(
+    { updateChannel: updateChannel, removeChannel: removeChannel },
+    dispatch,
+  );
 }
 
 export default withRouter(
