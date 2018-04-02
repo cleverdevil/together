@@ -9,6 +9,7 @@ swPrecache.write(
       rootDir + '/**/*.{js,html,css,png,jpg,gif,svg,eot,ttf,woff}',
     ],
     stripPrefix: rootDir,
+    maximumFileSizeToCacheInBytes: 4194304,
   },
   () => {
     console.log('Service worker generated');
