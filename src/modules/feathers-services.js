@@ -1,7 +1,5 @@
 import io from 'socket.io-client';
-import feathers from '@feathersjs/feathers';
-import socketio from '@feathersjs/socketio-client';
-import authentication from '@feathersjs/authentication-client';
+import feathers, { socketio, authentication } from '@feathersjs/client';
 
 const socket = io(process.env.REACT_APP_API_SERVER, {
   transports: ['websocket'],

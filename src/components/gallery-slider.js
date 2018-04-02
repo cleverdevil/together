@@ -15,7 +15,6 @@ import CloseIcon from 'material-ui-icons/Close';
 import Slide from 'material-ui/transitions/Slide';
 import TogetherCard from './card';
 import Carousel from 'nuka-carousel';
-import TogetherSliderDecorators from './gallery-slider-decorators';
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 
@@ -128,7 +127,6 @@ class Gallery extends React.Component {
         <Carousel
           className={this.props.classes.carousel}
           slideIndex={this.props.startIndex}
-          decorators={TogetherSliderDecorators}
           afterSlide={index => {
             if (
               index >= this.state.photos.length - 1 &&
@@ -140,6 +138,7 @@ class Gallery extends React.Component {
               this.props.onChange(this.state.photos[index]);
             }
           }}
+          renderBottomCenterControls={() => null}
         >
           {this.state.photos.map((photo, i) => {
             const post = photo.post;

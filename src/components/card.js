@@ -105,6 +105,7 @@ class TogetherCard extends React.Component {
     this.handleView = this.handleView.bind(this);
     this.handleToggleRead = this.handleToggleRead.bind(this);
     this.handleExpandClick = this.handleExpandClick.bind(this);
+    this.handleReplySend = this.handleReplySend.bind(this);
   }
 
   handleLike(e) {

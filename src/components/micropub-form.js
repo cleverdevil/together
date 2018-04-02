@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
 import { withStyles } from 'material-ui/styles';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
@@ -40,8 +38,8 @@ class MicropubForm extends React.Component {
 
     let stateKeys = {};
     propertyKeys.forEach(key => {
-      if (this.props[key]) {
-        stateKeys[key] = this.props[key];
+      if (props[key]) {
+        stateKeys[key] = props[key];
       }
     });
 
@@ -119,17 +117,7 @@ MicropubForm.defaultProps = {
 MicropubForm.propTypes = {
   shownFields: PropTypes.array.isRequired,
   content: PropTypes.string,
-  onSubmit: PropTypes.func,
+  onSubmit: PropTypes.func.isRequired,
 };
 
-function mapStateToProps(state, props) {
-  return {};
-}
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(MicropubForm),
-);
+export default withStyles(styles)(MicropubForm);

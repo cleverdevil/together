@@ -27,15 +27,15 @@ call it a [reader](http://indieweb.org/reader).
 
 Together is a [React](https://facebook.github.io/react/) based application. To
 use it, you'll need a website that supports
-[Micropub](https://indieweb.org/Micropub), 
-[IndieAuth](https://indieweb.org/IndieAuth) and 
+[Micropub](https://indieweb.org/Micropub),
+[IndieAuth](https://indieweb.org/IndieAuth) and
 [Microsub](https://indieweb.org/Microsub).
 
 ## Running Locally
 
-You'll need `node` and [yarn](https://yarnpkg.com/en/) installed. Once you have
-them, you can simply check out the repository and run `yarn install`, followed
-by `yarn start`.
+You'll need `node` and `npm` installed. Once you have
+them, you can simply check out the repository and run `npm install`, followed
+by `npm run start`.
 
 ---
 
