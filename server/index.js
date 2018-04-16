@@ -30,6 +30,7 @@ app.configure(
     service: 'users',
     jwt: {
       audience: config.get('url'),
+      expiresIn: '14d',
     },
   }),
 );
