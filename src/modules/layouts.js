@@ -26,7 +26,9 @@ const layouts = [
     id: 'map',
     name: 'Map',
     icon: CheckinIcon,
-    filter: post => post.checkin || post.location,
+    filter: post =>
+      (post.location && post.location.latitude && post.location.longitude) ||
+      (post.checkin && post.checkin.latitude && post.checkin.longitude),
   },
 ];
 
