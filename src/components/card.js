@@ -237,7 +237,13 @@ class TogetherCard extends React.Component {
         <img className={this.props.classes.fullImage} src={photos} alt="" />
       );
     } else if (Array.isArray(photos)) {
-      let cols = photos.length > 3 ? 3 : photos.length;
+      let cols = photos.length;
+      if (cols == 4) {
+        cols = 2;
+      }
+      if (cols > 3) {
+        cols = 3;
+      }
       let cellHeight = 200;
       let cardWidth =
         document.getElementById('root').clientWidth - 49 - 12 - 12;
