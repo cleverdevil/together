@@ -28,7 +28,13 @@ const styles = theme => ({
     overflow: 'auto',
     borderRight: '1px solid ' + theme.palette.divider,
     [theme.breakpoints.up('sm')]: {
-      maxWidth: 250,
+      width: 250,
+    },
+    [theme.breakpoints.up('md')]: {
+      width: 300,
+    },
+    [theme.breakpoints.up('lg')]: {
+      width: 400,
     },
   },
   postColumn: {
