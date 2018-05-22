@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Snackbar from 'material-ui/Snackbar';
+import Snackbar from '@material-ui/core/Snackbar';
 import { removeNotification } from '../actions';
 
 const styles = theme => ({
@@ -49,7 +49,7 @@ class Notification extends React.Component {
           horizontal: 'right',
         }}
         open={this.state.open}
-        SnackbarContentProps={{
+        ContentProps={{
           className: this.props.classes[this.state.type],
           'aria-describedby': 'message-id',
         }}

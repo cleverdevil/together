@@ -3,30 +3,30 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { withStyles } from 'material-ui/styles';
-import Card, {
-  CardHeader,
-  CardActions,
-  CardContent,
-  CardMedia,
-} from 'material-ui/Card';
-import Collapse from 'material-ui/transitions/Collapse';
+import { withStyles } from '@material-ui/core/styles';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Collapse from '@material-ui/core/Collapse';
 import classnames from 'classnames';
-import GridList, { GridListTile } from 'material-ui/GridList';
-import Tooltip from 'material-ui/Tooltip';
-import IconButton from 'material-ui/IconButton';
-import Avatar from 'material-ui/Avatar';
-import Typography from 'material-ui/Typography';
-import DeveloperModeIcon from 'material-ui-icons/DeveloperMode';
-import LikeIcon from 'material-ui-icons/ThumbUp';
-import BookmarkIcon from 'material-ui-icons/Bookmark';
-import ReplyIcon from 'material-ui-icons/Reply';
-import RepostIcon from 'material-ui-icons/Repeat';
-import VisitIcon from 'material-ui-icons/Link';
-import ReadIcon from 'material-ui-icons/PanoramaFishEye';
-import UnreadIcon from 'material-ui-icons/Lens';
-import ExpandMoreIcon from 'material-ui-icons/ExpandMore';
-import Popover from 'material-ui/Popover';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import Avatar from '@material-ui/core/Avatar';
+import Typography from '@material-ui/core/Typography';
+import DeveloperModeIcon from '@material-ui/icons/DeveloperMode';
+import LikeIcon from '@material-ui/icons/ThumbUp';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import ReplyIcon from '@material-ui/icons/Reply';
+import RepostIcon from '@material-ui/icons/Repeat';
+import VisitIcon from '@material-ui/icons/Link';
+import ReadIcon from '@material-ui/icons/PanoramaFishEye';
+import UnreadIcon from '@material-ui/icons/Lens';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Popover from '@material-ui/core/Popover';
 import SingleAvatarMap from './single-avatar-map';
 import MicropubForm from './micropub-form';
 import {

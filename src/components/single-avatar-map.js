@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import MapMarker from './map-marker';

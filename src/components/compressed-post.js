@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import Avatar from 'material-ui/Avatar';
-import { ListItem, ListItemText } from 'material-ui/List';
+import { withStyles } from '@material-ui/core/styles';
+import Avatar from '@material-ui/core/Avatar';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 
 const styles = theme => ({});
 
-class TogetherCard extends React.Component {
+class CompressedTogetherCard extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -78,14 +79,14 @@ class TogetherCard extends React.Component {
   }
 }
 
-TogetherCard.defaultProps = {
+CompressedTogetherCard.defaultProps = {
   post: {},
   embedMode: '',
 };
 
-TogetherCard.propTypes = {
+CompressedTogetherCard.propTypes = {
   post: PropTypes.object.isRequired,
   embedMode: PropTypes.string,
 };
 
-export default withStyles(styles)(TogetherCard);
+export default withStyles(styles)(CompressedTogetherCard);

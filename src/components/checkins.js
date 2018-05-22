@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
 // import WebMercatorViewport from 'viewport-mercator-project';

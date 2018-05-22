@@ -1,7 +1,7 @@
-import PhotoIcon from 'material-ui-icons/PhotoCamera';
-import CheckinIcon from 'material-ui-icons/LocationOn';
-import AllIcon from 'material-ui-icons/Chat';
-import ClassicIcon from 'material-ui-icons/ChromeReaderMode';
+import PhotoIcon from '@material-ui/icons/PhotoCamera';
+import CheckinIcon from '@material-ui/icons/LocationOn';
+import AllIcon from '@material-ui/icons/Chat';
+import ClassicIcon from '@material-ui/icons/ChromeReaderMode';
 
 const layouts = [
   {

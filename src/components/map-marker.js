@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { withStyles } from 'material-ui/styles';
-import Popover from 'material-ui/Popover';
-import Avatar from 'material-ui/Avatar';
+import { withStyles } from '@material-ui/core/styles';
+import Popover from '@material-ui/core/Popover';
+import Avatar from '@material-ui/core/Avatar';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import TogetherCard from './card';
 
