@@ -55,5 +55,9 @@
     "test": "react-app-env test --env=jsdom",
     "serviceWorker": "node ./build",
     "eject": "react-app-env eject"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
   }
 }
