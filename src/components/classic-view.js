@@ -28,6 +28,7 @@ const styles = theme => ({
   previewColumn: {
     overflow: 'auto',
     borderRight: '1px solid ' + theme.palette.divider,
+    flexShrink: 0,
     [theme.breakpoints.up('sm')]: {
       width: 250,
     },
