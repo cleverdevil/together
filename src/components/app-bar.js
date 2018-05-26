@@ -13,10 +13,12 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import SettingsIcon from '@material-ui/icons/Settings';
 import ChannelsIcon from '@material-ui/icons/Menu';
-import NoteAddIcon from '@material-ui/icons/NoteAdd';
+import MessageIcon from '@material-ui/icons/Message';
+import DescriptionIcon from '@material-ui/icons/Description';
 import EditIcon from '@material-ui/icons/Edit';
 import ReadIcon from '@material-ui/icons/DoneAll';
 import MicropubForm from './micropub-form';
+import MicropubComposer from './micropub-composer';
 import LayoutSwitcher from './layout-switcher';
 import { version } from '../../package.json';
 import {
@@ -69,11 +71,14 @@ class TogetherAppBar extends React.Component {
       anchorEl: null,
       popoverOpen: false,
       popoverAnchor: null,
+      composerPopoverOpen: false,
+      composerPopoverAnchor: null
     };
     this.handleMenuClose = this.handleMenuClose.bind(this);
     this.handleMarkRead = this.handleMarkRead.bind(this);
     this.handleCompose = this.handleCompose.bind(this);
     this.handleComposeSend = this.handleComposeSend.bind(this);
+    this.handleComposerCompose = this.handleComposerCompose.bind(this);
     this.renderMenuContent = this.renderMenuContent.bind(this);
   }
 
@@ -115,6 +120,13 @@ class TogetherAppBar extends React.Component {
     this.setState({
       popoverOpen: true,
       popoverAnchor: e.target,
+    });
+  }
+
+  handleComposerCompose(e) {
+    this.setState({
+      composerPopoverOpen: true,
+      composerPopoverAnchor: e.target,
     });
   }
 
@@ -208,7 +220,15 @@ class TogetherAppBar extends React.Component {
               className={this.props.classes.editButton}
               onClick={this.handleCompose}
             >
-              <NoteAddIcon />
+              <MessageIcon />
+            </IconButton>
+            
+            <IconButton
+              aria-label="Compose Post"
+              className={this.props.classes.editButton}
+              onClick={this.handleComposerCompose}
+            >
+              <DescriptionIcon />
             </IconButton>
 
             <IconButton
@@ -247,6 +267,24 @@ class TogetherAppBar extends React.Component {
                 }}
               >
                 <MicropubForm onSubmit={this.handleComposeSend} />
+              </div>
+            </Popover>
+            <Popover
+              open={this.state.composerPopoverOpen}
+              anchorEl={this.state.composerPopoverAnchor}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              onClose={() => this.setState({ composerPopoverOpen: false })}
+              onBackdropClick={() => this.setState({ composerPopoverOpen: false })}
+            >
+              <div
+                style={{
+                  padding: 10,
+                }}
+              >
+                <MicropubComposer onSubmit={this.handleComposeSend} />
               </div>
             </Popover>
           </div>
