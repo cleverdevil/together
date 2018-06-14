@@ -537,7 +537,7 @@ class TogetherCard extends React.Component {
           >
             <MicropubForm
               onSubmit={this.handleReplySend}
-              in-reply-to={this.state.inReplyToUrl}
+              properties={{ 'in-reply-to': this.state.inReplyToUrl }}
             />
           </div>
         </Popover>

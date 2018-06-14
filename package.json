@@ -28,6 +28,7 @@
     "feathers-nedb": "^3.0.0",
     "immutable": "^3.8.2",
     "isomorphic-fetch": "^2.2.1",
+    "micropub-client-editor": "^1.0.0",
     "micropub-helper": "^1.3.10",
     "moment": "^2.22.1",
     "nconf": "^0.10.0",
