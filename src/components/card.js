@@ -471,21 +471,25 @@ class TogetherCard extends React.Component {
         {this.renderCheckin(item.checkin, item.author)}
 
         <CardActions>
-          <Tooltip title="Like" placement="top">
-            <IconButton onClick={this.handleLike}>
-              <LikeIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Repost" placement="top">
-            <IconButton onClick={this.handleRepost}>
-              <RepostIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Reply" placement="top">
-            <IconButton onClick={this.handleReply}>
-              <ReplyIcon />
-            </IconButton>
-          </Tooltip>
+          {this.props.post.url && (
+            <React.Fragment>
+              <Tooltip title="Like" placement="top">
+                <IconButton onClick={this.handleLike}>
+                  <LikeIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Repost" placement="top">
+                <IconButton onClick={this.handleRepost}>
+                  <RepostIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Reply" placement="top">
+                <IconButton onClick={this.handleReply}>
+                  <ReplyIcon />
+                </IconButton>
+              </Tooltip>
+            </React.Fragment>
+          )}
           <Tooltip
             title={'Mark as ' + (this.props.post._is_read ? 'Unread' : 'Read')}
             placement="top"
