@@ -10,6 +10,7 @@ import Settings from './components/settings';
 import ChannelSettings from './components/channel-settings';
 import Login from './components/login';
 import Notification from './components/notification';
+import MicropubEditor from './components/full-micropub-editor';
 
 const style = theme => ({
   appWrapper: {
@@ -78,6 +79,7 @@ class App extends Component {
                 path="/channel/:channelSlug/edit"
                 component={ChannelSettings}
               />
+              <Route exact path="/editor" component={MicropubEditor} />
               <Route exact path="/settings" component={Settings} />
             </Grid>
             <Login />

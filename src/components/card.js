@@ -159,12 +159,6 @@ class TogetherCard extends React.Component {
   }
 
   handleReplySend(mf2) {
-    if (
-      Array.isArray(this.props.noteSyndication) &&
-      this.props.noteSyndication.length
-    ) {
-      mf2.properties['mp-syndicate-to'] = this.props.noteSyndication;
-    }
     micropub
       .create({ post: mf2 })
       .then(replyUrl => {
@@ -564,7 +558,6 @@ function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
     likeSyndication: state.settings.get('likeSyndication') || [],
-    noteSyndication: state.settings.get('noteSyndication') || [],
     repostSyndication: state.settings.get('repostSyndication') || [],
   };
 }
