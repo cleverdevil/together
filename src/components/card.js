@@ -102,7 +102,6 @@ class TogetherCard extends React.Component {
     this.handleLike = this.handleLike.bind(this);
     this.handleRepost = this.handleRepost.bind(this);
     this.handleReply = this.handleReply.bind(this);
-    this.handleView = this.handleView.bind(this);
     this.handleToggleRead = this.handleToggleRead.bind(this);
     this.handleExpandClick = this.handleExpandClick.bind(this);
     this.handleReplySend = this.handleReplySend.bind(this);
@@ -173,16 +172,6 @@ class TogetherCard extends React.Component {
         this.props.addNotification(`Successfully posted reply to ${replyUrl}`);
       })
       .catch(err => this.props.addNotification(`Error posting reply`, 'error'));
-  }
-
-  handleView(e) {
-    try {
-      const url = this.props.post.url;
-      const win = window.open(url, '_blank');
-      win.focus();
-    } catch (err) {
-      this.props.addNotification(`Error opening url`, 'error');
-    }
   }
 
   handleToggleRead(e) {
@@ -505,11 +494,15 @@ class TogetherCard extends React.Component {
               {this.props.post._is_read ? <ReadIcon /> : <UnreadIcon />}
             </IconButton>
           </Tooltip>
-          <Tooltip title="View Original" placement="top">
-            <IconButton onClick={this.handleView}>
-              <VisitIcon />
-            </IconButton>
-          </Tooltip>
+          {this.props.post.url && (
+            <Tooltip title="View Original" placement="top">
+              <a href={this.props.post.url} target="_blank">
+                <IconButton>
+                  <VisitIcon />
+                </IconButton>
+              </a>
+            </Tooltip>
+          )}
           <Tooltip title="Log to console" placement="top">
             <IconButton onClick={() => console.log(item)} aria-label="Log">
               <DeveloperModeIcon />
@@ -584,6 +577,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(TogetherCard),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(TogetherCard));
