@@ -7,7 +7,23 @@ import ListItemText from '@material-ui/core/ListItemText';
 import moment from 'moment';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 
-const styles = theme => ({});
+const styles = theme => ({
+  item: {
+    paddingLeft: theme.spacing.unit * 2,
+    paddingRight: theme.spacing.unit * 2,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: theme.spacing.unit,
+      paddingRight: theme.spacing.unit,
+    },
+    [theme.breakpoints.up('md')]: {
+      paddingLeft: theme.spacing.unit * 2,
+      paddingRight: theme.spacing.unit * 2,
+    },
+  },
+  text: {
+    paddingRight: 0,
+  },
+});
 
 class CompressedTogetherCard extends React.Component {
   constructor(props) {
@@ -65,7 +81,13 @@ class CompressedTogetherCard extends React.Component {
     }
 
     return (
-      <ListItem dense button onClick={this.handleClick} style={readStyle}>
+      <ListItem
+        dense
+        button
+        onClick={this.handleClick}
+        style={readStyle}
+        className={this.props.classes.item}
+      >
         <Avatar
           {...avatarData}
           aria-label={avatarData.alt}
@@ -73,7 +95,11 @@ class CompressedTogetherCard extends React.Component {
         >
           {avatarData.src ? null : avatarData.initials}
         </Avatar>
-        <ListItemText primary={this.getPreviewText()} secondary={date} />
+        <ListItemText
+          primary={this.getPreviewText()}
+          secondary={date}
+          className={this.props.classes.text}
+        />
       </ListItem>
     );
   }

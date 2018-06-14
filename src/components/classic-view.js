@@ -26,6 +26,7 @@ const styles = theme => ({
     overflow: 'hidden',
   },
   previewColumn: {
+    width: '100%',
     overflow: 'auto',
     borderRight: '1px solid ' + theme.palette.divider,
     flexShrink: 0,
@@ -208,6 +209,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(ClassicView),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(ClassicView));
