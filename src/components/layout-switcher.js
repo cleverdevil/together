@@ -31,55 +31,40 @@ const styles = theme => ({
   },
 });
 
-class LayoutSwitcher extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  handleClick(layout) {
-    this.props.updateChannel(this.props.selectedChannel, 'layout', layout.id);
-  }
-
-  render() {
-    const uid = this.props.selectedChannel;
-    const currentLayout = getChannelSetting(
-      uid,
-      'layout',
-      this.props.channelSettings,
-    );
-
-    return (
-      <div
-        className={[this.props.classes.menu, this.props.className].join(' ')}
-      >
-        {layouts.map(layout => {
-          const Icon = layout.icon;
-          return (
-            <Tooltip
-              title={layout.name}
-              key={'layout-switcher-' + layout.id}
-              placement="right"
-            >
-              <IconButton
-                className={
-                  this.props.classes.icon +
-                  ' ' +
-                  (currentLayout == layout.id
-                    ? this.props.classes.iconSelected
-                    : '')
-                }
-                onClick={() => this.handleClick(layout)}
-              >
-                <Icon />
-              </IconButton>
-            </Tooltip>
-          );
-        })}
-      </div>
-    );
-  }
-}
+const LayoutSwitcher = ({
+  classes,
+  className,
+  updateChannel,
+  channelSettings,
+  selectedChannel,
+}) => (
+  <div className={[classes.menu, className].join(' ')}>
+    {layouts.map(layout => {
+      const Icon = layout.icon;
+      return (
+        <Tooltip
+          title={layout.name}
+          key={'layout-switcher-' + layout.id}
+          placement="right"
+        >
+          <IconButton
+            className={
+              classes.icon +
+              ' ' +
+              (getChannelSetting(selectedChannel, 'layout', channelSettings) ==
+              layout.id
+                ? classes.iconSelected
+                : '')
+            }
+            onClick={() => updateChannel(selectedChannel, 'layout', layout.id)}
+          >
+            <Icon />
+          </IconButton>
+        </Tooltip>
+      );
+    })}
+  </div>
+);
 
 LayoutSwitcher.defaultProps = {
   channels: [],
@@ -105,6 +90,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(LayoutSwitcher),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(LayoutSwitcher));
