@@ -4,10 +4,15 @@ const defaultState = new List([]);
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
-    case 'ADD_POST': {
+    case 'ADD_MICROSUB_NOTIFICATION': {
       return state.push(new Map(payload.post));
     }
-    case 'ADD_POSTS': {
+    case 'ADD_MICROSUB_NOTIFICATIONS': {
+      payload.posts.forEach(post => (state = state.push(new Map(post))));
+      return state;
+    }
+    case 'REPLACE_MICROSUB_NOTIFICATIONS': {
+      state = defaultState;
       payload.posts.forEach(post => (state = state.push(new Map(post))));
       return state;
     }
@@ -18,9 +23,6 @@ export default (state = defaultState, payload) => {
           post.set(payload.key, payload.value),
         );
       }
-    }
-    case 'SET_SELECTED_CHANNEL': {
-      return state.clear();
     }
     case 'LOGOUT': {
       return defaultState;

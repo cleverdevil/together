@@ -16,6 +16,7 @@ import ChannelsIcon from '@material-ui/icons/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import NoteAddIcon from '@material-ui/icons/Edit';
 import ReadIcon from '@material-ui/icons/DoneAll';
+import NotificationsList from './notifications-list';
 import MicropubForm from './micropub-form';
 import LayoutSwitcher from './layout-switcher';
 import { version } from '../../package.json';
@@ -199,7 +200,6 @@ class TogetherAppBar extends React.Component {
               <Tooltip title="Mark all as read" placement="bottom">
                 <IconButton
                   aria-label="Mark all as read"
-                  className={this.props.classes.editButton}
                   onClick={this.handleMarkRead}
                 >
                   <ReadIcon />
@@ -208,14 +208,12 @@ class TogetherAppBar extends React.Component {
             ) : null}
 
             <Tooltip title="New post" placement="bottom">
-              <IconButton
-                aria-label="New post"
-                className={this.props.classes.editButton}
-                onClick={this.handleCompose}
-              >
+              <IconButton aria-label="New post" onClick={this.handleCompose}>
                 <NoteAddIcon />
               </IconButton>
             </Tooltip>
+
+            <NotificationsList />
 
             <Tooltip title="Settings" placement="bottom">
               <IconButton

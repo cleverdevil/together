@@ -112,7 +112,7 @@ class ClassicView extends React.Component {
           this.props.decrementChannelUnread(this.props.selectedChannel);
         })
         .catch(err => {
-          console.log(err);
+          console.log('Error marking post read', err);
         });
     }
   }

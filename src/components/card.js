@@ -556,7 +556,7 @@ TogetherCard.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
-    selectedChannel: state.app.get('selectedChannel'),
+    selectedChannel: props.channel || state.app.get('selectedChannel'),
     likeSyndication: state.settings.get('likeSyndication') || [],
     repostSyndication: state.settings.get('repostSyndication') || [],
   };

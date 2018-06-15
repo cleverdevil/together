@@ -198,63 +198,66 @@ class ChannelMenu extends React.Component {
             <Droppable droppableId="droppable">
               {(provided, snapshot) => (
                 <div ref={provided.innerRef}>
-                  {this.props.channels.map((channel, index) => {
-                    let textClassName = this.props.classes.button;
-                    if (channel.uid === this.props.selectedChannel) {
-                      textClassName = this.props.classes.highlightedButton;
-                    }
-                    let unreadCount = null;
-                    if (channel.unread) {
-                      unreadCount = (
-                        <span className={this.props.classes.unread}>
-                          {channel.unread}
-                        </span>
-                      );
-                    }
-                    return (
-                      <Draggable
-                        key={channel.uid}
-                        draggableId={channel.uid}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div>
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              // style={getItemStyle(
-                              //   snapshot.isDragging,
-                              //   provided.draggableProps.style,
-                              // )}
-                            >
-                              <Link
-                                to={`/channel/${channel.slug}`}
-                                key={`channel-${channel.uid}`}
-                                style={{ textDecoration: 'none' }}
-                                onClick={this.handleClose}
+                  {this.props.channels
+                    .filter(channel => channel.uid != 'notifications')
+                    .map((channel, index) => {
+                      let textClassName = this.props.classes.button;
+                      if (channel.uid === this.props.selectedChannel) {
+                        textClassName = this.props.classes.highlightedButton;
+                      }
+                      let unreadCount = null;
+                      if (channel.unread) {
+                        unreadCount = (
+                          <span className={this.props.classes.unread}>
+                            {channel.unread}
+                          </span>
+                        );
+                      }
+                      return (
+                        <Draggable
+                          key={channel.uid}
+                          draggableId={channel.uid}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div>
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                // style={getItemStyle(
+                                //   snapshot.isDragging,
+                                //   provided.draggableProps.style,
+                                // )}
                               >
-                                <ListItem button>
-                                  <ListItemText
-                                    classes={{
-                                      primary: textClassName,
-                                      root: this.props.classes.channelTextRoot,
-                                    }}
-                                    primary={
-                                      <React.Fragment>
-                                        {channel.name} {unreadCount}
-                                      </React.Fragment>
-                                    }
-                                  />
-                                </ListItem>
-                              </Link>
+                                <Link
+                                  to={`/channel/${channel.slug}`}
+                                  key={`channel-${channel.uid}`}
+                                  style={{ textDecoration: 'none' }}
+                                  onClick={this.handleClose}
+                                >
+                                  <ListItem button>
+                                    <ListItemText
+                                      classes={{
+                                        primary: textClassName,
+                                        root: this.props.classes
+                                          .channelTextRoot,
+                                      }}
+                                      primary={
+                                        <React.Fragment>
+                                          {channel.name} {unreadCount}
+                                        </React.Fragment>
+                                      }
+                                    />
+                                  </ListItem>
+                                </Link>
+                              </div>
+                              {provided.placeholder}
                             </div>
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Draggable>
-                    );
-                  })}
+                          )}
+                        </Draggable>
+                      );
+                    })}
                 </div>
               )}
             </Droppable>
@@ -298,6 +301,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(ChannelMenu),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(ChannelMenu));
