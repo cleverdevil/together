@@ -78,7 +78,12 @@ class MainPosts extends React.Component {
       newProps.channels.length &&
       newProps.user.me
     ) {
-      newProps.selectChannel(newProps.channels[0].uid);
+      const firstChannel = newProps.channels.find(
+        channel => channel.uid != 'notifications',
+      );
+      if (firstChannel && firstChannel.uid) {
+        newProps.selectChannel(firstChannel.uid);
+      }
     }
     if (
       newProps.selectedChannel &&
@@ -260,6 +265,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(MainPosts),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(MainPosts));

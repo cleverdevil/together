@@ -32,8 +32,13 @@ const styles = theme => ({
     opacity: 0.4,
   },
   popover: {
-    maxWidth: '90%',
-    maxHeight: '80%',
+    width: '100%',
+    maxHeight: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: 400,
+      maxWidth: '90%',
+      maxHeight: '80%',
+    },
   },
   container: {
     width: 400,
