@@ -55,7 +55,11 @@ class FullMicropubEditor extends React.Component {
   render() {
     const { classes } = this.props;
     const { properties } = this.state;
-    const shownProperties = ['content', ...Object.keys(properties || {})];
+    const shownProperties = [
+      'name',
+      'content',
+      ...Object.keys(properties || {}),
+    ];
     return (
       <div className={classes.wrapper}>
         <div className={classes.container}>
