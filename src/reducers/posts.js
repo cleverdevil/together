@@ -17,6 +17,8 @@ export default (state = defaultState, payload) => {
         return state.update(index, post =>
           post.set(payload.key, payload.value),
         );
+      } else {
+        return state;
       }
     }
     case 'SET_SELECTED_CHANNEL': {
