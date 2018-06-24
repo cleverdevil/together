@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Popover from '@material-ui/core/Popover';
 import Avatar from '@material-ui/core/Avatar';
 import authorToAvatarData from '../modules/author-to-avatar-data';
-import TogetherCard from './card';
+import TogetherCard from './card/index';
 
 const markerSize = 18;
 
@@ -105,4 +105,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(MapMarker));
+export default connect(
+  null,
+  mapDispatchToProps,
+)(withStyles(styles)(MapMarker));

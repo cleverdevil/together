@@ -10,7 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import ReactList from 'react-list';
 import CompressedPost from './compressed-post';
-import TogetherCard from './card';
+import TogetherCard from './card/index';
 import { decrementChannelUnread, updatePost } from '../actions';
 import { posts as postsService } from '../modules/feathers-services';
 import getChannelSetting from '../modules/get-channel-setting';

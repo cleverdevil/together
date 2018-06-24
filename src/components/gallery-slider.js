@@ -15,7 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
-import TogetherCard from './card';
+import TogetherCard from './card/index';
 import Carousel from 'nuka-carousel';
 import FullscreenPhoto from './fullscreen-photo';
 import authorToAvatarData from '../modules/author-to-avatar-data';
@@ -199,4 +199,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(Gallery));
+export default connect(
+  null,
+  mapDispatchToProps,
+)(withStyles(styles)(Gallery));

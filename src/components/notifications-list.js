@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import HasNotificationsIcon from '@material-ui/icons/NotificationsActive';
-import TogetherCard from './card';
+import TogetherCard from './card/index';
 import {
   addMicrosubNotifications,
   replaceMicrosubNotifications,
