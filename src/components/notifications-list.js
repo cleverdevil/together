@@ -174,7 +174,7 @@ class NotificationsList extends React.Component {
             {notifications.map(post => (
               <React.Fragment key={'notification-' + post._id}>
                 <TogetherCard
-                  embedMode="photo"
+                  style={{ boxShadow: 'none' }}
                   post={post}
                   channel="notifications"
                 />

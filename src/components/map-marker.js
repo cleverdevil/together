@@ -68,7 +68,11 @@ class MapMarker extends React.Component {
         onClose={() => this.setState({ postOpen: false })}
         onBackdropClick={() => this.setState({ postOpen: false })}
       >
-        <TogetherCard post={this.props.post} embedMode="marker" />
+        <TogetherCard
+          post={this.props.post}
+          style={{ boxShadow: 'none', margin: 0 }}
+          hideProperties={['checkin', 'location']}
+        />
       </Popover>
     );
   }

@@ -260,7 +260,7 @@ class AddFeed extends React.Component {
         {preview.items.map((item, i) => (
           <TogetherCard
             post={item}
-            embedMode="photo"
+            style={{ boxShadow: 'none' }}
             key={`search-preview-${i}`}
           />
         ))}

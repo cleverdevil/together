@@ -48,7 +48,10 @@ const TogetherCardReplyContext = ({ type, url, reference, classes }) => {
       </CardContent>
       {reference && (
         <CardContent>
-          <TogetherCard post={reference} />
+          <TogetherCard
+            post={reference}
+            shownActions={['view', 'reply', 'repost', 'like', 'consoleLog']}
+          />
         </CardContent>
       )}
     </React.Fragment>

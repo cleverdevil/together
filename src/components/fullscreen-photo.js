@@ -111,7 +111,11 @@ class FullscreenPhoto extends React.Component {
             paperAnchorLeft: this.props.classes.drawer,
           }}
         >
-          <TogetherCard post={this.props.post} embedMode="photo" />
+          <TogetherCard
+            post={this.props.post}
+            style={{ boxShadow: 'none' }}
+            hidePropertie={['photo', 'featured']}
+          />
         </Drawer>
       </Dialog>
     );

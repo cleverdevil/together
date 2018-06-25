@@ -107,12 +107,10 @@ class CompressedTogetherCard extends React.Component {
 
 CompressedTogetherCard.defaultProps = {
   post: {},
-  embedMode: '',
 };
 
 CompressedTogetherCard.propTypes = {
   post: PropTypes.object.isRequired,
-  embedMode: PropTypes.string,
 };
 
 export default withStyles(styles)(CompressedTogetherCard);

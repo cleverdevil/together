@@ -26,27 +26,27 @@ const TogetherCardContent = ({ post, expanded, classes }) => (
         dangerouslySetInnerHTML={{ __html: post.name }}
       />
     )}
-    <Collapse in={expanded} timeout="auto" unmountOnExit>
-      {post.summary &&
-        !post.content && (
-          <Typography
-            component="p"
-            dangerouslySetInnerHTML={{ __html: post.summary }}
-          />
-        )}
-      {post.content && post.content.html ? (
-        <Typography
-          component="div"
-          className={classes.content}
-          dangerouslySetInnerHTML={{ __html: post.content.html }}
-        />
-      ) : post.content && post.content.text ? (
+    {/* <Collapse in={expanded} timeout="auto" unmountOnExit> */}
+    {post.summary &&
+      !post.content && (
         <Typography
           component="p"
-          dangerouslySetInnerHTML={{ __html: post.content.text }}
+          dangerouslySetInnerHTML={{ __html: post.summary }}
         />
-      ) : null}
-    </Collapse>
+      )}
+    {post.content && post.content.html ? (
+      <Typography
+        component="div"
+        className={classes.content}
+        dangerouslySetInnerHTML={{ __html: post.content.html }}
+      />
+    ) : post.content && post.content.text ? (
+      <Typography
+        component="p"
+        dangerouslySetInnerHTML={{ __html: post.content.text }}
+      />
+    ) : null}
+    {/* </Collapse> */}
   </CardContent>
 );
 export default withStyles(style)(TogetherCardContent);

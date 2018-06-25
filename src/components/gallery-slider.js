@@ -170,7 +170,11 @@ class Gallery extends React.Component {
           }}
         >
           {this.state.selectedPost && (
-            <TogetherCard post={this.state.selectedPost} embedMode="photo" />
+            <TogetherCard
+              post={this.state.selectedPost}
+              hideProperties={['photo']}
+              style={{ boxShadow: 'none' }}
+            />
           )}
         </Drawer>
         <IconButton

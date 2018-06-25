@@ -169,7 +169,15 @@ class ClassicView extends React.Component {
         </List>
         {this.state.post && (
           <div className={this.props.classes.postColumn}>
-            <TogetherCard post={this.state.post} embedMode="classic" />
+            <TogetherCard
+              post={this.state.post}
+              style={{
+                margin: 0,
+                minHeight: '100%',
+                maxWidth: 700,
+                boxShadow: 'none',
+              }}
+            />
             <IconButton
               aria-label="Close Post"
               className={this.props.classes.closePost}
