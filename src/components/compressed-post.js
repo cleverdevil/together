@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import Avatar from '@material-ui/core/Avatar';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import AuthorAvatar from './author-avatar';
 import moment from 'moment';
-import authorToAvatarData from '../modules/author-to-avatar-data';
 
 const styles = theme => ({
   item: {
@@ -66,9 +65,6 @@ class CompressedTogetherCard extends React.Component {
   render() {
     const item = this.props.post;
 
-    // Parse author data
-    const avatarData = authorToAvatarData(item.author);
-
     // Parse published date
     let date = 'unknown';
     if (item.published) {
@@ -88,13 +84,7 @@ class CompressedTogetherCard extends React.Component {
         style={readStyle}
         className={this.props.classes.item}
       >
-        <Avatar
-          {...avatarData}
-          aria-label={avatarData.alt}
-          style={{ background: avatarData.color }}
-        >
-          {avatarData.src ? null : avatarData.initials}
-        </Avatar>
+        <AuthorAvatar author={item.author} />
         <ListItemText
           primary={this.getPreviewText()}
           secondary={date}

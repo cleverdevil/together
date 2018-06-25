@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
-import Avatar from '@material-ui/core/Avatar';
+import AuthorAvatar from '../author-avatar';
 import TogetherCardContent from './card-content';
 import TogetherCardPhotos from './card-photos';
 import TogetherCardLocation from './card-location';
@@ -77,17 +77,7 @@ const TogetherCard = props => {
       <CardHeader
         title={authorNameLink}
         subheader={date}
-        avatar={
-          <a href={avatarData.href} target="_blank">
-            <Avatar
-              {...avatarData}
-              aria-label={avatarData.alt}
-              style={{ background: avatarData.color }}
-            >
-              {avatarData.src ? null : avatarData.initials}
-            </Avatar>
-          </a>
-        }
+        avatar={<AuthorAvatar author={item.author} />}
       />
 
       {property('in-reply-to', ({ value: url }) => (

@@ -7,10 +7,9 @@ import { withStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import GridListTileBar from '@material-ui/core/GridListTileBar';
-import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
 import ReactList from 'react-list';
+import AuthorAvatar from './author-avatar';
 import GallerySlider from './gallery-slider';
 import { updatePost, decrementChannelUnread } from '../actions';
 import authorToAvatarData from '../modules/author-to-avatar-data';
@@ -150,16 +149,9 @@ class Gallery extends React.Component {
           title={post.name || (post.content && post.content.text) || ''}
           subtitle={avatarData.alt}
           actionIcon={
-            <Avatar
-              style={{
-                marginRight: 14,
-                background: avatarData.color,
-              }}
-              {...avatarData}
-              aria-label={avatarData.alt}
-            >
-              {avatarData.src ? null : avatarData.initials}
-            </Avatar>
+            <div style={{ marginRight: 14 }}>
+              <AuthorAvatar author={post.author} />
+            </div>
           }
         />
       </GridListTile>
@@ -267,6 +259,7 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(Gallery),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(Gallery));
