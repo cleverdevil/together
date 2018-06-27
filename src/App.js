@@ -11,6 +11,7 @@ import ChannelSettings from './components/channel-settings';
 import Login from './components/login';
 import Notification from './components/notification';
 import MicropubEditor from './components/full-micropub-editor';
+import ErrorBoundary from './components/error-boundary';
 
 const style = theme => ({
   appWrapper: {
@@ -64,29 +65,35 @@ class App extends Component {
       channelMenuClasses.push(this.props.classes.channelMenuClasses);
     }
     return (
-      <Router>
-        <Grid container spacing={0} className={this.props.classes.appWrapper}>
-          <AppBar />
-          <Grid item container spacing={0} className={rootClasses.join(' ')}>
-            <Grid item className={channelMenuClasses.join(' ')}>
-              <ChannelMenu />
+      <ErrorBoundary>
+        <Router>
+          <Grid container spacing={0} className={this.props.classes.appWrapper}>
+            <AppBar />
+            <Grid item container spacing={0} className={rootClasses.join(' ')}>
+              <Grid item className={channelMenuClasses.join(' ')}>
+                <ChannelMenu />
+              </Grid>
+              <Grid item className={this.props.classes.main}>
+                <Route exact path="/" component={MainPosts} />
+                <Route
+                  exact
+                  path="/channel/:channelSlug"
+                  component={MainPosts}
+                />
+                <Route
+                  exact
+                  path="/channel/:channelSlug/edit"
+                  component={ChannelSettings}
+                />
+                <Route exact path="/editor" component={MicropubEditor} />
+                <Route exact path="/settings" component={Settings} />
+              </Grid>
+              <Login />
+              <Notification />
             </Grid>
-            <Grid item className={this.props.classes.main}>
-              <Route exact path="/" component={MainPosts} />
-              <Route exact path="/channel/:channelSlug" component={MainPosts} />
-              <Route
-                exact
-                path="/channel/:channelSlug/edit"
-                component={ChannelSettings}
-              />
-              <Route exact path="/editor" component={MicropubEditor} />
-              <Route exact path="/settings" component={Settings} />
-            </Grid>
-            <Login />
-            <Notification />
           </Grid>
-        </Grid>
-      </Router>
+        </Router>
+      </ErrorBoundary>
     );
   }
 }
