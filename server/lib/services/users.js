@@ -31,7 +31,10 @@ class UserService extends Service {
           }
         })
         .then(res => resolve(res))
-        .catch(err => reject(err));
+        .catch(err => {
+          console.log('Error creating user in the together database', err);
+          reject(err);
+        });
     });
   }
 }

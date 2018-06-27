@@ -17,12 +17,21 @@ const validateResponse = res =>
       res
         .text()
         .then(text => {
-          console.log(text);
+          console.log(
+            'Invalid response from the microsub server',
+            res.status,
+            text,
+          );
           reject(microsubError('Error from microsub server', res.status));
         })
-        .catch(() =>
-          reject(microsubError('Error from microsub server', res.status)),
-        );
+        .catch(() => {
+          console.log(
+            'Invalid response from the microsub server',
+            res.status,
+            text,
+          );
+          reject(microsubError('Error from microsub server', res.status));
+        });
     }
   });
 

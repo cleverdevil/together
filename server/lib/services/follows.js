@@ -19,9 +19,10 @@ class FollowsService {
         },
       })
         .then(results => resolve(results))
-        .catch(err =>
-          reject(microsubError('Error getting following', null, err)),
-        );
+        .catch(err => {
+          console.log('Error getting following', err);
+          reject(microsubError('Error getting following', null, err));
+        });
     });
   }
 
@@ -38,9 +39,10 @@ class FollowsService {
         },
       })
         .then(results => resolve(results))
-        .catch(err =>
-          reject(microsubError('Error getting following', null, err)),
-        );
+        .catch(err => {
+          console.log('Error getting following', err);
+          reject(microsubError('Error getting following', null, err));
+        });
     });
   }
 
@@ -62,7 +64,10 @@ class FollowsService {
         params: microsubParams,
       })
         .then(results => resolve(results))
-        .catch(err => reject(microsubError('Error following', null, err)));
+        .catch(err => {
+          console.log('Error following', err);
+          reject(microsubError('Error following', null, err));
+        });
     });
   }
 
@@ -82,7 +87,10 @@ class FollowsService {
         params: microsubParams,
       })
         .then(results => resolve(results))
-        .catch(err => reject(microsubError('Error unfollowing', null, err)));
+        .catch(err => {
+          console.log('Error unfollowing', err);
+          reject(microsubError('Error unfollowing', null, err));
+        });
     });
   }
 }

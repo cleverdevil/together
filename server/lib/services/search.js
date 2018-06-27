@@ -23,7 +23,10 @@ class SearchService {
         },
       })
         .then(results => resolve(results.results))
-        .catch(err => reject(microsubError('Error searching', null, err)));
+        .catch(err => {
+          console.log('Error searching', err);
+          reject(microsubError('Error searching', null, err));
+        });
     });
   }
 
@@ -44,9 +47,10 @@ class SearchService {
         },
       })
         .then(results => resolve(results))
-        .catch(err =>
-          reject(microsubError('Error getting preview', null, err)),
-        );
+        .catch(err => {
+          console.log('Error getting preview', err);
+          reject(microsubError('Error getting preview', null, err));
+        });
     });
   }
 }

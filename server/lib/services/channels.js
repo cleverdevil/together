@@ -26,9 +26,10 @@ class ChannelsService {
             }),
           ),
         )
-        .catch(err =>
-          reject(microsubError('Error getting channels', null, err)),
-        );
+        .catch(err => {
+          console.log('Error getting channels', err);
+          reject(microsubError('Error getting channels', null, err));
+        });
     });
   }
 
@@ -45,9 +46,10 @@ class ChannelsService {
         .then(channels =>
           resolve(channels.channels.find(channel => channel.uid == id)),
         )
-        .catch(err =>
-          reject(microsubError('Error getting channels', null, err)),
-        );
+        .catch(err => {
+          console.log('Error getting channels');
+          reject(microsubError('Error getting channels', null, err));
+        });
     });
   }
 
@@ -67,9 +69,10 @@ class ChannelsService {
           newChannel.layout = 'default';
           resolve(newChannel);
         })
-        .catch(err =>
-          reject(microsubError('Error creating channel', null, err)),
-        );
+        .catch(err => {
+          console.log('Error creating channel', err);
+          reject(microsubError('Error creating channel', null, err));
+        });
     });
   }
 
@@ -87,9 +90,10 @@ class ChannelsService {
           },
         })
           .then(updatedChannel => resolve(id))
-          .catch(err =>
-            reject(microsubError('Error updating channel', null, err)),
-          );
+          .catch(err => {
+            console.log('Error updating channel', err);
+            reject(microsubError('Error updating channel', null, err));
+          });
       } else {
         resolve(id);
       }
@@ -124,9 +128,10 @@ class ChannelsService {
               );
             }
           })
-          .catch(err =>
-            reject(microsubError('Error ordering channels', null, err)),
-          );
+          .catch(err => {
+            console.log('Error ordering channels', err);
+            reject(microsubError('Error ordering channels', null, err));
+          });
       }
     });
   }
@@ -144,9 +149,10 @@ class ChannelsService {
         },
       })
         .then(() => resolve(id))
-        .catch(err =>
-          reject(microsubError('Error deleting channel', null, err)),
-        );
+        .catch(err => {
+          console.log('Error deleting channel', err);
+          reject(microsubError('Error deleting channel', null, err));
+        });
     });
   }
 }

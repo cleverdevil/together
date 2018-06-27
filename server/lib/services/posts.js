@@ -31,9 +31,10 @@ class PostsService {
         params: microsubParams,
       })
         .then(results => resolve(results))
-        .catch(err =>
-          reject(microsubError('Error getting timeline', null, err)),
-        );
+        .catch(err => {
+          console.log('Error getting timeline', err);
+          reject(microsubError('Error getting timeline', null, err));
+        });
     });
   }
 
@@ -68,7 +69,10 @@ class PostsService {
           results.channel = data.channel;
           resolve(results);
         })
-        .catch(err => reject(microsubError('Error updating', null, err)));
+        .catch(err => {
+          console.log('Error updating timeline posts', err);
+          reject(microsubError('Error updating', null, err));
+        });
     });
   }
 
@@ -91,7 +95,10 @@ class PostsService {
         params: microsubParams,
       })
         .then(results => resolve(results))
-        .catch(err => reject(microsubError('Error updating', null, err)));
+        .catch(err => {
+          console.log('Error removinf posts', err);
+          reject(microsubError('Error updating', null, err));
+        });
     });
   }
 }
