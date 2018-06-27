@@ -31,11 +31,21 @@ use it, you'll need a website that supports
 [IndieAuth](https://indieweb.org/IndieAuth) and
 [Microsub](https://indieweb.org/Microsub).
 
-## Running Locally
+## Running locally in development mode
 
 You'll need `node` and `npm` installed. Once you have
 them, you can simply check out the repository and run `npm install`, followed
-by `npm run start`.
+by `npm run start`. By default, the app runs at port 10008.
+
+## Running locally in production mode
+
+First, generate a production package:
+
+* `npm run build`
+
+Then, run the production package at port 8000:
+
+* `/usr/bin/node server --port 8000`
 
 ---
 
