@@ -13,6 +13,9 @@ import Slide from '@material-ui/core/Slide';
 import TogetherCard from './card/index';
 import Carousel from 'nuka-carousel';
 
+const isPermanentDrawer = () =>
+  document.documentElement.clientWidth > 800 ? true : false;
+
 const styles = theme => ({
   loadMore: {
     width: '100%',
@@ -25,11 +28,13 @@ const styles = theme => ({
     // background: theme.palette.primary.dark,
   },
   popup: {
+    boxSizing: 'border-box',
     display: 'flex',
     width: '100vw',
     height: '100vh',
     overflow: 'hidden',
     background: theme.palette.primary.dark,
+    paddingLeft: isPermanentDrawer() ? 300 : 0,
   },
   popupImage: {
     display: 'block',
@@ -58,8 +63,12 @@ const styles = theme => ({
   },
   drawer: {
     // padding: '1em',
+    boxSizing: 'border-box',
     width: 300,
     maxWidth: '80%',
+    maxHeight: '100%',
+    overflow: 'auto',
+    position: isPermanentDrawer() ? 'absolute' : 'fixed',
   },
 });
 
@@ -73,6 +82,7 @@ class Gallery extends React.Component {
     this.state = {
       photos: this.filterPhotos(props.posts),
       open: this.props.open,
+      drawerOpen: false,
       selectedPost: false,
     };
     this.handleClose = this.handleClose.bind(this);
@@ -147,35 +157,44 @@ class Gallery extends React.Component {
                 />
                 <IconButton
                   className={this.props.classes.infoButton}
-                  onClick={() => this.setState({ selectedPost: post })}
+                  onClick={() => this.setState({ drawerOpen: true })}
                 >
                   <InfoIcon />
+                </IconButton>
+                <Drawer
+                  open={
+                    document.documentElement.clientWidth > 800
+                      ? true
+                      : this.state.drawerOpen
+                  }
+                  variant={
+                    document.documentElement.clientWidth > 800
+                      ? 'permanent'
+                      : null
+                  }
+                  onClose={() => this.setState({ drawerOpen: false })}
+                  classes={{
+                    paperAnchorLeft: this.props.classes.drawer,
+                  }}
+                >
+                  {post && (
+                    <TogetherCard
+                      post={post}
+                      hideProperties={['photo']}
+                      style={{ boxShadow: 'none' }}
+                    />
+                  )}
+                </Drawer>
+                <IconButton
+                  className={this.props.classes.popupClose}
+                  onClick={this.handleClose}
+                >
+                  <CloseIcon />
                 </IconButton>
               </div>
             );
           })}
         </Carousel>
-        <Drawer
-          open={this.state.selectedPost}
-          onClose={() => this.setState({ selectedPost: false })}
-          classes={{
-            paperAnchorLeft: this.props.classes.drawer,
-          }}
-        >
-          {this.state.selectedPost && (
-            <TogetherCard
-              post={this.state.selectedPost}
-              hideProperties={['photo']}
-              style={{ boxShadow: 'none' }}
-            />
-          )}
-        </Drawer>
-        <IconButton
-          className={this.props.classes.popupClose}
-          onClick={this.handleClose}
-        >
-          <CloseIcon />
-        </IconButton>
       </Dialog>
     );
   }
