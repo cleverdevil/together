@@ -9,7 +9,7 @@ const theme = type => {
   return createMuiTheme({
     typography: {
       fontFamily:
-        '"Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif',
+        'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif',
       fontWeightLight: 400,
       fontWeightRegular: 400,
       fontWeightMedium: 900,
@@ -17,16 +17,20 @@ const theme = type => {
     palette: {
       type: type,
       primary: {
-        light: dark ? '#484848' : '#819ca9',
-        main: dark ? '#212121' : '#546e7a',
-        dark: dark ? '#000000' : '#29434e',
-        contrastText: '#fff',
+        light: dark ? '#222' : '#5e92f3',
+        main: dark ? '#111' : '#1565c0',
+        dark: dark ? '#000000' : '#003c8f',
+        contrastText: dark ? '#fff' : '#fff',
       },
       secondary: {
-        light: '#5e92f3',
-        main: '#1565c0',
-        dark: '#003c8f',
-        contrastText: '#fff',
+        light: dark ? '#5e92f3' : '#5472d3',
+        main: dark ? '#1565c0' : '#0d47a1',
+        dark: dark ? '#003c8f' : '#002171',
+        contrastText: dark ? '#fff' : '#fff',
+      },
+      background: {
+        paper: dark ? '#222' : '#fff',
+        default: dark ? '#111' : '#fafafa',
       },
     },
   });
@@ -69,4 +73,7 @@ function mapStateToProps(state, props) {
   };
 }
 
-export default connect(mapStateToProps, null)(Theme);
+export default connect(
+  mapStateToProps,
+  null,
+)(Theme);

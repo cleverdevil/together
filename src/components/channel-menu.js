@@ -28,7 +28,10 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    background: theme.palette.primary.dark,
+    background:
+      theme.palette.type == 'dark'
+        ? theme.palette.primary.dark
+        : theme.palette.action.hover,
     borderRight: '1px solid ' + theme.palette.divider,
   },
   channelTextRoot: {
@@ -37,14 +40,20 @@ const styles = theme => ({
   },
   button: {
     textAlign: 'left',
-    color: theme.palette.primary.light,
+    color:
+      theme.palette.type == 'dark'
+        ? theme.palette.text.disabled
+        : theme.palette.text.secondary,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   highlightedButton: {
     textAlign: 'left',
-    color: theme.palette.primary.contrastText,
+    color:
+      theme.palette.type == 'dark'
+        ? theme.palette.primary.contrastText
+        : theme.palette.primary.main,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
@@ -62,10 +71,7 @@ const styles = theme => ({
     right: 8,
     marginTop: '-1em',
     minWidth: '1em',
-    background:
-      theme.palette.type === 'dark'
-        ? theme.palette.secondary.dark
-        : theme.palette.secondary.main,
+    background: theme.palette.secondary.main,
     color: theme.palette.secondary.contrastText,
     fontWeight: 'bold',
     fontSize: '0.6em',

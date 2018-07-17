@@ -49,6 +49,9 @@ const styles = theme => ({
       marginRight: 0,
     },
   },
+  menuAction: {
+    color: theme.palette.primary.contrastText,
+  },
   menuItem: {
     display: 'block',
     outline: 'none',
@@ -201,6 +204,7 @@ class TogetherAppBar extends React.Component {
                 <IconButton
                   aria-label="Mark all as read"
                   onClick={this.handleMarkRead}
+                  className={this.props.classes.menuAction}
                 >
                   <ReadIcon />
                 </IconButton>
@@ -208,16 +212,21 @@ class TogetherAppBar extends React.Component {
             ) : null}
 
             <Tooltip title="New post" placement="bottom">
-              <IconButton aria-label="New post" onClick={this.handleCompose}>
+              <IconButton
+                aria-label="New post"
+                onClick={this.handleCompose}
+                className={this.props.classes.menuAction}
+              >
                 <NoteAddIcon />
               </IconButton>
             </Tooltip>
 
-            <NotificationsList />
+            <NotificationsList buttonClass={this.props.classes.menuAction} />
 
             <Tooltip title="Settings" placement="bottom">
               <IconButton
                 onClick={e => this.setState({ anchorEl: e.currentTarget })}
+                className={this.props.classes.menuAction}
               >
                 <SettingsIcon />
               </IconButton>
