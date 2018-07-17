@@ -39,20 +39,20 @@ const styles = theme => ({
     padding: 0,
   },
   button: {
+    display: 'block',
     textAlign: 'left',
-    color:
-      theme.palette.type == 'dark'
-        ? theme.palette.text.disabled
-        : theme.palette.text.secondary,
+    color: theme.palette.text.main,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   highlightedButton: {
+    display: 'block',
     textAlign: 'left',
-    color:
+    color: theme.palette.primary.contrastText,
+    backgroundColor:
       theme.palette.type == 'dark'
-        ? theme.palette.primary.contrastText
+        ? theme.palette.secondary.main
         : theme.palette.primary.main,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
@@ -71,7 +71,10 @@ const styles = theme => ({
     right: 8,
     marginTop: '-1em',
     minWidth: '1em',
-    background: theme.palette.secondary.main,
+    background:
+      theme.palette.type == 'dark'
+        ? theme.palette.secondary.dark
+        : theme.palette.primary.light,
     color: theme.palette.secondary.contrastText,
     fontWeight: 'bold',
     fontSize: '0.6em',
@@ -240,6 +243,7 @@ class ChannelMenu extends React.Component {
                                   to={`/channel/${channel.slug}`}
                                   key={`channel-${channel.uid}`}
                                   style={{ textDecoration: 'none' }}
+                                  className={textClassName}
                                   onClick={this.handleClose}
                                 >
                                   <ListItem button>
