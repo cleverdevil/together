@@ -28,7 +28,10 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
-    background: theme.palette.primary.dark,
+    background:
+      theme.palette.type == 'dark'
+        ? theme.palette.primary.dark
+        : theme.palette.action.hover,
     borderRight: '1px solid ' + theme.palette.divider,
   },
   channelTextRoot: {
@@ -36,15 +39,21 @@ const styles = theme => ({
     padding: 0,
   },
   button: {
+    display: 'block',
     textAlign: 'left',
-    color: theme.palette.primary.light,
+    color: theme.palette.text.main,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   highlightedButton: {
+    display: 'block',
     textAlign: 'left',
     color: theme.palette.primary.contrastText,
+    backgroundColor:
+      theme.palette.type == 'dark'
+        ? theme.palette.secondary.main
+        : theme.palette.primary.main,
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
@@ -63,9 +72,9 @@ const styles = theme => ({
     marginTop: '-1em',
     minWidth: '1em',
     background:
-      theme.palette.type === 'dark'
+      theme.palette.type == 'dark'
         ? theme.palette.secondary.dark
-        : theme.palette.secondary.main,
+        : theme.palette.primary.light,
     color: theme.palette.secondary.contrastText,
     fontWeight: 'bold',
     fontSize: '0.6em',
@@ -234,6 +243,7 @@ class ChannelMenu extends React.Component {
                                   to={`/channel/${channel.slug}`}
                                   key={`channel-${channel.uid}`}
                                   style={{ textDecoration: 'none' }}
+                                  className={textClassName}
                                   onClick={this.handleClose}
                                 >
                                   <ListItem button>

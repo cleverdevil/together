@@ -11,8 +11,12 @@ const style = theme => ({
       height: 'auto',
     },
     '& blockquote': {
-      'border-left': '4px solid ' + theme.palette.divider,
-      'padding-left': '1em',
+      borderLeft: '4px solid ' + theme.palette.primary.main,
+      paddingLeft: theme.spacing.unit * 2,
+      marginLeft: theme.spacing.unit * 2,
+      '& blockquote': {
+        marginLeft: theme.spacing.unit,
+      },
     },
   },
 });

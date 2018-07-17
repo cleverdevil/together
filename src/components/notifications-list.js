@@ -127,13 +127,20 @@ class NotificationsList extends React.Component {
 
   render() {
     const { open, anchor, loading, after } = this.state;
-    const { classes, notifications, notificationCount: count } = this.props;
+    const {
+      classes,
+      notifications,
+      notificationCount: count,
+      buttonClass,
+    } = this.props;
     return (
       <React.Fragment>
         <Tooltip title={`Notifications (${count})`} placement="bottom">
           <span className={classes.icon}>
             <IconButton
-              className={loading ? classes.loadingIcon : ''}
+              className={
+                loading ? classes.loadingIcon + ' ' + buttonClass : buttonClass
+              }
               aria-label={`Notifications (${count})`}
               onClick={e => {
                 if (!open) {
@@ -200,11 +207,13 @@ class NotificationsList extends React.Component {
 
 NotificationsList.defaultProps = {
   notifications: [],
+  buttonClass: '',
 };
 
 NotificationsList.propTypes = {
   notifications: PropTypes.array.isRequired,
   notificationCount: PropTypes.number.isRequired,
+  buttonClass: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => {
