@@ -15,19 +15,15 @@ const styles = theme => ({
     flexDirection: 'column',
     overflow: 'visible',
     background: theme.palette.primary.main,
-    color: theme.palette.primary.dark,
   },
   icon: {
-    color: 'inherit',
+    color: 'rgba(255,255,255,.3)',
     '&:hover': {
       color: theme.palette.primary.contrastText,
     },
   },
   iconSelected: {
     color: theme.palette.primary.contrastText,
-    '&:hover': {
-      color: theme.palette.primary.contrastText,
-    },
   },
 });
 
