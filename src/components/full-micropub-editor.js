@@ -18,6 +18,12 @@ const styles = theme => ({
   container: {
     padding: theme.spacing.unit * 3,
     maxWidth: 800,
+    '& .ql-editor': {
+      color:
+        theme.palette.type == 'dark'
+          ? theme.palette.primary.contrastText
+          : 'inherit',
+    },
   },
 });
 
