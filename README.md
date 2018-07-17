@@ -35,17 +35,18 @@ use it, you'll need a website that supports
 
 You'll need `node` and `npm` installed. Once you have
 them, you can simply check out the repository and run `npm install`, followed
-by `npm run start`. By default, the app runs at port 10008.
+by `npm run start`. The server part runs on port 10008 by default
+and a hot reloading frontend is available on port 3000 (ideal for frontend development)
 
 ## Running locally in production mode
 
 First, generate a production package:
 
-* `npm run build`
+- `npm run build`
 
 Then, run the production package at port 8000:
 
-* `/usr/bin/node server --port 8000`
+- `/usr/bin/node server --port 8000`
 
 ---
 
