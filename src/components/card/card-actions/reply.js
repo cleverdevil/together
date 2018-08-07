@@ -15,11 +15,13 @@ class ActionReply extends React.Component {
     this.state = {
       popoverOpen: false,
     };
+    this.handleReply = this.handleReply.bind(this);
+    this.handleReplySend = this.handleReplySend.bind(this);
   }
 
   handleReply(e) {
     this.setState({
-      popoverOpen: true,
+      popoverOpen: !this.state.popoverOpen,
       popoverAnchor: e.target,
     });
   }
@@ -35,15 +37,11 @@ class ActionReply extends React.Component {
   }
 
   render() {
-    const { url, syndication, notification } = this.props;
+    const { url } = this.props;
     return (
       <React.Fragment>
         <Tooltip title="Reply" placement="top">
-          <IconButton
-            onClick={() =>
-              this.setState({ popoverOpen: !this.state.popoverOpen })
-            }
-          >
+          <IconButton onClick={this.handleReply}>
             <ReplyIcon />
           </IconButton>
         </Tooltip>
