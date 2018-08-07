@@ -18,6 +18,10 @@ const style = theme => ({
         marginLeft: theme.spacing.unit,
       },
     },
+    // Emoji images'
+    '& img[src^="https://s.w.org/images/core/emoji"]': {
+      width: '1em',
+    },
   },
 });
 
