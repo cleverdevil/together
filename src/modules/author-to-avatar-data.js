@@ -1,3 +1,5 @@
+import resizeImage from './get-image-proxy-url';
+
 function getDomain(string) {
   const url = new URL(string);
   let domain = url.hostname;
@@ -50,6 +52,9 @@ export default function(author) {
       } else if (avatar.href) {
         avatar.alt = getDomain(avatar.href);
         avatar.initials = avatar.alt[0].toUpperCase();
+      }
+      if (avatar.src) {
+        avatar.src = resizeImage(avatar.src, { w: 50, h: 50, t: 'square' });
       }
     }
   }

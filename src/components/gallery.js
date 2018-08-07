@@ -15,6 +15,7 @@ import { updatePost, decrementChannelUnread } from '../actions';
 import authorToAvatarData from '../modules/author-to-avatar-data';
 import getChannelSetting from '../modules/get-channel-setting';
 import { posts as postsService } from '../modules/feathers-services';
+import resizeImage from '../modules/get-image-proxy-url';
 
 const styles = theme => ({
   galleryWrapper: {
@@ -56,7 +57,7 @@ class Gallery extends React.Component {
         }
         post.photo.forEach(photo =>
           photos.push({
-            photo: photo,
+            photo: resizeImage(photo, { w: 300, h: 300, t: 'square' }),
             post: post,
           }),
         );

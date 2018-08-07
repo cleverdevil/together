@@ -2,6 +2,7 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import resizeImage from '../../modules/get-image-proxy-url';
 
 const style = theme => ({
   fullImage: {
@@ -14,7 +15,13 @@ const style = theme => ({
 
 const TogetherCardPhotos = ({ photos, classes }) => {
   if (photos.length === 1) {
-    return <img className={classes.fullImage} src={photos[0]} alt="" />;
+    return (
+      <img
+        className={classes.fullImage}
+        src={resizeImage(photos[0], { w: 600 })}
+        alt=""
+      />
+    );
   } else if (Array.isArray(photos)) {
     let cols = photos.length;
     if (cols == 4) {
@@ -32,7 +39,14 @@ const TogetherCardPhotos = ({ photos, classes }) => {
       <GridList cellHeight={cellHeight} cols={cols} spacing={0}>
         {photos.map((photo, i) => (
           <GridListTile key={`card-photo-${i}`} cols={1}>
-            <img src={photo} alt="" />
+            <img
+              src={resizeImage(photo, {
+                w: cellHeight,
+                h: cellHeight,
+                t: 'square',
+              })}
+              alt=""
+            />
           </GridListTile>
         ))}
       </GridList>
