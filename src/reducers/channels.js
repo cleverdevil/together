@@ -5,15 +5,22 @@ const defaultState = new List();
 export default (state = defaultState, payload) => {
   switch (payload.type) {
     case 'ADD_CHANNEL': {
-      return state.push(
-        new Map({
-          name: payload.name,
-          uid: payload.uid,
-          slug: encodeURIComponent(payload.uid),
-          unread: payload.unread,
-          layout: payload.layout,
-        }),
+      const channel = new Map({
+        name: payload.name,
+        uid: payload.uid,
+        slug: encodeURIComponent(payload.uid),
+        unread: payload.unread,
+        layout: payload.layout,
+      });
+      const existingIndex = state.findIndex(
+        channel => channel.get('uid') == payload.uid,
       );
+      if (existingIndex > -1) {
+        // Need to update
+        return state.set(existingIndex, channel);
+      } else {
+        return state.push(channel);
+      }
     }
     case 'UPDATE_CHANNEL': {
       const microsubProperties = ['uid', 'name', 'unread'];

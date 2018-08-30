@@ -85,6 +85,8 @@ const styles = theme => ({
   },
 });
 
+const pollingInterval = 1000 * 60;
+
 class ChannelMenu extends React.Component {
   constructor(props) {
     super(props);
@@ -92,41 +94,43 @@ class ChannelMenu extends React.Component {
       newChannelName: '',
       newChannel: false,
     };
+    this.loadChannels = this.loadChannels.bind(this);
     this.handleAddChannel = this.handleAddChannel.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.renderChannelForm = this.renderChannelForm.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
 
+  loadChannels() {
+    channelsService
+      .find({})
+      .then(channels => {
+        channels.forEach(channel => {
+          this.props.addChannel(channel.name, channel.uid, channel.unread);
+        });
+      })
+      .catch(err => {
+        console.log('Error getting channels');
+        console.log(err);
+      });
+  }
+
   componentDidMount() {
     if (this.props.userId) {
-      channelsService
-        .find({})
-        .then(channels => {
-          channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid, channel.unread);
-          });
-        })
-        .catch(err => {
-          console.log('Error getting channels');
-          console.log(err);
-        });
+      this.loadChannels();
+      this.channelPolling = setInterval(this.loadChannels, pollingInterval);
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.channelPolling);
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.userId && this.props.userId !== newProps.userId) {
-      channelsService
-        .find({})
-        .then(channels => {
-          channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid, channel.unread);
-          });
-        })
-        .catch(err => {
-          console.log('Error getting channels');
-          console.log(err);
-        });
+      clearImmediate(this.channelPolling);
+      this.loadChannels();
+      this.channelPolling = setInterval(this.loadChannels, pollingInterval);
     }
   }
 
