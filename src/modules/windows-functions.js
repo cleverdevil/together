@@ -18,19 +18,19 @@ export const changeTitleBarTheme = theme => {
     const customColors =
       theme == 'dark'
         ? {
-            backgroundColor: '#111',
-            foregroundColor: '#fff',
-            inactiveBackgroundColor: '#222',
-            inactiveForegroundColor: '#fafafa',
+            backgroundColor: { a: 255, r: 17, g: 17, b: 17 },
+            foregroundColor: { a: 255, r: 255, g: 255, b: 255 },
+            inactiveBackgroundColor: { a: 255, r: 34, g: 34, b: 34 },
+            inactiveForegroundColor: { a: 255, r: 250, g: 250, b: 250 },
           }
         : {
-            backgroundColor: '#1565c0',
-            foregroundColor: '#fff',
-            inactiveBackgroundColor: '#5e92f3',
-            inactiveForegroundColor: '#fafafa',
+            backgroundColor: { a: 255, r: 21, g: 101, b: 192 },
+            foregroundColor: { a: 255, r: 255, g: 255, b: 255 },
+            inactiveBackgroundColor: { a: 255, r: 0, g: 60, b: 143 },
+            inactiveForegroundColor: { a: 255, r: 250, g: 250, b: 250 },
           };
 
-    var titleBar = window.Windows.UI.ViewManagement.ApplicationView.getForCurrentView()
+    let titleBar = window.Windows.UI.ViewManagement.ApplicationView.getForCurrentView()
       .titleBar;
     titleBar.backgroundColor = customColors.backgroundColor;
     titleBar.foregroundColor = customColors.foregroundColor;
