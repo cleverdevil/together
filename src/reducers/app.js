@@ -31,13 +31,9 @@ export default (state = defaultState, payload) => {
       return state.set('timelineAfter', payload.after);
     }
     case 'ADD_NOTIFICATION': {
-      if (!windowsNotification(payload.notification.message)) {
-        let notifications = [...state.get('notifications')];
-        notifications.push(payload.notification);
-        return state.set('notifications', notifications);
-      } else {
-        return state;
-      }
+      let notifications = [...state.get('notifications')];
+      notifications.push(payload.notification);
+      return state.set('notifications', notifications);
     }
     case 'REMOVE_NOTIFICATION': {
       let notifications = [...state.get('notifications')];
