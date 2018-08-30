@@ -21,6 +21,7 @@ const styles = theme => ({
   galleryWrapper: {
     overflow: 'auto',
     height: '100%',
+    overscrollBehaviorY: 'contain',
   },
   loadMore: {
     width: '100%',
