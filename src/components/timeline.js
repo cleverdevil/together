@@ -21,6 +21,7 @@ const styles = theme => ({
     padding: theme.spacing.unit * 2,
     paddingTop: 0,
     overflow: 'auto',
+    overscrollBehaviorY: 'contain',
     '& > div': {
       maxWidth: 600,
     },
@@ -151,6 +152,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(Timeline),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(Timeline));

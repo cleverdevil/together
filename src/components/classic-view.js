@@ -28,6 +28,7 @@ const styles = theme => ({
   previewColumn: {
     width: '100%',
     overflow: 'auto',
+    overscrollBehaviorY: 'contain',
     borderRight: '1px solid ' + theme.palette.divider,
     flexShrink: 0,
     [theme.breakpoints.up('sm')]: {
@@ -48,6 +49,7 @@ const styles = theme => ({
     height: '100%',
     // iOS hack thing
     overflowY: 'scroll',
+    overscrollBehaviorY: 'contain',
     '-webkit-overflow-scrolling': 'touch',
     [theme.breakpoints.up('sm')]: {
       position: 'relative',
