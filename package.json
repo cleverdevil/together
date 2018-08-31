@@ -26,6 +26,7 @@
     "feathers-authentication-custom": "^0.1.0",
     "feathers-authentication-hooks": "^0.2.0",
     "feathers-nedb": "^3.0.0",
+    "feathers-redux": "^2.1.0",
     "immutable": "^3.8.2",
     "isomorphic-fetch": "^2.2.1",
     "micropub-client-editor": "^1.0.7",

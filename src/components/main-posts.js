@@ -246,7 +246,7 @@ function mapStateToProps(state, props) {
     timelineBefore: state.app.get('timelineBefore'),
     timelineAfter: state.app.get('timelineAfter'),
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
+    channels: [],
     items: state.posts.toJS(),
     user: state.user.toJS(),
     channelSettings: state.settings.get('channels') || {},

@@ -20,7 +20,9 @@ import {
   reorderChannels,
   addNotification,
 } from '../actions';
+import { services } from '../store';
 import { channels as channelsService } from '../modules/feathers-services';
+// console.log(services);
 
 const styles = theme => ({
   drawer: {
@@ -102,17 +104,18 @@ class ChannelMenu extends React.Component {
   }
 
   loadChannels() {
-    channelsService
-      .find({})
-      .then(channels => {
-        channels.forEach(channel => {
-          this.props.addChannel(channel.name, channel.uid, channel.unread);
-        });
-      })
-      .catch(err => {
-        console.log('Error getting channels');
-        console.log(err);
-      });
+    services.channels.find();
+    // channelsService
+    //   .find({})
+    //   .then(channels => {
+    //     channels.forEach(channel => {
+    //       this.props.addChannel(channel.name, channel.uid, channel.unread);
+    //     });
+    //   })
+    //   .catch(err => {
+    //     console.log('Error getting channels');
+    //     console.log(err);
+    //   });
   }
 
   componentDidMount() {
@@ -296,7 +299,7 @@ function mapStateToProps(state, props) {
   return {
     userId: state.user.get('_id'),
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state.channels.toJS(),
+    channels: state['api/channels'].queryResult.data,
     open: state.app.get('channelsMenuOpen'),
   };
 }
