@@ -22,8 +22,8 @@ const ActionRepost = ({ url, syndication, notification }) => (
         }
         micropub
           .create({ post: mf2 })
-          .then(res => notification(`Successfully liked ${url}`))
-          .catch(err => notification(`Error liking ${url}`, 'error'));
+          .then(res => notification(`Successfully reposted ${url}`s))
+          .catch(err => notification(`Error reposting ${url}`, 'error'));
       }}
     >
       <RepostIcon />
