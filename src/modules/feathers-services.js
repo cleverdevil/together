@@ -21,7 +21,7 @@ client.configure(
 client.service('authentication').timeout = 20000;
 client.service('users').timeout = 20000;
 
-export const channels = client.service('api/channels');
+export const channels = client.service('channels');
 export const posts = client.service('api/posts');
 export const search = client.service('api/search');
 export const follows = client.service('api/follows');

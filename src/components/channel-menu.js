@@ -21,8 +21,10 @@ import {
   addNotification,
 } from '../actions';
 import { services } from '../store';
-import { channels as channelsService } from '../modules/feathers-services';
-// console.log(services);
+
+// TODO: Need to convert a lot of the props to state in order to better handle:
+// 1. Reordering shouldn't wait for a server response
+// 2. Need a way of live updating the channel read count without reloading all channels
 
 const styles = theme => ({
   drawer: {
@@ -96,32 +98,19 @@ class ChannelMenu extends React.Component {
       newChannelName: '',
       newChannel: false,
     };
-    this.loadChannels = this.loadChannels.bind(this);
     this.handleAddChannel = this.handleAddChannel.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.renderChannelForm = this.renderChannelForm.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
 
-  loadChannels() {
-    services.channels.find();
-    // channelsService
-    //   .find({})
-    //   .then(channels => {
-    //     channels.forEach(channel => {
-    //       this.props.addChannel(channel.name, channel.uid, channel.unread);
-    //     });
-    //   })
-    //   .catch(err => {
-    //     console.log('Error getting channels');
-    //     console.log(err);
-    //   });
-  }
-
   componentDidMount() {
     if (this.props.userId) {
-      this.loadChannels();
-      this.channelPolling = setInterval(this.loadChannels, pollingInterval);
+      services.channels.find();
+      this.channelPolling = setInterval(
+        services.channels.find,
+        pollingInterval,
+      );
     }
   }
 
@@ -132,8 +121,11 @@ class ChannelMenu extends React.Component {
   componentWillReceiveProps(newProps) {
     if (newProps.userId && this.props.userId !== newProps.userId) {
       clearImmediate(this.channelPolling);
-      this.loadChannels();
-      this.channelPolling = setInterval(this.loadChannels, pollingInterval);
+      services.channels.find();
+      this.channelPolling = setInterval(
+        services.channels.find,
+        pollingInterval,
+      );
     }
   }
 
@@ -145,16 +137,17 @@ class ChannelMenu extends React.Component {
 
   handleAddChannel(e) {
     e.preventDefault();
-    channelsService
+    services.channels
       .create({ name: this.state.newChannelName })
-      .then(newChannel => {
+      .then(res => {
         this.setState({
           newChannelName: '',
           newChannel: false,
         });
-        this.props.addChannel(newChannel.name, newChannel.uid);
+        services.channels.find();
       })
       .catch(err => {
+        console.log('Error adding channel', err);
         this.props.addNotification('Error creating channel', 'error');
       });
     return false;
@@ -164,12 +157,33 @@ class ChannelMenu extends React.Component {
     if (!result.destination) {
       return;
     }
-    this.props.reorderChannels(result.source.index, result.destination.index);
-    channelsService
-      .patch(null, { order: this.props.channels.map(channel => channel.uid) })
-      .then(channels => this.props.addNotification('Channel order saved'))
+    const { channels } = this.props;
+    let channelIds = channels
+      .map(channel => channel.uid)
+      .filter(id => id !== 'notifications');
+
+    const reorder = (list, startIndex, endIndex) => {
+      const result = Array.from(list);
+      const [removed] = result.splice(startIndex, 1);
+      result.splice(endIndex, 0, removed);
+
+      return result;
+    };
+    channelIds = reorder(
+      channelIds,
+      result.source.index,
+      result.destination.index,
+    );
+    channelIds.push('notifications');
+
+    services.channels
+      .patch(null, { order: channelIds })
+      .then(channels => {
+        services.channels.find();
+        this.props.addNotification('Channel order saved');
+      })
       .catch(err => {
-        console.log(err);
+        console.log('Error saving channels order', err);
         this.props.addNotification('Error saving channel order', 'error');
       });
   }
@@ -299,7 +313,7 @@ function mapStateToProps(state, props) {
   return {
     userId: state.user.get('_id'),
     selectedChannel: state.app.get('selectedChannel'),
-    channels: state['api/channels'].queryResult.data,
+    channels: state.channels.queryResult ? state.channels.queryResult.data : [],
     open: state.app.get('channelsMenuOpen'),
   };
 }

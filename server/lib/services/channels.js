@@ -18,13 +18,17 @@ class ChannelsService {
         },
       })
         .then(channels =>
-          resolve(
-            channels.channels.map(channel => {
+          resolve({
+            total: channels.channels.length,
+            limit: 0,
+            skip: 0,
+            data: channels.channels.map(channel => {
               channel.userId = params.user.userId;
               channel.layout = 'default';
+              channel.slug = encodeURIComponent(channel.uid);
               return channel;
             }),
-          ),
+          }),
         )
         .catch(err => {
           console.log('Error getting channels', err);

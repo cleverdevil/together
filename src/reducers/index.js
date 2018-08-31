@@ -5,7 +5,7 @@ import { client } from '../modules/feathers-services';
 import app from './app';
 import notifications from './notifications';
 import posts from './posts';
-import channels from './channels';
+// import channels from './channels';
 import user from './user';
 import settings from './settings';
 
@@ -33,11 +33,11 @@ const rootReducer = combineReducers({
   // channels,
   user,
   settings,
-  'api/channels': namedServices.channels.reducer,
-  feathersposts: services['api/posts'].reducer,
-  featherssearch: services['api/search'].reducer,
-  feathersfollows: services['api/follows'].reducer,
-  feathersmicropub: services['api/micropub'].reducer,
+  channels: namedServices.channels.reducer,
+  feathersposts: namedServices.posts.reducer,
+  featherssearch: namedServices.search.reducer,
+  feathersfollows: namedServices.follows.reducer,
+  feathersmicropub: namedServices.micropub.reducer,
   feathersusers: services['users'].reducer,
 });
 

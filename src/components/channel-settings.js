@@ -21,11 +21,9 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SettingsModal from './settings-modal';
 import { updateChannel, removeChannel } from '../actions';
-import {
-  follows as followsService,
-  channels as channelsService,
-} from '../modules/feathers-services';
+import { follows as followsService } from '../modules/feathers-services';
 import { getAll as getChannelSettings } from '../modules/get-channel-setting';
+import { services } from '../store';
 
 const styles = theme => ({
   fieldset: {
@@ -127,18 +125,18 @@ class ChannelSettings extends React.Component {
       window.confirm('Are you sure you want to delete this channel?')
     ) {
       console.log('deleting ' + this.state.uid);
-      channelsService
+      services.channels
         .remove(this.state.uid)
         .then(res => {
-          console.log(res);
+          console.log('Deleted channel', res);
           if (!res.error) {
             // Should be deleted
-            this.props.removeChannel(this.state.uid);
+            services.channels.find();
             this.setState({ uid: null });
             this.props.history.push('/');
           }
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log('Error deleting channel', err));
     }
   }
 
@@ -151,17 +149,17 @@ class ChannelSettings extends React.Component {
     this.setState({ name: e.target.value });
     // TODO: Only send this request when typing is finished.
 
-    channelsService
+    services.channels
       .update(this.state.uid, {
         name: e.target.value,
       })
       .then(res => {
         if (!res.error) {
           // Should be renamed
-          console.log(res);
+          services.channels.find();
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log('Error renaming channel', err));
   }
 
   handleUnsubscribe(url) {
@@ -275,7 +273,7 @@ ChannelSettings.propTypes = {
 
 function mapStateToProps(state, props) {
   return {
-    channels: state.channels.toJS(),
+    channels: state.channels.queryResult ? state.channels.queryResult.data : [],
     channelSettings: state.settings.get('settings'),
   };
 }
@@ -288,7 +286,8 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(
-    withStyles(styles)(ChannelSettings),
-  ),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(withStyles(styles)(ChannelSettings)),
 );

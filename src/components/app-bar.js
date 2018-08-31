@@ -277,7 +277,7 @@ function mapStateToProps(state, props) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
     theme: state.app.get('theme'),
-    channels: [],
+    channels: state.channels.queryResult ? state.channels.queryResult.data : [],
     items: state.posts.toJS(),
     noteSyndication: state.settings.get('noteSyndication'),
   };
