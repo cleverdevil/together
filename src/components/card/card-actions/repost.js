@@ -22,7 +22,7 @@ const ActionRepost = ({ url, syndication, notification }) => (
         }
         micropub
           .create({ post: mf2 })
-          .then(res => notification(`Successfully reposted ${url}`s))
+          .then(res => notification(`Successfully reposted ${url}`))
           .catch(err => notification(`Error reposting ${url}`, 'error'));
       }}
     >
