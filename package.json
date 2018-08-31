@@ -1,6 +1,6 @@
 {
   "name": "together",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "private": true,
   "devDependencies": {
     "npm-run-all": "^4.1.3",

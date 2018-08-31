@@ -75,6 +75,7 @@ class ClassicView extends React.Component {
     this.state = {
       post: null,
     };
+    this.articleRef = React.createRef();
     this.handleScroll = this.handleScroll.bind(this);
     this.handlePostSelect = this.handlePostSelect.bind(this);
     this.renderItem = this.renderItem.bind(this);
@@ -102,6 +103,9 @@ class ClassicView extends React.Component {
     const read = post._is_read;
     post._is_read = true;
     this.setState({ post: post });
+    if (this.articleRef.current) {
+      this.articleRef.current.scrollTop = 0;
+    }
     // Mark the post as read
     if (!read) {
       postsService
@@ -170,7 +174,7 @@ class ClassicView extends React.Component {
           {this.renderLoadMore()}
         </List>
         {this.state.post && (
-          <div className={this.props.classes.postColumn}>
+          <div ref={this.articleRef} className={this.props.classes.postColumn}>
             <TogetherCard
               post={this.state.post}
               style={{
