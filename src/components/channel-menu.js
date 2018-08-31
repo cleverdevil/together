@@ -35,7 +35,9 @@ const styles = theme => ({
     borderRight: '1px solid ' + theme.palette.divider,
   },
   channelTextRoot: {
+    padding: 0,
     color: 'inherit',
+    textOverflow: 'ellipsis',
   },
   button: {
     display: 'block',
@@ -248,6 +250,8 @@ class ChannelMenu extends React.Component {
                                   <ListItem button>
                                     <ListItemText
                                       classes={{
+                                        root: this.props.classes
+                                          .channelTextRoot,
                                         primary: this.props.classes
                                           .channelTextRoot,
                                       }}
