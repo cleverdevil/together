@@ -27,9 +27,10 @@ export default (state = defaultState, payload) => {
           payload.name !== existingChannel.get('name'))
       ) {
         return state.set(existingChannelIndex, newChannel);
-      } else {
+      } else if (!existingChannel) {
         return state.push(newChannel);
       }
+      return state;
     }
     case 'UPDATE_CHANNEL': {
       const microsubProperties = ['uid', 'name', 'unread'];
