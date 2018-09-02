@@ -9,15 +9,27 @@ export default (state = defaultState, payload) => {
         // Don't add notifications to channel list
         return state;
       }
-      return state.push(
-        new Map({
-          name: payload.name,
-          uid: payload.uid,
-          slug: encodeURIComponent(payload.uid),
-          unread: payload.unread,
-          layout: payload.layout,
-        }),
+      const existingChannelIndex = state.findIndex(
+        channel => channel.get('uid') === payload.uid,
       );
+      const existingChannel =
+        existingChannelIndex > -1 ? state.get(existingChannelIndex) : null;
+      const newChannel = new Map({
+        name: payload.name,
+        uid: payload.uid,
+        slug: encodeURIComponent(payload.uid),
+        unread: payload.unread,
+        layout: payload.layout,
+      });
+      if (
+        existingChannel &&
+        (payload.unread !== existingChannel.get('unread') ||
+          payload.name !== existingChannel.get('name'))
+      ) {
+        return state.set(existingChannelIndex, newChannel);
+      } else {
+        return state.push(newChannel);
+      }
     }
     case 'UPDATE_CHANNEL': {
       const microsubProperties = ['uid', 'name', 'unread'];
