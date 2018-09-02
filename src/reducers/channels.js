@@ -5,6 +5,10 @@ const defaultState = new List();
 export default (state = defaultState, payload) => {
   switch (payload.type) {
     case 'ADD_CHANNEL': {
+      if (payload.uid === 'notifications') {
+        // Don't add notifications to channel list
+        return state;
+      }
       return state.push(
         new Map({
           name: payload.name,

@@ -1,28 +1,72 @@
 import { Map, List } from 'immutable';
+import { notification } from '../modules/windows-functions';
 
-const defaultState = new List([]);
+const defaultState = new Map({
+  name: '',
+  uid: '',
+  unread: 0,
+  notifications: new List([]),
+});
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
     case 'ADD_MICROSUB_NOTIFICATION': {
-      return state.push(new Map(payload.post));
+      return state.update('notifications', notifications =>
+        notifications.push(new Map(payload.post)),
+      );
     }
     case 'ADD_MICROSUB_NOTIFICATIONS': {
-      payload.posts.forEach(post => (state = state.push(new Map(post))));
-      return state;
+      // TODO: Needs to append not replace
+      return state.update('notifications', notifications =>
+        payload.posts.forEach(
+          post => (notifications = notifications.push(new Map(post))),
+        ),
+      );
     }
     case 'REPLACE_MICROSUB_NOTIFICATIONS': {
-      state = defaultState;
-      payload.posts.forEach(post => (state = state.push(new Map(post))));
-      return state;
+      return state.set(
+        'notifications',
+        new List(payload.posts.map(post => new Map(post))),
+      );
     }
     case 'UPDATE_POST': {
-      const index = state.findIndex(post => post.get('_id') === payload.id);
+      const index = state
+        .get('notifications')
+        .findIndex(post => post.get('_id') === payload.id);
       if (index > -1) {
-        return state.update(index, post =>
-          post.set(payload.key, payload.value),
+        return state.update('notifications', notifications =>
+          notifications.update(index, post =>
+            post.set(payload.key, payload.value),
+          ),
         );
       }
+    }
+    case 'ADD_CHANNEL': {
+      if (payload.uid === 'notifications') {
+        return state
+          .set('uid', payload.uid)
+          .set('name', payload.name)
+          .set('unread', payload.unread);
+      }
+      return state;
+    }
+    case 'UPDATE_CHANNEL': {
+      if (payload.uid === 'notifications' && payload.key === 'unread') {
+        return state.set('unread', payload.value);
+      }
+      return state;
+    }
+    case 'DECREMENT_CHANNEL_UNREAD': {
+      if (payload.uid === 'notifications') {
+        return state.update('unread', unread => (unread ? unread - 1 : 0));
+      }
+      return state;
+    }
+    case 'INCREMENT_CHANNEL_UNREAD': {
+      if (payload.uid === 'notifications') {
+        return state.update('unread', unread => unread + 1);
+      }
+      return state;
     }
     case 'LOGOUT': {
       return defaultState;
