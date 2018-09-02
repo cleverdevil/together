@@ -105,7 +105,11 @@ class ChannelMenu extends React.Component {
   componentDidMount() {
     if (this.props.userId) {
       this.getChannels();
-      this.refreshInterval = setInterval(this.getChannels, refreshTimeout);
+      this.refreshInterval = setInterval(() => {
+        if (document.hasFocus) {
+          this.getChannels();
+        }
+      }, refreshTimeout);
     }
   }
 
@@ -113,7 +117,11 @@ class ChannelMenu extends React.Component {
     if (newProps.userId && this.props.userId !== newProps.userId) {
       this.getChannels();
       if (!this.refreshInterval) {
-        this.refreshInterval = setInterval(this.getChannels, refreshTimeout);
+        this.refreshInterval = setInterval(() => {
+          if (document.hasFocus) {
+            this.getChannels();
+          }
+        }, refreshTimeout);
       }
     }
   }

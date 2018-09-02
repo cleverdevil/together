@@ -5,10 +5,11 @@ export const addPost = post => {
   };
 };
 
-export const addPosts = posts => {
+export const addPosts = (posts, method = 'append') => {
   return {
     type: 'ADD_POSTS',
-    posts: posts,
+    posts,
+    method,
   };
 };
 

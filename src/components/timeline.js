@@ -54,6 +54,7 @@ class Timeline extends React.Component {
     ] = this.infiniteScroll.getVisibleRange();
 
     if (
+      this.props.loadMore &&
       infiniteScrollEnabled &&
       lastVisibleIndex >= this.props.posts.length - 1
     ) {
