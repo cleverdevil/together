@@ -177,6 +177,7 @@ class ClassicView extends React.Component {
           <div ref={this.articleRef} className={this.props.classes.postColumn}>
             <TogetherCard
               post={this.state.post}
+              expandableContent={false}
               style={{
                 margin: 0,
                 minHeight: '100%',
