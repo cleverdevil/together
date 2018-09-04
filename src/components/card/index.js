@@ -59,12 +59,12 @@ const TogetherCard = props => {
   );
 
   const property = (name, El) => {
-    if (
-      item[name] &&
-      Array.isArray(item[name]) &&
-      !props.hideProperties.includes(name)
-    ) {
-      return item[name].map((value, i) => (
+    let value = item[name];
+    if (value && !Array.isArray(value)) {
+      value = [value];
+    }
+    if (value && Array.isArray(value) && !props.hideProperties.includes(name)) {
+      return value.map((value, i) => (
         <El value={value} key={'post-property-' + name + i} />
       ));
     }
@@ -107,6 +107,14 @@ const TogetherCard = props => {
       {property('bookmark-of', ({ value: url }) => (
         <TogetherCardReplyContext
           type="bookmark"
+          url={url}
+          reference={item.refs ? item.refs[url] : null}
+        />
+      ))}
+
+      {property('quotation-of', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="quotation"
           url={url}
           reference={item.refs ? item.refs[url] : null}
         />
