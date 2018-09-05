@@ -4,9 +4,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
+import Toolbar from '@material-ui/core/Toolbar';
+import AppBar from '@material-ui/core/AppBar';
 import CloseIcon from '@material-ui/icons/Close';
 import ReactList from 'react-list';
 import CompressedPost from './compressed-post';
@@ -24,10 +25,12 @@ const styles = theme => ({
     width: '100%',
     height: '100%',
     overflow: 'hidden',
+    zIndex: 1,
   },
   previewColumn: {
     width: '100%',
     overflow: 'auto',
+    overscrollBehaviorY: 'contain',
     borderRight: '1px solid ' + theme.palette.divider,
     flexShrink: 0,
     [theme.breakpoints.up('sm')]: {
@@ -48,6 +51,7 @@ const styles = theme => ({
     height: '100%',
     // iOS hack thing
     overflowY: 'scroll',
+    overscrollBehaviorY: 'contain',
     '-webkit-overflow-scrolling': 'touch',
     [theme.breakpoints.up('sm')]: {
       position: 'relative',
@@ -57,10 +61,6 @@ const styles = theme => ({
     width: '100%',
   },
   closePost: {
-    display: 'block',
-    position: 'fixed',
-    top: 60,
-    right: 10,
     [theme.breakpoints.up('sm')]: {
       display: 'none',
     },
@@ -72,11 +72,30 @@ class ClassicView extends React.Component {
     super(props);
     this.state = {
       post: null,
+      previousPost: null,
+      nextPost: null,
     };
+    this.articleRef = React.createRef();
     this.handleScroll = this.handleScroll.bind(this);
+    this.fillScreen = this.fillScreen.bind(this);
     this.handlePostSelect = this.handlePostSelect.bind(this);
     this.renderItem = this.renderItem.bind(this);
     this.renderLoadMore = this.renderLoadMore.bind(this);
+  }
+
+  componentDidMount() {
+    this.fillScreen();
+  }
+
+  componentWillReceiveProps(newProps) {
+    // TODO: Will need to figure out something for when new content is prepended to the top of the list
+    if (
+      newProps.posts.length > this.props.posts.length &&
+      this.state.post &&
+      this.state.nextPost === null
+    ) {
+      this.setState(state => ({ nextPost: state.nextPost + 1 }));
+    }
   }
 
   handleScroll() {
@@ -85,21 +104,47 @@ class ClassicView extends React.Component {
       'infiniteScroll',
       this.props.channelSettings,
     );
-    if (infiniteScrollEnabled) {
+    if (infiniteScrollEnabled && this.infiniteScroll) {
       const [
         firstVisibleIndex,
         lastVisibleIndex,
       ] = this.infiniteScroll.getVisibleRange();
       if (lastVisibleIndex >= this.props.posts.length - 1) {
-        this.props.loadMore();
+        if (this.props.loadMore) {
+          this.props.loadMore();
+          return null;
+        }
+        return true;
       }
+    }
+    return null;
+  }
+
+  /**
+   * When the first articles are loaded they might not be tall enough to fill the screen so it is impossible to scroll to load more
+   */
+  fillScreen() {
+    // TODO: Should really make this more smart and only run once more posts have loaded
+    const filled = this.handleScroll();
+    if (!filled) {
+      setTimeout(this.fillScreen, 2000);
     }
   }
 
-  handlePostSelect(post) {
+  handlePostSelect(index) {
+    const post = this.props.posts[index];
+    const nextPost = index + 1;
+    const prevPost = index - 1;
     const read = post._is_read;
     post._is_read = true;
-    this.setState({ post: post });
+    this.setState({
+      post,
+      previousPost: prevPost < 0 ? null : prevPost,
+      nextPost: nextPost < this.props.posts.length ? nextPost : null,
+    });
+    if (this.articleRef.current) {
+      this.articleRef.current.scrollTop = 0;
+    }
     // Mark the post as read
     if (!read) {
       postsService
@@ -115,6 +160,10 @@ class ClassicView extends React.Component {
           console.log('Error marking post read', err);
         });
     }
+    // Load the next posts if reading the final post
+    if (index === this.props.posts.length - 1 && this.props.loadMore) {
+      this.props.loadMore();
+    }
   }
 
   renderItem(index, key) {
@@ -122,7 +171,7 @@ class ClassicView extends React.Component {
       <CompressedPost
         key={key}
         post={this.props.posts[index]}
-        onClick={() => this.handlePostSelect(this.props.posts[index])}
+        onClick={() => this.handlePostSelect(index)}
       />
     );
   }
@@ -151,40 +200,64 @@ class ClassicView extends React.Component {
   }
 
   render() {
+    const { classes, posts } = this.props;
+    const { post, nextPost, previousPost } = this.state;
     return (
-      <div className={this.props.classes.wrapper}>
-        <List
-          className={this.props.classes.previewColumn}
-          onScroll={this.handleScroll}
-        >
+      <div className={classes.wrapper}>
+        <List className={classes.previewColumn} onScroll={this.handleScroll}>
           <ReactList
             itemRenderer={this.renderItem}
-            length={this.props.posts.length}
-            type="variable"
+            length={posts.length}
+            type="simple"
+            useTranslate3d={true}
+            minSize={3}
             ref={el => {
               this.infiniteScroll = el;
             }}
           />
           {this.renderLoadMore()}
         </List>
-        {this.state.post && (
-          <div className={this.props.classes.postColumn}>
+        {post && (
+          <div ref={this.articleRef} className={classes.postColumn}>
             <TogetherCard
-              post={this.state.post}
+              post={post}
+              expandableContent={false}
               style={{
                 margin: 0,
-                minHeight: '100%',
+                minHeight: 'calc(100% - 48px)',
                 maxWidth: 700,
                 boxShadow: 'none',
               }}
             />
-            <IconButton
-              aria-label="Close Post"
-              className={this.props.classes.closePost}
-              onClick={() => this.setState({ post: null })}
+            <AppBar
+              position="sticky"
+              color="default"
+              style={{ bottom: 0, maxWidth: 700, boxShadow: 'none' }}
             >
-              <CloseIcon />
-            </IconButton>
+              <Toolbar variant="dense">
+                {previousPost !== null && (
+                  <Button onClick={() => this.handlePostSelect(previousPost)}>
+                    Previous
+                  </Button>
+                )}
+                {nextPost !== null && (
+                  <Button onClick={() => this.handlePostSelect(nextPost)}>
+                    Next
+                  </Button>
+                )}
+                <Button
+                  onClick={() =>
+                    this.setState({
+                      post: null,
+                      nextPost: null,
+                      previousPost: null,
+                    })
+                  }
+                >
+                  Close
+                </Button>
+              </Toolbar>
+            </AppBar>
           </div>
         )}
       </div>

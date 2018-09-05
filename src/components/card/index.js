@@ -29,9 +29,15 @@ const styles = theme => ({
   },
 });
 
-const TogetherCard = props => {
-  const item = props.post;
-
+const TogetherCard = ({
+  post: item,
+  expandableContent,
+  shownActions,
+  hideProperties,
+  style,
+  classes,
+  selectedChannel,
+}) => {
   // Parse author data
   const avatarData = authorToAvatarData(item.author);
 
@@ -41,8 +47,7 @@ const TogetherCard = props => {
     date = moment(item.published).fromNow();
   }
 
-  let shownActions = props.shownActions;
-  if (props.shownActions === null) {
+  if (shownActions === null) {
     shownActions = ['consoleLog', 'markRead'];
     if (item.url) {
       shownActions.push('view');
@@ -59,12 +64,12 @@ const TogetherCard = props => {
   );
 
   const property = (name, El) => {
-    if (
-      item[name] &&
-      Array.isArray(item[name]) &&
-      !props.hideProperties.includes(name)
-    ) {
-      return item[name].map((value, i) => (
+    let value = item[name];
+    if (value && !Array.isArray(value)) {
+      value = [value];
+    }
+    if (value && Array.isArray(value) && !hideProperties.includes(name)) {
+      return value.map((value, i) => (
         <El value={value} key={'post-property-' + name + i} />
       ));
     }
@@ -72,7 +77,7 @@ const TogetherCard = props => {
   };
 
   return (
-    <Card className={props.classes.card} style={props.style}>
+    <Card className={classes.card} style={style}>
       {item.featured && <TogetherCardPhotos photos={item.featured} />}
       <CardHeader
         title={authorNameLink}
@@ -112,6 +117,14 @@ const TogetherCard = props => {
         />
       ))}
 
+      {property('quotation-of', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="quotation"
+          url={url}
+          reference={item.refs ? item.refs[url] : null}
+        />
+      ))}
+
       {property(
         'video',
         ({ value: video }) =>
@@ -131,12 +144,14 @@ const TogetherCard = props => {
       {/* TODO: This hides the single photo if there is a single video but I am not sure that is correct */}
 
       {item.photo &&
-        !props.hideProperties.includes('photo') &&
+        !hideProperties.includes('photo') &&
         (!item.video || item.video.length !== 1) && (
           <TogetherCardPhotos photos={item.photo} />
         )}
 
-      {!item['repost-of'] && <TogetherCardContent post={item} />}
+      {!item['repost-of'] && (
+        <TogetherCardContent expandable={expandableContent} post={item} />
+      )}
 
       {property('checkin', ({ value: location }) => (
         <TogetherCardLocation location={location} author={item.author} />
@@ -147,7 +162,7 @@ const TogetherCard = props => {
 
       <TogetherCardActions
         post={item}
-        channel={props.selectedChannel}
+        channel={selectedChannel}
         shownActions={shownActions}
       />
     </Card>
@@ -158,12 +173,14 @@ TogetherCard.defaultProps = {
   post: {},
   shownActions: null,
   hideProperties: [],
+  expandableContent: true,
 };
 
 TogetherCard.propTypes = {
   post: PropTypes.object.isRequired,
   shownActions: PropTypes.array.isRequired,
   hideProperties: PropTypes.array.isRequired,
+  expandableContent: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, props) {

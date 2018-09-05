@@ -9,32 +9,25 @@ import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import CloseIcon from '@material-ui/icons/Close';
+import NextIcon from '@material-ui/icons/NavigateNext';
+import PrevIcon from '@material-ui/icons/NavigateBefore';
 import Slide from '@material-ui/core/Slide';
 import TogetherCard from './card/index';
 import Carousel from 'nuka-carousel';
-
-const isPermanentDrawer = () =>
-  document.documentElement.clientWidth > 800 ? true : false;
 
 const styles = theme => ({
   loadMore: {
     width: '100%',
     marginTop: 16,
   },
-  carousel: {
-    // width: '100%',
-    // height: '100%',
-    // overflow: 'hidden',
-    // background: theme.palette.primary.dark,
-  },
+  carousel: {},
   popup: {
     boxSizing: 'border-box',
     display: 'flex',
     width: '100vw',
     height: '100vh',
     overflow: 'hidden',
-    background: theme.palette.primary.dark,
-    paddingLeft: isPermanentDrawer() ? 300 : 0,
+    background: '#111',
   },
   popupImage: {
     display: 'block',
@@ -45,30 +38,17 @@ const styles = theme => ({
     height: 'auto',
     boxShadow: '0 0 3em rgba(0,0,0,.5)',
   },
-  popupClose: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
+  button: {
     color: 'white',
-    background: 'rgba(0,0,0,.5)',
-    borderRadius: 0,
-  },
-  infoButton: {
-    position: 'absolute',
-    left: 0,
-    bottom: 0,
-    color: 'white',
-    background: 'none',
-    borderRadius: 0,
+    background: theme.palette.action.active,
   },
   drawer: {
-    // padding: '1em',
+    display: 'block',
     boxSizing: 'border-box',
     width: 300,
     maxWidth: '80%',
     maxHeight: '100%',
     overflow: 'auto',
-    position: isPermanentDrawer() ? 'absolute' : 'fixed',
   },
 });
 
@@ -76,42 +56,37 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
+const alwaysOpenWidth = 800;
+
 class Gallery extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      photos: this.filterPhotos(props.posts),
       open: this.props.open,
       drawerOpen: false,
-      selectedPost: false,
+      selectedPost: props.startIndex,
+      width: document.documentElement.clientWidth,
     };
+    this.handleResize = this.handleResize.bind(this);
     this.handleClose = this.handleClose.bind(this);
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.handleResize);
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.open != this.state.open) {
-      this.setState({ open: newProps.open });
-    }
-    if (newProps.posts && newProps.posts.length != this.props.posts.length) {
-      this.setState({ photos: this.filterPhotos(newProps.posts) });
+      this.setState({ open: newProps.open, selectedPost: null });
     }
   }
 
-  filterPhotos(posts) {
-    const photoPosts = posts.filter(post => post.photo);
-    const photos = [];
-    photoPosts.forEach(post => {
-      if (typeof post.photo === 'string') {
-        post.photo = [post.photo];
-      }
-      post.photo.forEach(photo =>
-        photos.push({
-          photo: photo,
-          post: post,
-        }),
-      );
-    });
-    return photos;
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  handleResize() {
+    this.setState({ width: document.documentElement.clientWidth });
   }
 
   handleClose() {
@@ -122,78 +97,110 @@ class Gallery extends React.Component {
   }
 
   render() {
+    const { width, open, drawerOpen, selectedPost } = this.state;
+    const { classes, startIndex, medias, onLastPhoto, onChange } = this.props;
+    const isPermanentDrawer = width > alwaysOpenWidth;
     return (
       <Dialog
         fullScreen
-        open={this.state.open}
+        open={open}
         onClose={this.handleClose}
-        transition={Transition}
+        TransitionComponent={Transition}
       >
         <Carousel
-          className={this.props.classes.carousel}
-          slideIndex={this.props.startIndex}
+          className={classes.carousel}
+          slideIndex={startIndex}
           afterSlide={index => {
-            if (
-              index >= this.state.photos.length - 1 &&
-              this.props.onLastPhoto
-            ) {
-              this.props.onLastPhoto();
+            this.setState({ selectedPost: index });
+            if (index >= medias.length - 1 && onLastPhoto) {
+              onLastPhoto();
             }
-            if (this.props.onChange) {
-              this.props.onChange(this.state.photos[index]);
+            if (onChange) {
+              onChange(medias[index]);
             }
           }}
+          renderCenterLeftControls={({ previousSlide }) => (
+            <IconButton
+              aria-label="Previous Slide"
+              className={classes.button}
+              style={{ marginLeft: isPermanentDrawer ? 300 : 0 }}
+              onClick={previousSlide}
+            >
+              <PrevIcon />
+            </IconButton>
+          )}
+          renderCenterRightControls={({ nextSlide }) => (
+            <IconButton
+              className={classes.button}
+              onClick={nextSlide}
+              aria-label="Next Slide"
+            >
+              <NextIcon />
+            </IconButton>
+          )}
+          renderBottomLeftControls={() =>
+            !isPermanentDrawer && (
+              <IconButton
+                className={classes.button}
+                onClick={() => this.setState({ drawerOpen: true })}
+                aria-label="Show Post"
+              >
+                <InfoIcon />
+              </IconButton>
+            )
+          }
+          renderTopRightControls={() => (
+            <IconButton
+              aria-label="Close Slides"
+              className={classes.button}
+              onClick={this.handleClose}
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
           renderBottomCenterControls={() => null}
-        >
-          {this.state.photos.map((photo, i) => {
-            const post = photo.post;
-            photo = photo.photo;
+          renderTopLeftControls={({ currentSlide }) => {
+            const post = medias[currentSlide].post;
             return (
-              <div className={this.props.classes.popup} key={`slide-${i}`}>
-                <img
-                  className={this.props.classes.popupImage}
-                  src={photo}
-                  alt=""
-                />
-                <IconButton
-                  className={this.props.classes.infoButton}
-                  onClick={() => this.setState({ drawerOpen: true })}
-                >
-                  <InfoIcon />
-                </IconButton>
-                <Drawer
-                  open={
-                    document.documentElement.clientWidth > 800
-                      ? true
-                      : this.state.drawerOpen
-                  }
-                  variant={
-                    document.documentElement.clientWidth > 800
-                      ? 'permanent'
-                      : null
-                  }
-                  onClose={() => this.setState({ drawerOpen: false })}
-                  classes={{
-                    paperAnchorLeft: this.props.classes.drawer,
-                  }}
-                >
-                  {post && (
-                    <TogetherCard
-                      post={post}
-                      hideProperties={['photo']}
-                      style={{ boxShadow: 'none' }}
-                    />
-                  )}
-                </Drawer>
-                <IconButton
-                  className={this.props.classes.popupClose}
-                  onClick={this.handleClose}
-                >
-                  <CloseIcon />
-                </IconButton>
-              </div>
+              <Drawer
+                open={isPermanentDrawer ? true : this.state.drawerOpen}
+                variant={isPermanentDrawer ? 'permanent' : null}
+                onClose={() => this.setState({ drawerOpen: false })}
+                classes={{
+                  paperAnchorLeft: classes.drawer,
+                }}
+              >
+                {post && (
+                  <TogetherCard
+                    post={post}
+                    hideProperties={['photo', 'video', 'featured']}
+                    style={{ boxShadow: 'none' }}
+                  />
+                )}
+              </Drawer>
             );
-          })}
+          }}
+        >
+          {medias.map(({ photo, video, poster }, i) => (
+            <div
+              className={classes.popup}
+              key={`slide-${i}`}
+              style={{ paddingLeft: isPermanentDrawer ? 300 : 0 }}
+            >
+              {photo && (
+                <img className={classes.popupImage} src={photo} alt="" />
+              )}
+              {video && (
+                <video
+                  className={classes.popupImage}
+                  src={video}
+                  poster={poster}
+                  controls
+                  loop
+                />
+              )}
+            </div>
+          ))}
         </Carousel>
       </Dialog>
     );
@@ -201,11 +208,12 @@ class Gallery extends React.Component {
 }
 
 Gallery.defaultProps = {
-  posts: [],
+  medias: [],
+  startIndex: null,
 };
 
 Gallery.propTypes = {
-  posts: PropTypes.array.isRequired,
+  medias: PropTypes.array.isRequired,
   onClose: PropTypes.func,
   onChange: PropTypes.func,
   onLastPhoto: PropTypes.func,

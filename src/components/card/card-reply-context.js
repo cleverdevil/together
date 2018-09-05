@@ -6,6 +6,7 @@ import LikeIcon from '@material-ui/icons/ThumbUp';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import ReplyIcon from '@material-ui/icons/Reply';
 import RepostIcon from '@material-ui/icons/Repeat';
+import QuoteIcon from '@material-ui/icons/FormatQuote';
 import TogetherCard from './index';
 
 const style = theme => ({
@@ -34,6 +35,9 @@ const TogetherCardReplyContext = ({ type, url, reference, classes }) => {
       break;
     case 'bookmark':
       icon = <BookmarkIcon className={classes.icon} />;
+      break;
+    case 'quotation':
+      icon = <QuoteIcon className={classes.icon} />;
       break;
   }
   return (

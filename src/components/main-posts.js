@@ -20,6 +20,7 @@ import {
   setTimelineAfter,
   setTimelineBefore,
   selectChannel,
+  addNotification,
 } from '../actions';
 
 const styles = theme => ({
@@ -44,6 +45,7 @@ class MainPosts extends React.Component {
     };
 
     this.handleLoadMore = this.handleLoadMore.bind(this);
+    this.checkForNewPosts = this.checkForNewPosts.bind(this);
     this.renderTimelinePosts = this.renderTimelinePosts.bind(this);
   }
 
@@ -57,6 +59,10 @@ class MainPosts extends React.Component {
       const channel = decodeURIComponent(this.props.match.params.channelSlug);
       this.props.selectChannel(channel);
     }
+    this.checkForNewPostsInterval = setInterval(
+      this.checkForNewPosts,
+      1000 * 60,
+    );
   }
 
   componentWillReceiveProps(newProps) {
@@ -126,6 +132,30 @@ class MainPosts extends React.Component {
       newState.layout = foundLayout;
     }
     this.setState(newState);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.checkForNewPostsInterval);
+  }
+
+  checkForNewPosts() {
+    const { selectedChannel, timelineBefore, addNotification } = this.props;
+    if (document.hasFocus && selectedChannel && timelineBefore) {
+      postsService
+        .find({ query: { channel: selectedChannel, before: timelineBefore } })
+        .then(res => {
+          if (res.items && res.items.length) {
+            this.props.addPosts(res.items, 'prepend');
+            addNotification('Loaded new posts');
+          }
+          if (res.paging && res.paging.before) {
+            this.props.setTimelineBefore(res.paging.before);
+          }
+        })
+        .catch(err => {
+          console.log('Error checking for new posts', err);
+        });
+    }
   }
 
   handleLoadMore() {
@@ -253,17 +283,17 @@ function mapStateToProps(state, props) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
     {
-      addPosts: addPosts,
-      setTimelineAfter: setTimelineAfter,
-      setTimelineBefore: setTimelineBefore,
-      selectChannel: selectChannel,
+      addPosts,
+      setTimelineAfter,
+      setTimelineBefore,
+      selectChannel,
+      addNotification,
     },
     dispatch,
   );
-}
 
 export default connect(
   mapStateToProps,

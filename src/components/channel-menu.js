@@ -35,13 +35,15 @@ const styles = theme => ({
     borderRight: '1px solid ' + theme.palette.divider,
   },
   channelTextRoot: {
-    position: 'realtive',
     padding: 0,
+    color: 'inherit',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   button: {
     display: 'block',
     textAlign: 'left',
-    color: theme.palette.text.main,
+    color: theme.palette.text.primary,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -85,6 +87,8 @@ const styles = theme => ({
   },
 });
 
+const refreshTimeout = 1000 * 60;
+
 class ChannelMenu extends React.Component {
   constructor(props) {
     super(props);
@@ -92,6 +96,7 @@ class ChannelMenu extends React.Component {
       newChannelName: '',
       newChannel: false,
     };
+    this.getChannels = this.getChannels.bind(this);
     this.handleAddChannel = this.handleAddChannel.bind(this);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.renderChannelForm = this.renderChannelForm.bind(this);
@@ -100,34 +105,44 @@ class ChannelMenu extends React.Component {
 
   componentDidMount() {
     if (this.props.userId) {
-      channelsService
-        .find({})
-        .then(channels => {
-          channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid, channel.unread);
-          });
-        })
-        .catch(err => {
-          console.log('Error getting channels');
-          console.log(err);
-        });
+      this.getChannels();
+      this.refreshInterval = setInterval(() => {
+        if (document.hasFocus) {
+          this.getChannels();
+        }
+      }, refreshTimeout);
     }
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.userId && this.props.userId !== newProps.userId) {
-      channelsService
-        .find({})
-        .then(channels => {
-          channels.forEach(channel => {
-            this.props.addChannel(channel.name, channel.uid, channel.unread);
-          });
-        })
-        .catch(err => {
-          console.log('Error getting channels');
-          console.log(err);
-        });
+      this.getChannels();
+      if (!this.refreshInterval) {
+        this.refreshInterval = setInterval(() => {
+          if (document.hasFocus) {
+            this.getChannels();
+          }
+        }, refreshTimeout);
+      }
     }
+  }
+
+  componentWillUnmount() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+  }
+
+  getChannels() {
+    channelsService
+      .find({})
+      .then(channels =>
+        channels.forEach(channel =>
+          this.props.addChannel(channel.name, channel.uid, channel.unread),
+        ),
+      )
+      .catch(err => console.log('Error getting channels', err));
   }
 
   handleClose() {
@@ -158,6 +173,7 @@ class ChannelMenu extends React.Component {
       return;
     }
     this.props.reorderChannels(result.source.index, result.destination.index);
+    console.log(this.props.channels.map(channel => channel.uid));
     channelsService
       .patch(null, { order: this.props.channels.map(channel => channel.uid) })
       .then(channels => this.props.addNotification('Channel order saved'))
@@ -249,8 +265,9 @@ class ChannelMenu extends React.Component {
                                   <ListItem button>
                                     <ListItemText
                                       classes={{
-                                        primary: textClassName,
                                         root: this.props.classes
+                                          .channelTextRoot,
+                                        primary: this.props.classes
                                           .channelTextRoot,
                                       }}
                                       primary={

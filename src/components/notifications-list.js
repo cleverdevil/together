@@ -9,12 +9,19 @@ import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import HasNotificationsIcon from '@material-ui/icons/NotificationsActive';
+import MarkAllReadIcon from '@material-ui/icons/ClearAll';
 import TogetherCard from './card/index';
 import {
   addMicrosubNotifications,
   replaceMicrosubNotifications,
+  updatePost,
+  updateChannel,
+  addNotification,
 } from '../actions';
 import { posts as postsService } from '../modules/feathers-services';
 
@@ -73,6 +80,7 @@ class NotificationsList extends React.Component {
     };
     this.loadNotifications = this.loadNotifications.bind(this);
     this.loadMore = this.loadMore.bind(this);
+    this.handleMarkAllRead = this.handleMarkAllRead.bind(this);
   }
 
   loadNotifications() {
@@ -125,23 +133,60 @@ class NotificationsList extends React.Component {
       });
   }
 
+  handleMarkAllRead(e) {
+    const uid = 'notifications';
+    const {
+      notifications,
+      updatePost,
+      updateChannel,
+      addNotification,
+    } = this.props;
+
+    postsService
+      .update(null, {
+        method: 'mark_read',
+        channel: uid,
+        last_read_entry: notifications[0]._id,
+      })
+      .then(res => {
+        notifications.forEach(post => {
+          if (!post._is_read) {
+            updatePost(post._id, '_is_read', true);
+          }
+        });
+        updateChannel(uid, 'unread', 0);
+        addNotification('Marked all notifications as read');
+      })
+      .catch(err => {
+        console.log('Error marking notifications as read', err);
+        addNotification('Error marking notifications as read', 'error');
+      });
+  }
+
   render() {
     const { open, anchor, loading, after } = this.state;
     const {
+      exists,
       classes,
+      name,
       notifications,
-      notificationCount: count,
+      unread,
       buttonClass,
     } = this.props;
+
+    if (!exists) {
+      return null;
+    }
+
     return (
       <React.Fragment>
-        <Tooltip title={`Notifications (${count})`} placement="bottom">
+        <Tooltip title={`${name} (${unread})`} placement="bottom">
           <span className={classes.icon}>
             <IconButton
               className={
                 loading ? classes.loadingIcon + ' ' + buttonClass : buttonClass
               }
-              aria-label={`Notifications (${count})`}
+              aria-label={`Notifications (${unread})`}
               onClick={e => {
                 if (!open) {
                   this.loadNotifications();
@@ -151,7 +196,7 @@ class NotificationsList extends React.Component {
                 }
               }}
             >
-              {count > 0 ? <HasNotificationsIcon /> : <NotificationsIcon />}
+              {unread > 0 ? <HasNotificationsIcon /> : <NotificationsIcon />}
             </IconButton>
             {loading &&
               !open && (
@@ -180,11 +225,13 @@ class NotificationsList extends React.Component {
           <div className={classes.container}>
             {notifications.map(post => (
               <React.Fragment key={'notification-' + post._id}>
-                <TogetherCard
-                  style={{ boxShadow: 'none' }}
-                  post={post}
-                  channel="notifications"
-                />
+                <div style={{ opacity: post._is_read ? 0.5 : 1 }}>
+                  <TogetherCard
+                    style={{ boxShadow: 'none' }}
+                    post={post}
+                    channel="notifications"
+                  />
+                </div>
                 <Divider />
               </React.Fragment>
             ))}
@@ -199,6 +246,27 @@ class NotificationsList extends React.Component {
               </Button>
             )}
           </div>
+          <AppBar position="sticky" color="default" style={{ bottom: 0 }}>
+            <Toolbar variant="dense">
+              <Typography
+                variant="subheading"
+                color="inherit"
+                style={{ flexGrow: 1 }}
+              >
+                {name}
+              </Typography>
+              {unread > 0 && (
+                <Tooltip title={`Mark all read`} placement="top">
+                  <IconButton
+                    aria-label={`Mark all notifications as read`}
+                    onClick={this.handleMarkAllRead}
+                  >
+                    <MarkAllReadIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Toolbar>
+          </AppBar>
         </Popover>
       </React.Fragment>
     );
@@ -206,42 +274,41 @@ class NotificationsList extends React.Component {
 }
 
 NotificationsList.defaultProps = {
+  exists: false,
+  name: 'Notifications',
+  unread: 0,
   notifications: [],
   buttonClass: '',
 };
 
 NotificationsList.propTypes = {
+  exists: PropTypes.bool.isRequired,
+  name: PropTypes.string.isRequired,
+  unread: PropTypes.number.isRequired,
   notifications: PropTypes.array.isRequired,
-  notificationCount: PropTypes.number.isRequired,
   buttonClass: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => {
-  let count = 0;
-  if (state.channels && state.channels.find) {
-    const notificationsChannel = state.channels
-      .toJS()
-      .find(channel => channel.uid == 'notifications');
-    if (notificationsChannel && notificationsChannel.unread) {
-      count = notificationsChannel.unread;
-    }
-  }
-
   return {
-    notificationCount: count,
-    notifications: state.notifications.toJS(),
+    exists: state.notifications.get('uid') === 'notifications',
+    name: state.notifications.get('name'),
+    unread: state.notifications.get('unread'),
+    notifications: state.notifications.get('notifications').toJS(),
   };
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
     {
       addMicrosubNotifications,
       replaceMicrosubNotifications,
+      updatePost,
+      updateChannel,
+      addNotification,
     },
     dispatch,
   );
-}
 
 export default connect(
   mapStateToProps,

@@ -1,4 +1,9 @@
 import { Map } from 'immutable';
+import {
+  getTheme,
+  changeTitleBarTheme,
+  notification as windowsNotification,
+} from '../modules/windows-functions';
 
 const defaultState = new Map({
   channelsMenuOpen: false,
@@ -6,8 +11,10 @@ const defaultState = new Map({
   timelineBefore: '',
   timelineAfter: '',
   notifications: [],
-  theme: localStorage.getItem('together-theme') || 'light',
+  theme: localStorage.getItem('together-theme') || getTheme() || 'light',
 });
+
+changeTitleBarTheme(defaultState.get('theme'));
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
@@ -40,6 +47,7 @@ export default (state = defaultState, payload) => {
     case 'TOGGLE_THEME': {
       const newTheme = state.get('theme') == 'light' ? 'dark' : 'light';
       localStorage.setItem('together-theme', newTheme);
+      changeTitleBarTheme(newTheme);
       return state.set('theme', newTheme);
     }
     case 'LOGOUT': {

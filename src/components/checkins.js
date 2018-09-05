@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Dimensions from 'react-dimensions';
 import ReactMapGL, { Marker } from 'react-map-gl';
-// import WebMercatorViewport from 'viewport-mercator-project';
+import WebMercatorViewport from 'viewport-mercator-project';
 import MapMarker from './map-marker';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -18,23 +18,30 @@ class CheckinMap extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lat: 0,
-      lng: 0,
-      zoom: 1,
+      viewport: new WebMercatorViewport({
+        latitude: 33.589062,
+        longitude: -21.357864,
+        zoom: 1.5,
+        width: props.containerWidth,
+        height: document.body.clientHeight - 64, // The toolbar is 64px tall,
+      }),
       markers: [],
     };
+    this.setMarkers = this.setMarkers.bind(this);
+    this.zoomToPosts = this.zoomToPosts.bind(this);
   }
 
   isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
-  componentDidMount() {
-    let bounds = false;
-
-    let posts = this.props.posts.map((post, i) => {
+  setMarkers(posts) {
+    posts = posts.map((post, i) => {
       let lat = false;
       let lng = false;
+      if (post.marker) {
+        return post;
+      }
       if (
         post.location &&
         this.isNumeric(post.location.latitude) &&
@@ -53,23 +60,6 @@ class CheckinMap extends React.Component {
       if (lat === false || lng === false) {
         return null;
       } else {
-        // Expand the bounds to fit the marker
-        if (!bounds && lat !== false && lng !== false) {
-          bounds = [[lat, lng], [lat, lng]];
-        } else {
-          if (lat < bounds[0][0]) {
-            bounds[0][0] = lat;
-          }
-          if (lat > bounds[1][0]) {
-            bounds[1][0] = lat;
-          }
-          if (lng < bounds[0][1]) {
-            bounds[0][1] = lng;
-          }
-          if (lng > bounds[1][1]) {
-            bounds[1][1] = lng;
-          }
-        }
         post.marker = {
           lat: lat,
           lng: lng,
@@ -77,42 +67,72 @@ class CheckinMap extends React.Component {
         return post;
       }
     });
-
-    posts.filter(post => post);
+    posts = posts.filter(post => post);
     this.setState({ markers: posts });
+    this.zoomToPosts(posts);
+  }
 
-    if (bounds) {
-      // const viewport = new WebMercatorViewport({
-      //   width: this.props.containerWidth,
-      //   height: document.body.clientHeight,
-      // });
-      // This doesn't work at the moment for reasons I don't understand
-      // const bound = viewport.fitBounds(bounds, { padding: 20 });
-      // this.setState({
-      //   lat: bound.latitude,
-      //   lng: bound.longitude,
-      //   zoom: bound.zoom,
-      // });
+  zoomToPosts(posts) {
+    const markers = posts.map(post => post.marker);
+    if (markers.length) {
+      let maxLat = markers[0].lat;
+      let maxLng = markers[0].lng;
+      let minLat = markers[0].lat;
+      let minLng = markers[0].lng;
+      markers.forEach(marker => {
+        const { lat, lng } = marker;
+        if (lat > maxLat) {
+          maxLat = lat;
+        }
+        if (lng > maxLng) {
+          maxLng = lng;
+        }
+        if (lng < minLng) {
+          minLng = lng;
+        }
+        if (lat < minLat) {
+          minLat = lat;
+        }
+      });
+      if (maxLat != minLat && maxLng != minLng) {
+        const bounds = [[maxLng, maxLat], [minLng, minLat]];
+        const boundedViewport = this.state.viewport.fitBounds(bounds, {
+          padding: 30,
+        });
+        this.setState({
+          viewport: new WebMercatorViewport(boundedViewport),
+        });
+      } else if (markers.length === 1) {
+        const viewport = Object.assign({}, this.state.viewport, {
+          latitude: markers[0].lat,
+          longitude: markers[0].lng,
+          zoom: this.state.viewport.zoom > 8 ? this.state.viewport.zoom : 11,
+        });
+        this.setState({ viewport: new WebMercatorViewport(viewport) });
+      }
+    }
+  }
+
+  componentDidMount() {
+    this.setMarkers(this.props.posts);
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.posts.length != this.state.markers.length) {
+      this.setMarkers(newProps.posts);
     }
   }
 
   render() {
     return (
       <ReactMapGL
-        width={this.props.containerWidth}
-        height={window.innerHeight - 64} // 64 = height of the title
-        latitude={this.state.lat}
-        longitude={this.state.lng}
-        zoom={this.state.zoom}
+        {...this.state.viewport}
         className={this.props.classes.map}
         mapStyle="mapbox://styles/mapbox/basic-v9"
         mapboxApiAccessToken="pk.eyJ1IjoiZ3JhbnRjb2RlcyIsImEiOiJjamJ3ZTk3czYyOHAxMzNyNmo4cG4zaGFqIn0.9tRVGo4SgVgns3khwoO0gA"
         onViewportChange={viewport => {
-          const { width, height, latitude, longitude, zoom } = viewport;
           this.setState({
-            lat: latitude,
-            lng: longitude,
-            zoom: zoom,
+            viewport: new WebMercatorViewport(viewport),
           });
         }}
       >
@@ -144,6 +164,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(
-  Dimensions()(withStyles(styles)(CheckinMap)),
-);
+export default connect(
+  null,
+  mapDispatchToProps,
+)(Dimensions()(withStyles(styles)(CheckinMap)));

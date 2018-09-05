@@ -8,7 +8,13 @@ export default (state = defaultState, payload) => {
       return state.push(new Map(payload.post));
     }
     case 'ADD_POSTS': {
-      payload.posts.forEach(post => (state = state.push(new Map(post))));
+      if (payload.method === 'append') {
+        payload.posts.forEach(post => (state = state.push(new Map(post))));
+      } else if (payload.method === 'prepend') {
+        payload.posts
+          .reverse()
+          .forEach(post => (state = state.unshift(new Map(post))));
+      }
       return state;
     }
     case 'UPDATE_POST': {
