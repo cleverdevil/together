@@ -37,6 +37,7 @@ const styles = theme => ({
   channelTextRoot: {
     padding: 0,
     color: 'inherit',
+    overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   button: {
