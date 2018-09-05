@@ -32,6 +32,7 @@ const styles = theme => ({
     padding: 10,
     maxWidth: 'calc(100vw - 90px)',
     maxHeight: '100vh',
+    zIndex: 2,
   },
   fabButton: {
     width: 56,
