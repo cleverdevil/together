@@ -27,6 +27,13 @@ const styles = theme => ({
     width: '100%',
     marginTop: 16,
   },
+  video: {
+    left: '50%',
+    height: '100%',
+    width: 'auto',
+    position: 'relative',
+    transform: 'translateX(-50%)',
+  },
 });
 
 const contentWidth = document.getElementById('root').clientWidth - 49;
@@ -37,8 +44,8 @@ class Gallery extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      photos: [],
-      selectedPhotoIndex: false,
+      medias: [],
+      selectedMediaIndex: false,
     };
     this.markPostRead = this.markPostRead.bind(this);
     this.handleScroll = this.handleScroll.bind(this);
@@ -55,21 +62,52 @@ class Gallery extends React.Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.posts && newProps.posts != this.props.posts) {
-      const photoPosts = newProps.posts.filter(post => post.photo);
-      const photos = [];
-      photoPosts.forEach(post => {
-        if (typeof post.photo === 'string') {
-          post.photo = [post.photo];
+      const medias = [];
+      newProps.posts.forEach(post => {
+        if (
+          post.photo &&
+          post.video &&
+          post.photo.length === 1 &&
+          post.video.length == 1
+        ) {
+          // This is a video with a poster
+          medias.push({ post, video: post.video[0], poster: post.photo[0] });
+        } else {
+          if (post.photo) {
+            if (typeof post.photo === 'string') {
+              post.photo = [post.photo];
+            }
+            post.photo.forEach(photo =>
+              medias.push({
+                post,
+                photo,
+              }),
+            );
+          }
+
+          if (post.featured) {
+            if (typeof post.featured === 'string') {
+              post.featured = [post.featured];
+            }
+            post.featured.forEach(featured =>
+              medias.push({
+                post,
+                photo: featured,
+              }),
+            );
+          }
+
+          if (post.video) {
+            if (typeof post.video === 'string') {
+              post.video = [post.video];
+            }
+            post.video.forEach(video => medias.push({ post, video }));
+          }
         }
-        post.photo.forEach(photo =>
-          photos.push({
-            photo: resizeImage(photo, { w: 300, h: 300, t: 'square' }),
-            post: post,
-          }),
-        );
       });
-      if (photos.length != this.state.photos.length) {
-        this.setState({ photos: photos });
+
+      if (medias.length != this.state.medias.length) {
+        this.setState({ medias: medias });
       }
     }
   }
@@ -158,7 +196,7 @@ class Gallery extends React.Component {
 
   renderRow(rowIndex, key) {
     const startIndex = rowIndex * columnCount;
-    const photos = this.state.photos.slice(
+    const medias = this.state.medias.slice(
       startIndex,
       startIndex + columnCount,
     );
@@ -169,8 +207,9 @@ class Gallery extends React.Component {
         cols={columnCount}
         cellHeight={cellHeight}
       >
-        {photos.map((photo, index) => {
-          const post = photo.post;
+        {medias.map((media, rowItemIndex) => {
+          const index = startIndex + rowItemIndex;
+          const post = media.post;
           const avatarData = authorToAvatarData(post.author);
 
           return (
@@ -178,12 +217,30 @@ class Gallery extends React.Component {
               key={post._id + index}
               cols={1}
               onClick={e => {
-                this.setState({ selectedPhotoIndex: index });
+                this.setState({ selectedMediaIndex: index });
                 this.markPostRead(post._id);
               }}
               style={{ height: cellHeight, width: 100 / columnCount + '%' }}
             >
-              <img src={photo.photo} alt="" />
+              {media.photo && (
+                <img
+                  src={resizeImage(media.photo, {
+                    w: 300,
+                    h: 300,
+                    t: 'square',
+                  })}
+                  alt=""
+                />
+              )}
+              {media.video && (
+                <video
+                  className={this.props.classes.video}
+                  src={media.video}
+                  poster={media.poster}
+                  controls
+                  loop
+                />
+              )}
               <GridListTileBar
                 title={post.name || (post.content && post.content.text) || ''}
                 subtitle={avatarData.alt}
@@ -232,8 +289,8 @@ class Gallery extends React.Component {
         >
           <ReactList
             itemRenderer={this.renderRow}
-            length={Math.ceil(this.state.photos.length / columnCount)}
-            type="uniform"
+            length={Math.ceil(this.state.medias.length / columnCount)}
+            type="simple"
             useTranslate3d={true}
             minSize={3}
             ref={el => {
@@ -243,12 +300,13 @@ class Gallery extends React.Component {
           {this.renderLoadMore()}
         </div>
 
-        {this.state.selectedPhotoIndex !== false && (
+        {this.state.selectedMediaIndex !== false && (
           <GallerySlider
             posts={this.props.posts}
-            startIndex={this.state.selectedPhotoIndex}
+            medias={this.state.medias}
+            startIndex={this.state.selectedMediaIndex}
             onChange={this.handleGallerySliderChange}
-            onClose={() => this.setState({ selectedPhotoIndex: false })}
+            onClose={() => this.setState({ selectedMediaIndex: false })}
             onLastPhoto={() => {
               const infiniteScrollEnabled = getChannelSetting(
                 this.props.selectedChannel,

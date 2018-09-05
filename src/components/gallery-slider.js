@@ -29,7 +29,7 @@ const styles = theme => ({
     width: '100vw',
     height: '100vh',
     overflow: 'hidden',
-    background: theme.palette.primary.dark,
+    background: '#111',
   },
   popupImage: {
     display: 'block',
@@ -71,7 +71,6 @@ class Gallery extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      photos: this.filterPhotos(props.posts),
       open: this.props.open,
       selectedPost: false,
     };
@@ -82,26 +81,6 @@ class Gallery extends React.Component {
     if (newProps.open != this.state.open) {
       this.setState({ open: newProps.open });
     }
-    if (newProps.posts && newProps.posts.length != this.props.posts.length) {
-      this.setState({ photos: this.filterPhotos(newProps.posts) });
-    }
-  }
-
-  filterPhotos(posts) {
-    const photoPosts = posts.filter(post => post.photo);
-    const photos = [];
-    photoPosts.forEach(post => {
-      if (typeof post.photo === 'string') {
-        post.photo = [post.photo];
-      }
-      post.photo.forEach(photo =>
-        photos.push({
-          photo: photo,
-          post: post,
-        }),
-      );
-    });
-    return photos;
   }
 
   handleClose() {
@@ -124,27 +103,37 @@ class Gallery extends React.Component {
           slideIndex={this.props.startIndex}
           afterSlide={index => {
             if (
-              index >= this.state.photos.length - 1 &&
+              index >= this.props.medias.length - 1 &&
               this.props.onLastPhoto
             ) {
               this.props.onLastPhoto();
             }
             if (this.props.onChange) {
-              this.props.onChange(this.state.photos[index]);
+              this.props.onChange(this.props.medias[index]);
             }
           }}
           renderBottomCenterControls={() => null}
         >
-          {this.state.photos.map((photo, i) => {
-            const post = photo.post;
-            photo = photo.photo;
+          {this.props.medias.map((media, i) => {
+            const { post, photo, video, poster } = media;
             return (
               <div className={this.props.classes.popup} key={`slide-${i}`}>
-                <img
-                  className={this.props.classes.popupImage}
-                  src={photo}
-                  alt=""
-                />
+                {photo && (
+                  <img
+                    className={this.props.classes.popupImage}
+                    src={photo}
+                    alt=""
+                  />
+                )}
+                {video && (
+                  <video
+                    className={this.props.classes.popupImage}
+                    src={video}
+                    poster={poster}
+                    controls
+                    loop
+                  />
+                )}
                 <IconButton
                   className={this.props.classes.infoButton}
                   onClick={() => this.setState({ selectedPost: post })}
@@ -182,11 +171,11 @@ class Gallery extends React.Component {
 }
 
 Gallery.defaultProps = {
-  posts: [],
+  medias: [],
 };
 
 Gallery.propTypes = {
-  posts: PropTypes.array.isRequired,
+  medias: PropTypes.array.isRequired,
   onClose: PropTypes.func,
   onChange: PropTypes.func,
   onLastPhoto: PropTypes.func,
