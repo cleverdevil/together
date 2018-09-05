@@ -229,7 +229,11 @@ class ClassicView extends React.Component {
                 boxShadow: 'none',
               }}
             />
-            <AppBar position="sticky" color="default" style={{ bottom: 0 }}>
+            <AppBar
+              position="sticky"
+              color="default"
+              style={{ bottom: 0, maxWidth: 700, boxShadow: 'none' }}
+            >
               <Toolbar variant="dense">
                 {previousPost !== null && (
                   <Button onClick={() => this.handlePostSelect(previousPost)}>
