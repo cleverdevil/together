@@ -99,7 +99,8 @@ class Gallery extends React.Component {
   render() {
     const { width, open, drawerOpen, selectedPost } = this.state;
     const { classes, startIndex, medias, onLastPhoto, onChange } = this.props;
-    const isPermanentDrawer = width > alwaysOpenWidth;
+    const isPermanentDrawer =
+      medias.find(media => media.post) && width > alwaysOpenWidth;
     return (
       <Dialog
         fullScreen
@@ -138,8 +139,17 @@ class Gallery extends React.Component {
               <NextIcon />
             </IconButton>
           )}
-          renderBottomLeftControls={() =>
-            !isPermanentDrawer && (
+          renderBottomLeftControls={({ currentSlide }) => {
+            if (
+              !medias ||
+              typeof currentSlide === 'undefined' ||
+              !medias[currentSlide] ||
+              !medias[currentSlide].post ||
+              isPermanentDrawer
+            ) {
+              return null;
+            }
+            return (
               <IconButton
                 className={classes.button}
                 onClick={() => this.setState({ drawerOpen: true })}
@@ -147,8 +157,8 @@ class Gallery extends React.Component {
               >
                 <InfoIcon />
               </IconButton>
-            )
-          }
+            );
+          }}
           renderTopRightControls={() => (
             <IconButton
               aria-label="Close Slides"
@@ -160,6 +170,14 @@ class Gallery extends React.Component {
           )}
           renderBottomCenterControls={() => null}
           renderTopLeftControls={({ currentSlide }) => {
+            if (
+              !medias ||
+              typeof currentSlide === 'undefined' ||
+              !medias[currentSlide] ||
+              !medias[currentSlide].post
+            ) {
+              return null;
+            }
             const post = medias[currentSlide].post;
             return (
               <Drawer

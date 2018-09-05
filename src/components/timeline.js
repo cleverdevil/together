@@ -49,7 +49,6 @@ class Timeline extends React.Component {
   }
 
   handleScroll(markRead = true) {
-    console.log('Handling scroll', markRead);
     if (this.infiniteScroll) {
       const infiniteScrollEnabled = getChannelSetting(
         this.props.selectedChannel,
