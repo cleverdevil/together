@@ -80,7 +80,10 @@ class TogetherCardContent extends React.Component {
             />
           )}
 
-        <Collapse in={!expandable || expanded} collapsedHeight="5em">
+        <Collapse
+          in={!expandable || expanded}
+          collapsedHeight={expandable ? '5em' : null}
+        >
           {post.content && post.content.html ? (
             <Typography
               component="div"

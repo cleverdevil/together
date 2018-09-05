@@ -38,50 +38,70 @@ class Timeline extends React.Component {
     super(props);
     this.state = {};
     this.handleScroll = this.handleScroll.bind(this);
+    this.fillScreen = this.fillScreen.bind(this);
     this.renderItem = this.renderItem.bind(this);
     this.renderLoadMore = this.renderLoadMore.bind(this);
   }
 
-  handleScroll() {
-    const infiniteScrollEnabled = getChannelSetting(
-      this.props.selectedChannel,
-      'infiniteScroll',
-      this.props.channelSettings,
-    );
-    const [
-      firstVisibleIndex,
-      lastVisibleIndex,
-    ] = this.infiniteScroll.getVisibleRange();
+  componentDidMount() {
+    // Wait a little bit to see if we should load more posts
+    setTimeout(this.fillScreen, 3000);
+  }
 
-    if (
-      this.props.loadMore &&
-      infiniteScrollEnabled &&
-      lastVisibleIndex >= this.props.posts.length - 1
-    ) {
-      this.props.loadMore();
-    }
+  handleScroll(markRead = true) {
+    console.log('Handling scroll', markRead);
+    if (this.infiniteScroll) {
+      const infiniteScrollEnabled = getChannelSetting(
+        this.props.selectedChannel,
+        'infiniteScroll',
+        this.props.channelSettings,
+      );
+      const autoReadEnabled = getChannelSetting(
+        this.props.selectedChannel,
+        'autoRead',
+        this.props.channelSettings,
+      );
+      const [
+        firstVisibleIndex,
+        lastVisibleIndex,
+      ] = this.infiniteScroll.getVisibleRange();
 
-    const autoReadEnabled = getChannelSetting(
-      this.props.selectedChannel,
-      'autoRead',
-      this.props.channelSettings,
-    );
-    if (autoReadEnabled) {
-      for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-        const post = this.props.posts[i];
-        if (!post._is_read) {
-          this.props.updatePost(post._id, '_is_read', true);
-          postsService
-            .update(post._id, {
-              channel: this.props.selectedChannel,
-              method: 'mark_read',
-            })
-            .then(res =>
-              this.props.decrementChannelUnread(this.props.selectedChannel),
-            )
-            .catch(err => this.props.updatePost(post._id, '_is_read', false));
+      if (autoReadEnabled && markRead) {
+        for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+          const post = this.props.posts[i];
+          if (!post._is_read) {
+            this.props.updatePost(post._id, '_is_read', true);
+            postsService
+              .update(post._id, {
+                channel: this.props.selectedChannel,
+                method: 'mark_read',
+              })
+              .then(res =>
+                this.props.decrementChannelUnread(this.props.selectedChannel),
+              )
+              .catch(err => this.props.updatePost(post._id, '_is_read', false));
+          }
         }
       }
+
+      if (
+        infiniteScrollEnabled &&
+        lastVisibleIndex >= this.props.posts.length - 1
+      ) {
+        if (this.props.loadMore) {
+          this.props.loadMore();
+          return null;
+        }
+        return true;
+      }
+    }
+    return null;
+  }
+
+  fillScreen() {
+    const filled = this.handleScroll(false);
+    if (!filled) {
+      setTimeout(this.fillScreen, 2000);
     }
   }
 
@@ -117,7 +137,9 @@ class Timeline extends React.Component {
         <ReactList
           itemRenderer={this.renderItem}
           length={this.props.posts.length}
-          type="variable"
+          type="simple"
+          useTranslate3d={true}
+          minSize={3}
           ref={el => {
             this.infiniteScroll = el;
           }}

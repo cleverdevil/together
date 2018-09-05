@@ -42,10 +42,15 @@ class Gallery extends React.Component {
     };
     this.markPostRead = this.markPostRead.bind(this);
     this.handleScroll = this.handleScroll.bind(this);
+    this.fillScreen = this.fillScreen.bind(this);
     this.handleGallerySliderChange = this.handleGallerySliderChange.bind(this);
-    this.renderItem = this.renderItem.bind(this);
-    this.renderGallery = this.renderGallery.bind(this);
+    this.renderRow = this.renderRow.bind(this);
     this.renderLoadMore = this.renderLoadMore.bind(this);
+  }
+
+  componentDidMount() {
+    // Wait a little bit to see if we should load more images
+    setTimeout(this.fillScreen, 3000);
   }
 
   componentWillReceiveProps(newProps) {
@@ -82,39 +87,58 @@ class Gallery extends React.Component {
       .catch(err => this.props.updatePost(postId, '_is_read', false));
   }
 
-  handleScroll() {
-    const infiniteScrollEnabled = getChannelSetting(
-      this.props.selectedChannel,
-      'infiniteScroll',
-      this.props.channelSettings,
-    );
-    const [
-      firstVisibleIndex,
-      lastVisibleIndex,
-    ] = this.infiniteScroll.getVisibleRange();
-    const scrollEl = this.infiniteScroll.scrollParent;
-    if (
-      infiniteScrollEnabled &&
-      scrollEl.scrollTop > scrollEl.scrollHeight - scrollEl.clientHeight - 5
-    ) {
-      this.props.loadMore();
+  handleScroll(markRead = true) {
+    if (this.infiniteScroll) {
+      const autoReadEnabled = getChannelSetting(
+        this.props.selectedChannel,
+        'autoRead',
+        this.props.channelSettings,
+      );
+      const infiniteScrollEnabled = getChannelSetting(
+        this.props.selectedChannel,
+        'infiniteScroll',
+        this.props.channelSettings,
+      );
+      let [
+        firstVisibleIndex,
+        lastVisibleIndex,
+      ] = this.infiniteScroll.getVisibleRange();
+      firstVisibleIndex = firstVisibleIndex * columnCount;
+      lastVisibleIndex = lastVisibleIndex * columnCount + columnCount;
+      const scrollEl = this.infiniteScroll.scrollParent;
+
+      if (autoReadEnabled && markRead) {
+        for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
+          const post = this.props.posts[i];
+          if (post && !post._is_read) {
+            this.markPostRead(post._id);
+          }
+        }
+      }
+
+      if (
+        infiniteScrollEnabled &&
+        scrollEl.scrollTop > scrollEl.scrollHeight - scrollEl.clientHeight - 5
+      ) {
+        if (this.props.loadMore) {
+          this.props.loadMore();
+          return null;
+        }
+        return true;
+      }
     }
+    return null;
+  }
 
-    const autoReadEnabled = getChannelSetting(
-      this.props.selectedChannel,
-      'autoRead',
-      this.props.channelSettings,
-    );
-
-    // This doesn't work with the ReactList type = simple
-    // if (autoReadEnabled) {
-    //   for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-    //     const post = this.props.posts[i];
-    //     if (!post._is_read) {
-    //       this.markPostRead(post._id);
-    //     }
-    //   }
-    // }
+  /**
+   * When the first articles are loaded they might not be tall enough to fill the screen so it is impossible to scroll to load more
+   */
+  fillScreen() {
+    // TODO: Should really make this more smart and wait for posts to load
+    const filled = this.handleScroll(false);
+    if (!filled) {
+      setTimeout(this.fillScreen, 2000);
+    }
   }
 
   handleGallerySliderChange(post) {
@@ -132,41 +156,47 @@ class Gallery extends React.Component {
     }
   }
 
-  renderItem(index, key) {
-    const post = this.state.photos[index].post;
-    const photo = this.state.photos[index].photo;
-    const avatarData = authorToAvatarData(post.author);
-    return (
-      <GridListTile
-        key={key}
-        cols={1}
-        onClick={e => {
-          this.setState({ selectedPhotoIndex: index });
-          this.markPostRead(post._id);
-        }}
-        style={{ height: cellHeight, width: 100 / columnCount + '%' }}
-      >
-        <img src={photo} alt="" />
-        <GridListTileBar
-          title={post.name || (post.content && post.content.text) || ''}
-          subtitle={avatarData.alt}
-          actionIcon={
-            <div style={{ marginRight: 14 }}>
-              <AuthorAvatar author={post.author} />
-            </div>
-          }
-        />
-      </GridListTile>
+  renderRow(rowIndex, key) {
+    const startIndex = rowIndex * columnCount;
+    const photos = this.state.photos.slice(
+      startIndex,
+      startIndex + columnCount,
     );
-  }
-
-  renderGallery(items, ref) {
     return (
-      <div ref={ref}>
-        <GridList cellHeight={cellHeight} cols={columnCount} spacing={0}>
-          {items}
-        </GridList>
-      </div>
+      <GridList
+        key={key}
+        spacing={0}
+        cols={columnCount}
+        cellHeight={cellHeight}
+      >
+        {photos.map((photo, index) => {
+          const post = photo.post;
+          const avatarData = authorToAvatarData(post.author);
+
+          return (
+            <GridListTile
+              key={post._id + index}
+              cols={1}
+              onClick={e => {
+                this.setState({ selectedPhotoIndex: index });
+                this.markPostRead(post._id);
+              }}
+              style={{ height: cellHeight, width: 100 / columnCount + '%' }}
+            >
+              <img src={photo.photo} alt="" />
+              <GridListTileBar
+                title={post.name || (post.content && post.content.text) || ''}
+                subtitle={avatarData.alt}
+                actionIcon={
+                  <div style={{ marginRight: 14 }}>
+                    <AuthorAvatar author={post.author} />
+                  </div>
+                }
+              />
+            </GridListTile>
+          );
+        })}
+      </GridList>
     );
   }
 
@@ -201,10 +231,11 @@ class Gallery extends React.Component {
           onScroll={this.handleScroll}
         >
           <ReactList
-            itemRenderer={this.renderItem}
-            itemsRenderer={this.renderGallery}
-            length={this.state.photos.length}
-            type="simple"
+            itemRenderer={this.renderRow}
+            length={Math.ceil(this.state.photos.length / columnCount)}
+            type="uniform"
+            useTranslate3d={true}
+            minSize={3}
             ref={el => {
               this.infiniteScroll = el;
             }}

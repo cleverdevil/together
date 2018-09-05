@@ -77,9 +77,14 @@ class ClassicView extends React.Component {
     };
     this.articleRef = React.createRef();
     this.handleScroll = this.handleScroll.bind(this);
+    this.fillScreen = this.fillScreen.bind(this);
     this.handlePostSelect = this.handlePostSelect.bind(this);
     this.renderItem = this.renderItem.bind(this);
     this.renderLoadMore = this.renderLoadMore.bind(this);
+  }
+
+  componentDidMount() {
+    this.fillScreen();
   }
 
   handleScroll() {
@@ -88,14 +93,30 @@ class ClassicView extends React.Component {
       'infiniteScroll',
       this.props.channelSettings,
     );
-    if (infiniteScrollEnabled) {
+    if (infiniteScrollEnabled && this.infiniteScroll) {
       const [
         firstVisibleIndex,
         lastVisibleIndex,
       ] = this.infiniteScroll.getVisibleRange();
       if (lastVisibleIndex >= this.props.posts.length - 1) {
-        this.props.loadMore();
+        if (this.props.loadMore) {
+          this.props.loadMore();
+          return null;
+        }
+        return true;
       }
+    }
+    return null;
+  }
+
+  /**
+   * When the first articles are loaded they might not be tall enough to fill the screen so it is impossible to scroll to load more
+   */
+  fillScreen() {
+    // TODO: Should really make this more smart and only run once more posts have loaded
+    const filled = this.handleScroll();
+    if (!filled) {
+      setTimeout(this.fillScreen, 2000);
     }
   }
 
@@ -166,7 +187,9 @@ class ClassicView extends React.Component {
           <ReactList
             itemRenderer={this.renderItem}
             length={this.props.posts.length}
-            type="variable"
+            type="simple"
+            useTranslate3d={true}
+            minSize={3}
             ref={el => {
               this.infiniteScroll = el;
             }}
