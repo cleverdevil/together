@@ -1,10 +1,9 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
 import ReplyIcon from '@material-ui/icons/Reply';
 import Popover from '@material-ui/core/Popover';
+import BaseAction from './base-action';
 import MicropubForm from '../../micropub-form';
 import { addNotification } from '../../../actions';
 import { micropub } from '../../../modules/feathers-services';
@@ -37,14 +36,15 @@ class ActionReply extends React.Component {
   }
 
   render() {
-    const { url } = this.props;
+    const { url, menuItem } = this.props;
     return (
       <React.Fragment>
-        <Tooltip title="Reply" placement="top">
-          <IconButton onClick={this.handleReply}>
-            <ReplyIcon />
-          </IconButton>
-        </Tooltip>
+        <BaseAction
+          title="Reply"
+          onClick={this.handleReply}
+          icon={<ReplyIcon />}
+          menuItem={menuItem}
+        />
         <Popover
           open={this.state.popoverOpen}
           anchorEl={this.state.popoverAnchor}

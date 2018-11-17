@@ -59,6 +59,15 @@ class PostsService {
         }
       }
 
+      // Support muting and blocking
+      if ((data.mute || data.block) && data.channel) {
+        microsubParams = {
+          action: data.mute ? 'mute' : 'block',
+          channel: data.channel,
+          url: data.mute || data.block,
+        };
+      }
+
       request({
         endpoint: params.user.settings.microsubEndpoint,
         token: params.user.accessToken,
@@ -71,32 +80,6 @@ class PostsService {
         })
         .catch(err => {
           console.log('Error updating timeline posts', err);
-          reject(microsubError('Error updating', null, err));
-        });
-    });
-  }
-
-  remove(id, params) {
-    return new Promise((resolve, reject) => {
-      let microsubParams = {
-        action: 'timeline',
-        method: 'remove',
-        channel: params.channel,
-      };
-      if (id) {
-        microsubParams.entry = id;
-      } else if (id == null && params.entries) {
-        microsubParams.entry = params.entries;
-      }
-      request({
-        endpoint: params.user.settings.microsubEndpoint,
-        token: params.user.accessToken,
-        method: 'POST',
-        params: microsubParams,
-      })
-        .then(results => resolve(results))
-        .catch(err => {
-          console.log('Error removinf posts', err);
           reject(microsubError('Error updating', null, err));
         });
     });

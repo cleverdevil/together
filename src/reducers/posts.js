@@ -27,6 +27,9 @@ export default (state = defaultState, payload) => {
         return state;
       }
     }
+    case 'REMOVE_POST': {
+      return state.filter(post => post.get('_id') !== payload.id);
+    }
     case 'SET_SELECTED_CHANNEL': {
       return state.clear();
     }

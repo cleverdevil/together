@@ -48,7 +48,7 @@ const TogetherCard = ({
   }
 
   if (shownActions === null) {
-    shownActions = ['consoleLog', 'markRead'];
+    shownActions = ['consoleLog', 'markRead', 'remove'];
     if (item.url) {
       shownActions.push('view');
     }
@@ -125,20 +125,16 @@ const TogetherCard = ({
         />
       ))}
 
-      {property(
-        'video',
-        ({ value: video }) =>
-          typeof video == 'string' ? (
-            <CardMedia component="video" src={video} controls={true} />
-          ) : null,
+      {property('video', ({ value: video }) =>
+        typeof video == 'string' ? (
+          <CardMedia component="video" src={video} controls={true} />
+        ) : null,
       )}
 
-      {property(
-        'audio',
-        ({ value: audio }) =>
-          typeof audio == 'string' ? (
-            <CardMedia component="audio" src={audio} controls={true} />
-          ) : null,
+      {property('audio', ({ value: audio }) =>
+        typeof audio == 'string' ? (
+          <CardMedia component="audio" src={audio} controls={true} />
+        ) : null,
       )}
 
       {/* TODO: This hides the single photo if there is a single video but I am not sure that is correct */}

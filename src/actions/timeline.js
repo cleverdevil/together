@@ -22,6 +22,13 @@ export const updatePost = (id, key, value) => {
   };
 };
 
+export const removePost = id => {
+  return {
+    type: 'REMOVE_POST',
+    id,
+  };
+};
+
 export const setTimelineBefore = before => {
   return {
     type: 'SET_TIMELINE_BEFORE',
