@@ -6,7 +6,7 @@ import Popover from '@material-ui/core/Popover';
 import AuthorAvatar from './author-avatar';
 import TogetherCard from './card/index';
 
-const markerSize = 18;
+const markerSize = 24;
 
 const styles = theme => ({
   marker: {

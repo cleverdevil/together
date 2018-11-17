@@ -1,9 +1,7 @@
 import React from 'react';
-import { withStyles } from '@material-ui/core/styles';
 import SingleAvatarMap from '../single-avatar-map';
 import CardContent from '@material-ui/core/CardContent';
-
-const style = theme => ({});
+import Typography from '@material-ui/core/Typography';
 
 const TogetherCardLocation = ({ location, author, classes }) => {
   let map = null;
@@ -23,10 +21,14 @@ const TogetherCardLocation = ({ location, author, classes }) => {
 
   return (
     <React.Fragment>
-      {location.name && <CardContent>{location.name}</CardContent>}
+      {location.name && (
+        <CardContent>
+          <Typography variant="caption">{location.name}</Typography>
+        </CardContent>
+      )}
       {map}
     </React.Fragment>
   );
 };
 
-export default withStyles(style)(TogetherCardLocation);
+export default TogetherCardLocation;

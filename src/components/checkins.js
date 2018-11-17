@@ -1,17 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
+import Map from 'pigeon-maps';
+import Overlay from 'pigeon-overlay';
 import { withStyles } from '@material-ui/core/styles';
-import Dimensions from 'react-dimensions';
-import ReactMapGL, { Marker } from 'react-map-gl';
 import WebMercatorViewport from 'viewport-mercator-project';
 import MapMarker from './map-marker';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
 const styles = theme => ({
-  map: {},
+  map: {
+    width: '100%',
+    height: '100%',
+  },
 });
 
 class CheckinMap extends React.Component {
@@ -21,8 +21,11 @@ class CheckinMap extends React.Component {
       viewport: new WebMercatorViewport({
         latitude: 33.589062,
         longitude: -21.357864,
-        zoom: 1.5,
-        width: props.containerWidth,
+        zoom: 3,
+        width:
+          document.body.clientWidth >= 960
+            ? document.body.clientWidth - 200
+            : document.body.clientWidth, // Sidebar is 200px wide when shown
         height: document.body.clientHeight - 64, // The toolbar is 64px tall,
       }),
       markers: [],
@@ -36,7 +39,7 @@ class CheckinMap extends React.Component {
   }
 
   setMarkers(posts) {
-    posts = posts.map((post, i) => {
+    posts = posts.map(post => {
       let lat = false;
       let lng = false;
       if (post.marker) {
@@ -96,9 +99,7 @@ class CheckinMap extends React.Component {
       });
       if (maxLat != minLat && maxLng != minLng) {
         const bounds = [[maxLng, maxLat], [minLng, minLat]];
-        const boundedViewport = this.state.viewport.fitBounds(bounds, {
-          padding: 30,
-        });
+        const boundedViewport = this.state.viewport.fitBounds(bounds);
         this.setState({
           viewport: new WebMercatorViewport(boundedViewport),
         });
@@ -124,30 +125,30 @@ class CheckinMap extends React.Component {
   }
 
   render() {
+    const { viewport, markers } = this.state;
+    const { classes, theme } = this.props;
+    const mapProps = {
+      className: classes.map,
+      center: [viewport.latitude, viewport.longitude],
+      zoom: viewport.zoom,
+      provider: (x, y, z) =>
+        theme === 'dark'
+          ? `https://cartodb-basemaps-c.global.ssl.fastly.net/dark_all/${z}/${x}/${y}@2x.png`
+          : `https://a.tile.openstreetmap.se/hydda/full/${z}/${x}/${y}.png`,
+    };
     return (
-      <ReactMapGL
-        {...this.state.viewport}
-        className={this.props.classes.map}
-        mapStyle="mapbox://styles/mapbox/basic-v9"
-        mapboxApiAccessToken="pk.eyJ1IjoiZ3JhbnRjb2RlcyIsImEiOiJjamJ3ZTk3czYyOHAxMzNyNmo4cG4zaGFqIn0.9tRVGo4SgVgns3khwoO0gA"
-        onViewportChange={viewport => {
-          this.setState({
-            viewport: new WebMercatorViewport(viewport),
-          });
-        }}
-      >
-        {this.state.markers.map((post, i) => {
+      <Map {...mapProps}>
+        {markers.map((post, i) => {
           return (
-            <Marker
-              latitude={post.marker.lat}
-              longitude={post.marker.lng}
+            <Overlay
+              anchor={[post.marker.lat, post.marker.lng]}
               key={`marker-${i}`}
             >
               <MapMarker author={post.author} post={post} />
-            </Marker>
+            </Overlay>
           );
         })}
-      </ReactMapGL>
+      </Map>
     );
   }
 }
@@ -160,11 +161,8 @@ CheckinMap.propTypes = {
   posts: PropTypes.array.isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
+const mapStateToProps = state => ({
+  theme: state.app.get('theme'),
+});
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(Dimensions()(withStyles(styles)(CheckinMap)));
+export default connect(mapStateToProps)(withStyles(styles)(CheckinMap));

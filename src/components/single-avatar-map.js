@@ -1,54 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
-import { withStyles } from '@material-ui/core/styles';
-import Dimensions from 'react-dimensions';
-import ReactMapGL, { Marker } from 'react-map-gl';
+import { connect } from 'react-redux';
+import Map from 'pigeon-maps';
+import Overlay from 'pigeon-overlay';
 import MapMarker from './map-marker';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
-const styles = theme => ({
-  map: {
-    height: 200,
-  },
-});
-
-class SingleAvatarMap extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      lat: props.lat,
-      lng: props.lng,
-    };
-  }
-
-  render() {
-    return (
-      <ReactMapGL
-        width={this.props.containerWidth}
-        height={200}
-        latitude={this.state.lat}
-        longitude={this.state.lng}
-        zoom={12}
-        scrollZoom={false}
-        className={this.props.classes.map}
-        mapStyle="mapbox://styles/mapbox/basic-v9"
-        mapboxApiAccessToken="pk.eyJ1IjoiZ3JhbnRjb2RlcyIsImEiOiJjamJ3ZTk3czYyOHAxMzNyNmo4cG4zaGFqIn0.9tRVGo4SgVgns3khwoO0gA"
-        onViewportChange={viewport => {
-          const { width, height, latitude, longitude, zoom } = viewport;
-          this.setState({
-            lat: latitude,
-            lng: longitude,
-          });
-        }}
-      >
-        <Marker latitude={this.props.lat} longitude={this.props.lng}>
-          <MapMarker author={this.props.author} />
-        </Marker>
-      </ReactMapGL>
-    );
-  }
-}
+const SingleAvatarMap = ({ lat, lng, author, theme }) => (
+  <Map
+    height={200}
+    center={[lat, lng]}
+    zoom={12}
+    metaWheelZoom={true}
+    provider={(x, y, z) =>
+      theme === 'dark'
+        ? `https://cartodb-basemaps-c.global.ssl.fastly.net/dark_all/${z}/${x}/${y}@2x.png`
+        : `https://a.tile.openstreetmap.se/hydda/full/${z}/${x}/${y}.png`
+    }
+  >
+    <Overlay anchor={[lat, lng]}>
+      <MapMarker author={author} />
+    </Overlay>
+  </Map>
+);
 
 SingleAvatarMap.defaultProps = {
   author: '?',
@@ -59,4 +32,8 @@ SingleAvatarMap.propTypes = {
   lng: PropTypes.number.isRequired,
 };
 
-export default Dimensions()(withStyles(styles)(SingleAvatarMap));
+const mapStateToProps = state => ({
+  theme: state.app.get('theme'),
+});
+
+export default connect(mapStateToProps)(SingleAvatarMap);
