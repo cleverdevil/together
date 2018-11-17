@@ -14,12 +14,12 @@ function stringToColor(string) {
     return '#000';
   }
   let hash = 0;
-  for (var i = 0; i < string.length; i++) {
+  for (let i = 0; i < string.length; i++) {
     hash = string.charCodeAt(i) + ((hash << 5) - hash);
   }
   let color = '#';
-  for (var i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xff;
+  for (let x = 0; x < 3; x++) {
+    const value = (hash >> (x * 8)) & 0xff;
     color += ('00' + value.toString(16)).substr(-2);
   }
   return color;

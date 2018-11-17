@@ -76,7 +76,7 @@ class Gallery extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.open != this.state.open) {
+    if (newProps.open !== this.state.open) {
       this.setState({ open: newProps.open, selectedPost: null });
     }
   }
@@ -97,7 +97,7 @@ class Gallery extends React.Component {
   }
 
   render() {
-    const { width, open, drawerOpen, selectedPost } = this.state;
+    const { width, open } = this.state;
     const { classes, startIndex, medias, onLastPhoto, onChange } = this.props;
     const isPermanentDrawer =
       medias.find(media => media.post) && width > alwaysOpenWidth;

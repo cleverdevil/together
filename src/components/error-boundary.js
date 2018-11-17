@@ -38,7 +38,10 @@ class ErrorBoundary extends React.Component {
         <Card className={classes.card}>
           <CardContent>
             <Typography gutterBottom variant="headline" component="h2">
-              Uh Oh 🙈
+              Uh Oh{' '}
+              <span role="img" aria-label="">
+                🙈
+              </span>
             </Typography>
             <Typography component="p">
               Something here went very wrong. If you look in the console you
@@ -49,6 +52,7 @@ class ErrorBoundary extends React.Component {
             <a
               href="https://github.com/cleverdevil/together/issues"
               target="_blank"
+              rel="noopener noreferrer"
             >
               <Button size="small" color="primary" variant="raised">
                 Check the GitHub issues

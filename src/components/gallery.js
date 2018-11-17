@@ -61,14 +61,14 @@ class Gallery extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.posts && newProps.posts != this.props.posts) {
+    if (newProps.posts && newProps.posts !== this.props.posts) {
       const medias = [];
       newProps.posts.forEach(post => {
         if (
           post.photo &&
           post.video &&
           post.photo.length === 1 &&
-          post.video.length == 1
+          post.video.length === 1
         ) {
           // This is a video with a poster
           medias.push({ post, video: post.video[0], poster: post.photo[0] });
@@ -106,7 +106,7 @@ class Gallery extends React.Component {
         }
       });
 
-      if (medias.length != this.state.medias.length) {
+      if (medias.length !== this.state.medias.length) {
         this.setState({ medias: medias });
       }
     }

@@ -39,13 +39,16 @@ const TogetherCardReplyContext = ({ type, url, reference, classes }) => {
     case 'quotation':
       icon = <QuoteIcon className={classes.icon} />;
       break;
+    default:
+      icon = null;
+      break;
   }
   return (
     <React.Fragment>
       <CardContent className={classes.replyContext}>
         <Typography component="p">
           {icon}
-          <a href={url} target="_blank">
+          <a href={url} target="_blank" rel="noopener noreferrer">
             {url}
           </a>
         </Typography>

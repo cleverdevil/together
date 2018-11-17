@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 const theme = type => {
-  const dark = type == 'dark' ? true : false;
+  const dark = type === 'dark' ? true : false;
   return createMuiTheme({
     typography: {
       fontFamily:
@@ -45,7 +45,7 @@ class Theme extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.theme != this.props.theme) {
+    if (newProps.theme !== this.props.theme) {
       this.setState({ theme: theme(newProps.theme) });
     }
   }

@@ -16,7 +16,7 @@ export const getTheme = () => {
 export const changeTitleBarTheme = theme => {
   if (window.Windows && window.Windows.UI.ViewManagement.ApplicationView) {
     const customColors =
-      theme == 'dark'
+      theme === 'dark'
         ? {
             backgroundColor: { a: 255, r: 17, g: 17, b: 17 },
             foregroundColor: { a: 255, r: 255, g: 255, b: 255 },

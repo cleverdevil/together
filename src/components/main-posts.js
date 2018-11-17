@@ -72,7 +72,7 @@ class MainPosts extends React.Component {
       newProps.match &&
       newProps.match.params &&
       newProps.match.params.channelSlug &&
-      newProps.match.params.channelSlug != newProps.selectedChannel
+      newProps.match.params.channelSlug !== newProps.selectedChannel
     ) {
       const channel = decodeURIComponent(newProps.match.params.channelSlug);
       newProps.selectChannel(channel);
@@ -85,7 +85,7 @@ class MainPosts extends React.Component {
       newProps.user.me
     ) {
       const firstChannel = newProps.channels.find(
-        channel => channel.uid != 'notifications',
+        channel => channel.uid !== 'notifications',
       );
       if (firstChannel && firstChannel.uid) {
         newProps.selectChannel(firstChannel.uid);
@@ -94,7 +94,7 @@ class MainPosts extends React.Component {
     if (
       newProps.selectedChannel &&
       newProps.user.me &&
-      newProps.selectedChannel != this.props.selectedChannel
+      newProps.selectedChannel !== this.props.selectedChannel
     ) {
       newState.loading = true;
       newState.layout = layouts[0];
@@ -121,7 +121,7 @@ class MainPosts extends React.Component {
     }
     const foundLayout = layouts.find(
       layout =>
-        layout.id ==
+        layout.id ===
         getChannelSetting(
           newProps.selectedChannel,
           'layout',
@@ -199,7 +199,6 @@ class MainPosts extends React.Component {
             loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
           />
         );
-        break;
       case 'map':
         return (
           <Checkins
@@ -207,7 +206,6 @@ class MainPosts extends React.Component {
             loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
           />
         );
-        break;
       case 'classic':
         return (
           <ClassicView
@@ -215,7 +213,6 @@ class MainPosts extends React.Component {
             loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
           />
         );
-        break;
       case 'timeline':
         return (
           <Timeline
@@ -223,7 +220,6 @@ class MainPosts extends React.Component {
             loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
           />
         );
-        break;
       default:
         return (
           <Timeline
@@ -231,7 +227,6 @@ class MainPosts extends React.Component {
             loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
           />
         );
-        break;
     }
   }
 
@@ -239,7 +234,10 @@ class MainPosts extends React.Component {
     return (
       <div className={this.props.classes.noPosts}>
         <Typography variant="display2" component="h2">
-          🤷‍ Nothing to show
+          <span role="img" aria-label="">
+            🤷‍
+          </span>{' '}
+          Nothing to show
         </Typography>
         <Typography variant="body1" component="p">
           Maybe you need to subscribe to a site or select a different channel

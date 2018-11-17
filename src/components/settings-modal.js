@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -13,7 +12,6 @@ import Slide from '@material-ui/core/Slide';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
 
 const styles = theme => ({
   dialogPaper: {
@@ -122,5 +120,8 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default withRouter(
-  connect(null, mapDispatchToProps)(withStyles(styles)(SettingsModal)),
+  connect(
+    null,
+    mapDispatchToProps,
+  )(withStyles(styles)(SettingsModal)),
 );

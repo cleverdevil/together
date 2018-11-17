@@ -1,5 +1,3 @@
-import { users } from '../modules/feathers-services';
-
 export const selectChannel = uid => {
   return {
     type: 'SET_SELECTED_CHANNEL',

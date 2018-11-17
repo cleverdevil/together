@@ -16,6 +16,7 @@ const AuthorAvatar = ({ author, size }) => {
     <a
       href={avatarData.href}
       target="_blank"
+      rel="noopener noreferrer"
       style={{ textDecoration: 'none' }}
     >
       <Avatar {...avatarData} aria-label={avatarData.alt} style={style}>

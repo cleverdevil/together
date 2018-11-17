@@ -1,5 +1,4 @@
 import { Map, List } from 'immutable';
-import { notification } from '../modules/windows-functions';
 
 const defaultState = new Map({
   name: '',
@@ -40,6 +39,7 @@ export default (state = defaultState, payload) => {
           ),
         );
       }
+      return state;
     }
     case 'ADD_CHANNEL': {
       if (payload.uid === 'notifications') {

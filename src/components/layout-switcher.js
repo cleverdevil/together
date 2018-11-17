@@ -47,7 +47,7 @@ const LayoutSwitcher = ({
             className={
               classes.icon +
               ' ' +
-              (getChannelSetting(selectedChannel, 'layout', channelSettings) ==
+              (getChannelSetting(selectedChannel, 'layout', channelSettings) ===
               layout.id
                 ? classes.iconSelected
                 : '')

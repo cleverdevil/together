@@ -61,8 +61,6 @@ const styles = theme => ({
   loadMore: {},
   spinner: {
     position: 'sticky',
-    top: '48%',
-    left: '46%',
     top: 'calc(50% - 25px)',
     left: 'calc(50% - 25px)',
   },
@@ -198,10 +196,9 @@ class NotificationsList extends React.Component {
             >
               {unread > 0 ? <HasNotificationsIcon /> : <NotificationsIcon />}
             </IconButton>
-            {loading &&
-              !open && (
-                <CircularProgress className={classes.iconSpinner} size={48} />
-              )}
+            {loading && !open && (
+              <CircularProgress className={classes.iconSpinner} size={48} />
+            )}
           </span>
         </Tooltip>
         <Popover

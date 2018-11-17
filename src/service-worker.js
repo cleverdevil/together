@@ -21,6 +21,9 @@ export default function(cb = () => {}) {
                     'The installing service worker became redundant.',
                   );
                   break;
+                default:
+                  // Noting to do
+                  break;
               }
             };
           };

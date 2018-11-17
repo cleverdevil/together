@@ -97,7 +97,7 @@ class CheckinMap extends React.Component {
           minLat = lat;
         }
       });
-      if (maxLat != minLat && maxLng != minLng) {
+      if (maxLat !== minLat && maxLng !== minLng) {
         const bounds = [[maxLng, maxLat], [minLng, minLat]];
         const boundedViewport = this.state.viewport.fitBounds(bounds);
         this.setState({
@@ -119,7 +119,7 @@ class CheckinMap extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.posts.length != this.state.markers.length) {
+    if (newProps.posts.length !== this.state.markers.length) {
       this.setMarkers(newProps.posts);
     }
   }

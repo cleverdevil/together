@@ -3,7 +3,7 @@ import BaseAction from './base-action';
 import ViewIcon from '@material-ui/icons/Link';
 
 const ActionView = ({ url, menuItem }) => (
-  <a href={url} target="_blank" rel="noopener">
+  <a href={url} target="_blank" rel="noopener noreferrer">
     <BaseAction title="View Original" onClick={() => {}} icon={<ViewIcon />} />
   </a>
 );

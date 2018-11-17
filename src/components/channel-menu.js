@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -29,7 +28,7 @@ const styles = theme => ({
     flexDirection: 'column',
     overflow: 'auto',
     background:
-      theme.palette.type == 'dark'
+      theme.palette.type === 'dark'
         ? theme.palette.primary.dark
         : theme.palette.action.hover,
     borderRight: '1px solid ' + theme.palette.divider,
@@ -53,7 +52,7 @@ const styles = theme => ({
     textAlign: 'left',
     color: theme.palette.primary.contrastText,
     backgroundColor:
-      theme.palette.type == 'dark'
+      theme.palette.type === 'dark'
         ? theme.palette.secondary.main
         : theme.palette.primary.main,
     overflow: 'hidden',
@@ -74,7 +73,7 @@ const styles = theme => ({
     marginTop: '-1em',
     minWidth: '1em',
     background:
-      theme.palette.type == 'dark'
+      theme.palette.type === 'dark'
         ? theme.palette.secondary.dark
         : theme.palette.primary.light,
     color: theme.palette.secondary.contrastText,
@@ -224,7 +223,7 @@ class ChannelMenu extends React.Component {
               {(provided, snapshot) => (
                 <div ref={provided.innerRef}>
                   {this.props.channels
-                    .filter(channel => channel.uid != 'notifications')
+                    .filter(channel => channel.uid !== 'notifications')
                     .map((channel, index) => {
                       let textClassName = this.props.classes.button;
                       if (channel.uid === this.props.selectedChannel) {

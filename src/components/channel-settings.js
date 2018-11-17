@@ -4,8 +4,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router';
-import { Link } from 'react-router-dom';
-import Typography from '@material-ui/core/Typography';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -55,7 +53,7 @@ class ChannelSettings extends React.Component {
       props.match.params.channelSlug
     ) {
       let selectedChannel = props.channels.find(
-        channel => channel.slug == props.match.params.channelSlug,
+        channel => channel.slug === props.match.params.channelSlug,
       );
       if (selectedChannel) {
         uid = selectedChannel.uid;
@@ -87,7 +85,7 @@ class ChannelSettings extends React.Component {
       newProps.match.params.channelSlug
     ) {
       let selectedChannel = newProps.channels.find(
-        channel => channel.slug == newProps.match.params.channelSlug,
+        channel => channel.slug === newProps.match.params.channelSlug,
       );
       if (selectedChannel) {
         const settings = getChannelSettings(
@@ -173,7 +171,7 @@ class ChannelSettings extends React.Component {
         this.setState(state => ({
           following: state.following.filter(
             item =>
-              !(item.type == unfollowed.type && item.url == unfollowed.url),
+              !(item.type === unfollowed.type && item.url === unfollowed.url),
           ),
         }));
       })
@@ -288,7 +286,8 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(
-    withStyles(styles)(ChannelSettings),
-  ),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(withStyles(styles)(ChannelSettings)),
 );

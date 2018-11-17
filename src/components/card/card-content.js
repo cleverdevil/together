@@ -35,7 +35,7 @@ const style = theme => ({
 class TogetherCardContent extends React.Component {
   constructor(props) {
     super(props);
-    const { post, expandable } = props;
+    const { post } = props;
     let contentLength = 0;
     if (post.content && post.content.text) {
       contentLength = post.content.text.length;
@@ -72,13 +72,12 @@ class TogetherCardContent extends React.Component {
           />
         )}
 
-        {post.summary &&
-          !post.content && (
-            <Typography
-              component="p"
-              dangerouslySetInnerHTML={{ __html: post.summary }}
-            />
-          )}
+        {post.summary && !post.content && (
+          <Typography
+            component="p"
+            dangerouslySetInnerHTML={{ __html: post.summary }}
+          />
+        )}
 
         <Collapse
           in={!expandable || expanded}

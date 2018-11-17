@@ -58,7 +58,7 @@ const TogetherCard = ({
   }
 
   let authorNameLink = (
-    <a href={avatarData.href} target="_blank">
+    <a href={avatarData.href} target="_blank" rel="noopener noreferrer">
       {avatarData.alt}
     </a>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
@@ -11,7 +10,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { setUserOption, addNotification, setSetting } from '../actions';
-import { client, users } from '../modules/feathers-services';
+import { client } from '../modules/feathers-services';
 import loadUser from '../modules/load-user';
 
 const styles = theme => ({});
@@ -56,7 +55,7 @@ class Login extends React.Component {
           me &&
           code &&
           state &&
-          state == localStorage.getItem('together-login-state')
+          state === localStorage.getItem('together-login-state')
         ) {
           this.setState({ loading: true });
           client
@@ -220,6 +219,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
-  withStyles(styles)(Login),
-);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(Login));

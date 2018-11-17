@@ -5,17 +5,14 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
 import Toolbar from '@material-ui/core/Toolbar';
 import AppBar from '@material-ui/core/AppBar';
-import CloseIcon from '@material-ui/icons/Close';
 import ReactList from 'react-list';
 import CompressedPost from './compressed-post';
 import TogetherCard from './card/index';
 import { decrementChannelUnread, updatePost } from '../actions';
 import { posts as postsService } from '../modules/feathers-services';
 import getChannelSetting from '../modules/get-channel-setting';
-import channelSettings from './channel-settings';
 
 const styles = theme => ({
   wrapper: {
@@ -105,10 +102,7 @@ class ClassicView extends React.Component {
       this.props.channelSettings,
     );
     if (infiniteScrollEnabled && this.infiniteScroll) {
-      const [
-        firstVisibleIndex,
-        lastVisibleIndex,
-      ] = this.infiniteScroll.getVisibleRange();
+      const lastVisibleIndex = this.infiniteScroll.getVisibleRange()[1];
       if (lastVisibleIndex >= this.props.posts.length - 1) {
         if (this.props.loadMore) {
           this.props.loadMore();

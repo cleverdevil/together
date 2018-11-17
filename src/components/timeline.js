@@ -9,7 +9,6 @@ import ReactList from 'react-list';
 import Card from './card';
 
 import { updatePost, decrementChannelUnread } from '../actions';
-import { selectChannel } from '../actions/channels';
 import getChannelSetting from '../modules/get-channel-setting';
 import { posts as postsService } from '../modules/feathers-services';
 

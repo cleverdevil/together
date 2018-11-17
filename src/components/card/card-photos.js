@@ -36,7 +36,7 @@ class TogetherCardPhotos extends React.Component {
       );
     } else if (Array.isArray(photos)) {
       let cols = photos.length;
-      if (cols == 4) {
+      if (cols === 4) {
         cols = 2;
       }
       if (cols > 3) {

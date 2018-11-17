@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -94,7 +93,7 @@ class TogetherAppBar extends React.Component {
           last_read_entry: this.props.items[0]._id,
         })
         .then(res => {
-          if (res.channel && res.channel == this.props.selectedChannel) {
+          if (res.channel && res.channel === this.props.selectedChannel) {
             this.props.items.forEach(post => {
               if (!post._is_read) {
                 this.props.updatePost(post._id, '_is_read', true);
@@ -155,7 +154,7 @@ class TogetherAppBar extends React.Component {
           <MenuItem>App Settings</MenuItem>
         </Link>
         <MenuItem onClick={this.props.toggleTheme}>
-          {this.props.theme == 'light' ? 'Dark' : 'Light'} Mode
+          {this.props.theme === 'light' ? 'Dark' : 'Light'} Mode
         </MenuItem>
         <MenuItem onClick={this.props.logout}>Logout</MenuItem>
         <MenuItem>Version {version}</MenuItem>
@@ -271,9 +270,7 @@ class TogetherAppBar extends React.Component {
   }
 }
 
-TogetherAppBar.propTypes = {};
-
-function mapStateToProps(state, props) {
+function mapStateToProps(state) {
   return {
     selectedChannel: state.app.get('selectedChannel'),
     theme: state.app.get('theme'),

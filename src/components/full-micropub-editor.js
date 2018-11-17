@@ -1,12 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom';
 import MicropubForm from './micropub-form';
-import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
 import { micropub } from '../modules/feathers-services';
 import { addNotification } from '../actions';
 
@@ -20,7 +16,7 @@ const styles = theme => ({
     maxWidth: 800,
     '& .ql-editor': {
       color:
-        theme.palette.type == 'dark'
+        theme.palette.type === 'dark'
           ? theme.palette.primary.contrastText
           : 'inherit',
     },
