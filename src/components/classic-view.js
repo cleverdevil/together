@@ -229,16 +229,18 @@ class ClassicView extends React.Component {
               style={{ bottom: 0, maxWidth: 700, boxShadow: 'none' }}
             >
               <Toolbar variant="dense">
-                {previousPost !== null && (
-                  <Button onClick={() => this.handlePostSelect(previousPost)}>
-                    Previous
-                  </Button>
-                )}
-                {nextPost !== null && (
-                  <Button onClick={() => this.handlePostSelect(nextPost)}>
-                    Next
-                  </Button>
-                )}
+                <Button
+                  onClick={() => this.handlePostSelect(previousPost)}
+                  disabled={previousPost === null}
+                >
+                  Previous
+                </Button>
+                <Button
+                  onClick={() => this.handlePostSelect(nextPost)}
+                  disabled={nextPost === null}
+                >
+                  Next
+                </Button>
                 <Button
                   onClick={() =>
                     this.setState({
