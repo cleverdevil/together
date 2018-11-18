@@ -85,31 +85,33 @@ class TogetherAppBar extends React.Component {
   }
 
   handleMarkRead() {
-    if (this.props.items && this.props.items[0] && this.props.items[0]._id) {
+    const {
+      items,
+      selectedChannel,
+      updateChannel,
+      addNotification,
+    } = this.props;
+    if (items && items[0] && items[0]._id) {
       postsService
         .update(null, {
           method: 'mark_read',
-          channel: this.props.selectedChannel,
-          last_read_entry: this.props.items[0]._id,
+          channel: selectedChannel,
+          last_read_entry: items[0]._id,
         })
         .then(res => {
-          if (res.channel && res.channel === this.props.selectedChannel) {
-            this.props.items.forEach(post => {
+          if (res.channel && res.channel === selectedChannel) {
+            items.forEach(post => {
               if (!post._is_read) {
-                this.props.updatePost(post._id, '_is_read', true);
+                updatePost(post._id, '_is_read', true);
               }
             });
           }
-          this.props.updateChannel(
-            res.channel || this.props.selectedChannel,
-            'unread',
-            0,
-          );
-          this.props.addNotification(`Marked ${res.updated} items as read`);
+          updateChannel(res.channel || selectedChannel, 'unread', 0);
+          addNotification(`Marked ${res.updated} items as read`);
         })
         .catch(err => {
           console.log(err);
-          this.props.addNotification('Error marking items as read', 'error');
+          addNotification('Error marking items as read', 'error');
         });
     }
   }
@@ -122,11 +124,9 @@ class TogetherAppBar extends React.Component {
   }
 
   handleComposeSend(mf2) {
-    if (
-      Array.isArray(this.props.noteSyndication) &&
-      this.props.noteSyndication.length
-    ) {
-      mf2.properties['mp-syndicate-to'] = this.props.noteSyndication;
+    const { noteSyndication, addNotification } = this.props;
+    if (Array.isArray(noteSyndication) && noteSyndication.length) {
+      mf2.properties['mp-syndicate-to'] = noteSyndication;
     }
     micropub
       .create({
@@ -134,38 +134,45 @@ class TogetherAppBar extends React.Component {
       })
       .then(url => {
         this.setState({ popoverOpen: false });
-        this.props.addNotification(`Successfully posted note to ${url}`);
+        addNotification(`Successfully posted note to ${url}`);
       })
-      .catch(err => this.props.addNotification(`Error posting note`, 'error'));
+      .catch(err => addNotification(`Error posting note`, 'error'));
   }
 
   renderMenuContent(selectedChannel) {
+    const { classes, theme, toggleTheme, logout } = this.props;
     return (
       <React.Fragment>
         {selectedChannel && (
           <Link
             to={`/channel/${selectedChannel.uid}/edit`}
-            className={this.props.classes.menuItem}
+            className={classes.menuItem}
           >
             <MenuItem>Channel Settings</MenuItem>
           </Link>
         )}
-        <Link to="/settings" className={this.props.classes.menuItem}>
+        <Link to="/settings" className={classes.menuItem}>
           <MenuItem>App Settings</MenuItem>
         </Link>
-        <MenuItem onClick={this.props.toggleTheme}>
-          {this.props.theme === 'light' ? 'Dark' : 'Light'} Mode
+        <MenuItem onClick={toggleTheme}>
+          {theme === 'light' ? 'Dark' : 'Light'} Mode
         </MenuItem>
-        <MenuItem onClick={this.props.logout}>Logout</MenuItem>
+        <MenuItem onClick={logout}>Logout</MenuItem>
         <MenuItem>Version {version}</MenuItem>
-        <LayoutSwitcher className={this.props.classes.layoutSwitcher} />
+        <LayoutSwitcher className={classes.layoutSwitcher} />
       </React.Fragment>
     );
   }
 
   render() {
+    const {
+      channels,
+      classes,
+      toggleChannelsMenu,
+      supportsMicropub,
+    } = this.props;
     const menuOpen = Boolean(this.state.anchorEl);
-    const selectedChannel = this.props.channels.find(
+    const selectedChannel = channels.find(
       channel => channel.uid === this.props.selectedChannel,
     );
     let title = 'Together';
@@ -180,8 +187,8 @@ class TogetherAppBar extends React.Component {
         <Toolbar>
           <Tooltip title="Channels" placement="bottom">
             <IconButton
-              className={this.props.classes.menuButton}
-              onClick={this.props.toggleChannelsMenu}
+              className={classes.menuButton}
+              onClick={toggleChannelsMenu}
               color="inherit"
               aria-label="Menu"
             >
@@ -189,11 +196,7 @@ class TogetherAppBar extends React.Component {
             </IconButton>
           </Tooltip>
 
-          <Typography
-            variant="title"
-            color="inherit"
-            className={this.props.classes.title}
-          >
+          <Typography variant="title" color="inherit" className={classes.title}>
             {title}
           </Typography>
 
@@ -203,29 +206,31 @@ class TogetherAppBar extends React.Component {
                 <IconButton
                   aria-label="Mark all as read"
                   onClick={this.handleMarkRead}
-                  className={this.props.classes.menuAction}
+                  className={classes.menuAction}
                 >
                   <ReadIcon />
                 </IconButton>
               </Tooltip>
             ) : null}
 
-            <Tooltip title="New post" placement="bottom">
-              <IconButton
-                aria-label="New post"
-                onClick={this.handleCompose}
-                className={this.props.classes.menuAction}
-              >
-                <NoteAddIcon />
-              </IconButton>
-            </Tooltip>
+            {supportsMicropub && (
+              <Tooltip title="New post" placement="bottom">
+                <IconButton
+                  aria-label="New post"
+                  onClick={this.handleCompose}
+                  className={classes.menuAction}
+                >
+                  <NoteAddIcon />
+                </IconButton>
+              </Tooltip>
+            )}
 
-            <NotificationsList buttonClass={this.props.classes.menuAction} />
+            <NotificationsList buttonClass={classes.menuAction} />
 
             <Tooltip title="Settings" placement="bottom">
               <IconButton
                 onClick={e => this.setState({ anchorEl: e.currentTarget })}
-                className={this.props.classes.menuAction}
+                className={classes.menuAction}
               >
                 <SettingsIcon />
               </IconButton>
@@ -245,24 +250,27 @@ class TogetherAppBar extends React.Component {
             >
               {this.renderMenuContent(selectedChannel)}
             </Menu>
-            <Popover
-              open={this.state.popoverOpen}
-              anchorEl={this.state.popoverAnchor}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              onClose={() => this.setState({ popoverOpen: false })}
-              onBackdropClick={() => this.setState({ popoverOpen: false })}
-            >
-              <div
-                style={{
-                  padding: 10,
+
+            {supportsMicropub && (
+              <Popover
+                open={this.state.popoverOpen}
+                anchorEl={this.state.popoverAnchor}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
                 }}
+                onClose={() => this.setState({ popoverOpen: false })}
+                onBackdropClick={() => this.setState({ popoverOpen: false })}
               >
-                <MicropubForm onSubmit={this.handleComposeSend} />
-              </div>
-            </Popover>
+                <div
+                  style={{
+                    padding: 10,
+                  }}
+                >
+                  <MicropubForm onSubmit={this.handleComposeSend} />
+                </div>
+              </Popover>
+            )}
           </div>
         </Toolbar>
       </AppBar>
@@ -277,6 +285,7 @@ function mapStateToProps(state) {
     channels: state.channels.toJS(),
     items: state.posts.toJS(),
     noteSyndication: state.settings.get('noteSyndication'),
+    supportsMicropub: !!state.settings.get('micropubEndpoint'),
   };
 }
 

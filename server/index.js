@@ -8,7 +8,7 @@ const jwt = require('@feathersjs/authentication-jwt');
 const authHooks = require('feathers-authentication-hooks');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const fetch = require('isomorphic-fetch');
+const relParser = require('rel-parser');
 const channels = require('./lib/services/channels');
 const posts = require('./lib/services/posts');
 const follows = require('./lib/services/follows');
@@ -17,7 +17,6 @@ const users = require('./lib/services/users');
 const micropubService = require('./lib/services/micropub');
 const requireUserHook = require('./lib/hooks/require-user');
 const initiateMicropubHook = require('./lib/hooks/initiate-micropub');
-const relScraper = require('./lib/rel-scraper');
 const config = require('./lib/config');
 const Micropub = require('micropub-helper');
 
@@ -51,10 +50,9 @@ app.configure(
         clientId: config.get('url'),
         scope: 'post create delete update read follow mute block channels',
       });
-      relScraper(req.body.me)
+      relParser(req.body.me)
         .then(rels => {
           if (
-            !rels.micropub ||
             !rels.microsub ||
             !rels.authorization_endpoint ||
             !rels.token_endpoint
@@ -63,9 +61,11 @@ app.configure(
               message: 'Could not parse all required endpoints from your site',
             });
           } else {
-            micropub.options.authEndpoint = rels.authorization_endpoint;
-            micropub.options.tokenEndpoint = rels.token_endpoint;
-            micropub.options.micropubEndpoint = rels.micropub;
+            micropub.options.authEndpoint = rels.authorization_endpoint[0];
+            micropub.options.tokenEndpoint = rels.token_endpoint[0];
+            if (rels.micropub) {
+              micropub.options.micropubEndpoint = rels.micropub[0];
+            }
             micropub
               .getToken(req.body.code)
               .then(accessToken => {
@@ -75,10 +75,10 @@ app.configure(
                     me: req.body.me,
                     accessToken: accessToken,
                     settings: {
-                      authEndpoint: rels.authorization_endpoint,
-                      tokenEndpoint: rels.token_endpoint,
-                      micropubEndpoint: rels.micropub,
-                      microsubEndpoint: rels.microsub,
+                      authEndpoint: rels.authorization_endpoint[0],
+                      tokenEndpoint: rels.token_endpoint[0],
+                      micropubEndpoint: rels.micropub[0] || null,
+                      microsubEndpoint: rels.microsub[0],
                     },
                   })
                   .then(user => done(null, { ...user, id: user._id }))

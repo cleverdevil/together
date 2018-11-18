@@ -5,7 +5,6 @@ module.exports = hook =>
       !hook.params.user.me ||
       !hook.params.user.accessToken ||
       !hook.params.user.settings ||
-      !hook.params.user.settings.micropubEndpoint ||
       !hook.params.user.settings.microsubEndpoint
     ) {
       reject({ message: 'Missing user data' });

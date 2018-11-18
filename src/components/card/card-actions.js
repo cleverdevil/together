@@ -1,4 +1,5 @@
 import React, { Fragment, Component } from 'react';
+import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import CardActions from '@material-ui/core/CardActions';
 import IconButton from '@material-ui/core/IconButton';
@@ -38,17 +39,23 @@ class TogetherCardActions extends Component {
 
   render() {
     const { anchorEl } = this.state;
-    const { post, channel, shownActions, classes } = this.props;
+    const {
+      post,
+      channel,
+      shownActions,
+      micropubEndpoint,
+      classes,
+    } = this.props;
     return (
       <Fragment>
         <CardActions className={classes.actions}>
-          {post.url && shownActions.includes('like') && (
+          {micropubEndpoint && post.url && shownActions.includes('like') && (
             <ActionLike url={post.url} />
           )}
-          {post.url && shownActions.includes('repost') && (
+          {micropubEndpoint && post.url && shownActions.includes('repost') && (
             <ActionRepost url={post.url} />
           )}
-          {post.url && shownActions.includes('reply') && (
+          {micropubEndpoint && post.url && shownActions.includes('reply') && (
             <ActionReply url={post.url} />
           )}
           {shownActions.includes('markRead') && (
@@ -104,4 +111,8 @@ class TogetherCardActions extends Component {
   }
 }
 
-export default withStyles(style)(TogetherCardActions);
+const mapStateToProps = state => ({
+  micropubEndpoint: state.settings.get('micropubEndpoint'),
+});
+
+export default connect(mapStateToProps)(withStyles(style)(TogetherCardActions));
