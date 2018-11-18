@@ -9,6 +9,10 @@ export const getTheme = () => {
     } else {
       return 'light';
     }
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+    return 'light';
   }
   return null;
 };
