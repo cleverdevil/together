@@ -1,5 +1,5 @@
-const Micropub = require('micropub-helper');
-const config = require('../config');
+const Micropub = require('micropub-helper')
+const config = require('../config')
 
 module.exports = hook =>
   new Promise((resolve, reject) => {
@@ -12,7 +12,7 @@ module.exports = hook =>
       tokenEndpoint: hook.params.user.settings.tokenEndpoint,
       // scope: ''
       // state:
-    });
-    hook.params.micropub = micropub;
-    resolve(hook);
-  });
+    })
+    hook.params.micropub = micropub
+    resolve(hook)
+  })

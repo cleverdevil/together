@@ -1,4 +1,4 @@
-const nconf = require('nconf');
+const nconf = require('nconf')
 
 // NOTE: if you are customizing the config you may want to check the .env files that are applied to the frontend
 nconf
@@ -10,6 +10,6 @@ nconf
       'Some super secret code that will be overwritten by the config file',
     url: 'https://alltogethernow.io',
     port: 10008,
-  });
+  })
 
-module.exports = nconf;
+module.exports = nconf

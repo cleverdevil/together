@@ -2,7 +2,7 @@ const {
   microsubError,
   validateResponse,
   request,
-} = require('../microsub-helpers');
+} = require('../microsub-helpers')
 
 class FollowsService {
   constructor() {}
@@ -20,10 +20,10 @@ class FollowsService {
       })
         .then(results => resolve(results))
         .catch(err => {
-          console.log('Error getting following', err);
-          reject(microsubError('Error getting following', null, err));
-        });
-    });
+          console.log('Error getting following', err)
+          reject(microsubError('Error getting following', null, err))
+        })
+    })
   }
 
   // TODO: not sure if this should be .get or .find, but both work for now.
@@ -40,10 +40,10 @@ class FollowsService {
       })
         .then(results => resolve(results))
         .catch(err => {
-          console.log('Error getting following', err);
-          reject(microsubError('Error getting following', null, err));
-        });
-    });
+          console.log('Error getting following', err)
+          reject(microsubError('Error getting following', null, err))
+        })
+    })
   }
 
   create(data, params) {
@@ -51,11 +51,11 @@ class FollowsService {
       let microsubParams = {
         action: 'follow',
         url: data.url,
-      };
+      }
       if (data.channel) {
-        microsubParams.channel = data.channel;
+        microsubParams.channel = data.channel
       } else {
-        microsubParams.channel = 'default';
+        microsubParams.channel = 'default'
       }
       request({
         endpoint: params.user.settings.microsubEndpoint,
@@ -65,10 +65,10 @@ class FollowsService {
       })
         .then(results => resolve(results))
         .catch(err => {
-          console.log('Error following', err);
-          reject(microsubError('Error following', null, err));
-        });
-    });
+          console.log('Error following', err)
+          reject(microsubError('Error following', null, err))
+        })
+    })
   }
 
   remove(id, params) {
@@ -76,9 +76,9 @@ class FollowsService {
       let microsubParams = {
         action: 'unfollow',
         url: id,
-      };
+      }
       if (params.query.channel) {
-        microsubParams.channel = params.query.channel;
+        microsubParams.channel = params.query.channel
       }
       request({
         endpoint: params.user.settings.microsubEndpoint,
@@ -88,11 +88,11 @@ class FollowsService {
       })
         .then(results => resolve(results))
         .catch(err => {
-          console.log('Error unfollowing', err);
-          reject(microsubError('Error unfollowing', null, err));
-        });
-    });
+          console.log('Error unfollowing', err)
+          reject(microsubError('Error unfollowing', null, err))
+        })
+    })
   }
 }
 
-module.exports = new FollowsService();
+module.exports = new FollowsService()

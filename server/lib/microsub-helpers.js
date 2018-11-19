@@ -1,18 +1,18 @@
-const fetch = require('isomorphic-fetch');
-const { URL } = require('url');
+const fetch = require('isomorphic-fetch')
+const { URL } = require('url')
 
 const microsubError = (message, status = null, error = null) => {
   return {
     message: message,
     status: status,
     error: error,
-  };
-};
+  }
+}
 
 const validateResponse = res =>
   new Promise((resolve, reject) => {
     if (res.ok) {
-      resolve(res.json());
+      resolve(res.json())
     } else {
       res
         .text()
@@ -20,34 +20,34 @@ const validateResponse = res =>
           console.log(
             'Invalid response from the microsub server',
             res.status,
-            text,
-          );
-          reject(microsubError('Error from microsub server', res.status));
+            text
+          )
+          reject(microsubError('Error from microsub server', res.status))
         })
         .catch(() => {
           console.log(
             'Invalid response from the microsub server',
             res.status,
-            text,
-          );
-          reject(microsubError('Error from microsub server', res.status));
-        });
+            text
+          )
+          reject(microsubError('Error from microsub server', res.status))
+        })
     }
-  });
+  })
 
 const request = ({ endpoint, token, params = {}, method = 'GET' }) =>
   new Promise((resolve, reject) => {
-    const url = new URL(endpoint);
+    const url = new URL(endpoint)
     Object.keys(params).forEach(key => {
-      const value = params[key];
+      const value = params[key]
       if (Array.isArray(value)) {
         value.forEach(child => {
-          url.searchParams.append(key + '[]', child);
-        });
+          url.searchParams.append(key + '[]', child)
+        })
       } else {
-        url.searchParams.append(key, value);
+        url.searchParams.append(key, value)
       }
-    });
+    })
     fetch(url.toString(), {
       method: method,
       headers: new Headers({
@@ -56,11 +56,11 @@ const request = ({ endpoint, token, params = {}, method = 'GET' }) =>
     })
       .then(res => validateResponse(res))
       .then(res => resolve(res))
-      .catch(err => reject(err));
-  });
+      .catch(err => reject(err))
+  })
 
 module.exports = {
   validateResponse: validateResponse,
   microsubError: microsubError,
   request: request,
-};
+}

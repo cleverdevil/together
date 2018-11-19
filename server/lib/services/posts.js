@@ -2,7 +2,7 @@ const {
   microsubError,
   validateResponse,
   request,
-} = require('../microsub-helpers');
+} = require('../microsub-helpers')
 
 class PostsService {
   constructor() {}
@@ -11,18 +11,18 @@ class PostsService {
     return new Promise((resolve, reject) => {
       let microsubParams = {
         action: 'timeline',
-      };
+      }
       if (params.query.channel) {
-        microsubParams.channel = params.query.channel;
+        microsubParams.channel = params.query.channel
       }
       if (params.query.limit) {
-        microsubParams.limit = params.query.limit;
+        microsubParams.limit = params.query.limit
       }
       if (params.query.after) {
-        microsubParams.after = params.query.after;
+        microsubParams.after = params.query.after
       }
       if (params.query.before) {
-        microsubParams.before = params.query.before;
+        microsubParams.before = params.query.before
       }
       request({
         endpoint: params.user.settings.microsubEndpoint,
@@ -32,10 +32,10 @@ class PostsService {
       })
         .then(results => resolve(results))
         .catch(err => {
-          console.log('Error getting timeline', err);
-          reject(microsubError('Error getting timeline', null, err));
-        });
-    });
+          console.log('Error getting timeline', err)
+          reject(microsubError('Error getting timeline', null, err))
+        })
+    })
   }
 
   update(id, data, params) {
@@ -43,19 +43,19 @@ class PostsService {
       let microsubParams = {
         action: 'timeline',
         channel: data.channel,
-      };
+      }
 
       if (data.method) {
-        microsubParams.method = data.method;
+        microsubParams.method = data.method
       }
       if (id) {
-        microsubParams.entry = id;
+        microsubParams.entry = id
       } else if (id == null) {
         if (data.last_read_entry) {
-          microsubParams.last_read_entry = data.last_read_entry;
+          microsubParams.last_read_entry = data.last_read_entry
         }
         if (data.entries) {
-          microsubParams.entry = data.entries;
+          microsubParams.entry = data.entries
         }
       }
 
@@ -65,7 +65,7 @@ class PostsService {
           action: data.mute ? 'mute' : 'block',
           channel: data.channel,
           url: data.mute || data.block,
-        };
+        }
       }
 
       request({
@@ -75,15 +75,15 @@ class PostsService {
         params: microsubParams,
       })
         .then(results => {
-          results.channel = data.channel;
-          resolve(results);
+          results.channel = data.channel
+          resolve(results)
         })
         .catch(err => {
-          console.log('Error updating timeline posts', err);
-          reject(microsubError('Error updating', null, err));
-        });
-    });
+          console.log('Error updating timeline posts', err)
+          reject(microsubError('Error updating', null, err))
+        })
+    })
   }
 }
 
-module.exports = new PostsService();
+module.exports = new PostsService()

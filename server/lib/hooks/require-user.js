@@ -7,8 +7,8 @@ module.exports = hook =>
       !hook.params.user.settings ||
       !hook.params.user.settings.microsubEndpoint
     ) {
-      reject({ message: 'Missing user data' });
+      reject({ message: 'Missing user data' })
     } else {
-      resolve(hook);
+      resolve(hook)
     }
-  });
+  })

@@ -2,7 +2,7 @@ const {
   microsubError,
   validateResponse,
   request,
-} = require('../microsub-helpers');
+} = require('../microsub-helpers')
 
 class ChannelsService {
   constructor() {}
@@ -20,17 +20,17 @@ class ChannelsService {
         .then(channels =>
           resolve(
             channels.channels.map(channel => {
-              channel.userId = params.user.userId;
-              channel.layout = 'default';
-              return channel;
-            }),
-          ),
+              channel.userId = params.user.userId
+              channel.layout = 'default'
+              return channel
+            })
+          )
         )
         .catch(err => {
-          console.log('Error getting channels', err);
-          reject(microsubError('Error getting channels', null, err));
-        });
-    });
+          console.log('Error getting channels', err)
+          reject(microsubError('Error getting channels', null, err))
+        })
+    })
   }
 
   get(id, params) {
@@ -44,13 +44,13 @@ class ChannelsService {
         },
       })
         .then(channels =>
-          resolve(channels.channels.find(channel => channel.uid == id)),
+          resolve(channels.channels.find(channel => channel.uid == id))
         )
         .catch(err => {
-          console.log('Error getting channels');
-          reject(microsubError('Error getting channels', null, err));
-        });
-    });
+          console.log('Error getting channels')
+          reject(microsubError('Error getting channels', null, err))
+        })
+    })
   }
 
   create(data, params) {
@@ -65,15 +65,15 @@ class ChannelsService {
         },
       })
         .then(newChannel => {
-          newChannel.userId = params.user.userId;
-          newChannel.layout = 'default';
-          resolve(newChannel);
+          newChannel.userId = params.user.userId
+          newChannel.layout = 'default'
+          resolve(newChannel)
         })
         .catch(err => {
-          console.log('Error creating channel', err);
-          reject(microsubError('Error creating channel', null, err));
-        });
-    });
+          console.log('Error creating channel', err)
+          reject(microsubError('Error creating channel', null, err))
+        })
+    })
   }
 
   update(id, data, params) {
@@ -91,19 +91,19 @@ class ChannelsService {
         })
           .then(updatedChannel => resolve(id))
           .catch(err => {
-            console.log('Error updating channel', err);
-            reject(microsubError('Error updating channel', null, err));
-          });
+            console.log('Error updating channel', err)
+            reject(microsubError('Error updating channel', null, err))
+          })
       } else {
-        resolve(id);
+        resolve(id)
       }
-    });
+    })
   }
 
   patch(id, data, params) {
     return new Promise((resolve, reject) => {
       if (!data.order || !Array.isArray(data.order)) {
-        reject(microsubError('Operation not supported'));
+        reject(microsubError('Operation not supported'))
       } else {
         request({
           endpoint: params.user.settings.microsubEndpoint,
@@ -117,23 +117,23 @@ class ChannelsService {
         })
           .then(res => {
             if (res.channels) {
-              resolve(res.channels);
+              resolve(res.channels)
             } else {
               reject(
                 microsubError(
                   'Did not receive new channel order from server',
                   null,
-                  err,
-                ),
-              );
+                  err
+                )
+              )
             }
           })
           .catch(err => {
-            console.log('Error ordering channels', err);
-            reject(microsubError('Error ordering channels', null, err));
-          });
+            console.log('Error ordering channels', err)
+            reject(microsubError('Error ordering channels', null, err))
+          })
       }
-    });
+    })
   }
 
   remove(id, params) {
@@ -150,11 +150,11 @@ class ChannelsService {
       })
         .then(() => resolve(id))
         .catch(err => {
-          console.log('Error deleting channel', err);
-          reject(microsubError('Error deleting channel', null, err));
-        });
-    });
+          console.log('Error deleting channel', err)
+          reject(microsubError('Error deleting channel', null, err))
+        })
+    })
   }
 }
 
-module.exports = new ChannelsService();
+module.exports = new ChannelsService()

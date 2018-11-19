@@ -1,63 +1,63 @@
-import resizeImage from './get-image-proxy-url';
+import resizeImage from './get-image-proxy-url'
 
 function getDomain(string) {
-  const url = new URL(string);
-  let domain = url.hostname;
+  const url = new URL(string)
+  let domain = url.hostname
   if (domain.indexOf('www.') === 0) {
-    domain = domain.slice(4);
+    domain = domain.slice(4)
   }
-  return domain;
+  return domain
 }
 
 function stringToColor(string) {
   if (!string) {
-    return '#000';
+    return '#000'
   }
-  let hash = 0;
+  let hash = 0
   for (let i = 0; i < string.length; i++) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    hash = string.charCodeAt(i) + ((hash << 5) - hash)
   }
-  let color = '#';
+  let color = '#'
   for (let x = 0; x < 3; x++) {
-    const value = (hash >> (x * 8)) & 0xff;
-    color += ('00' + value.toString(16)).substr(-2);
+    const value = (hash >> (x * 8)) & 0xff
+    color += ('00' + value.toString(16)).substr(-2)
   }
-  return color;
+  return color
 }
 
 export default function(author) {
   let avatar = {
     alt: 'Unknown',
     initials: '?',
-  };
+  }
   if (author) {
     if (typeof author === 'string') {
-      avatar.alt = author;
-      avatar.href = author;
+      avatar.alt = author
+      avatar.href = author
       if (avatar.alt.indexOf('http') === 0) {
-        avatar.initials = getDomain(avatar.alt)[0].toUpperCase();
+        avatar.initials = getDomain(avatar.alt)[0].toUpperCase()
       } else {
-        avatar.initials = avatar.alt[0].toUpperCase();
+        avatar.initials = avatar.alt[0].toUpperCase()
       }
     } else if (typeof author === 'object') {
-      avatar.alt = author.name;
-      avatar.src = author.photo;
-      avatar.href = author.url;
+      avatar.alt = author.name
+      avatar.src = author.photo
+      avatar.href = author.url
       if (avatar.alt) {
-        let initials = avatar.alt.match(/\b\w/g) || [];
+        let initials = avatar.alt.match(/\b\w/g) || []
         initials = (
           (initials.shift() || '') + (initials.pop() || '')
-        ).toUpperCase();
-        avatar.initials = initials;
+        ).toUpperCase()
+        avatar.initials = initials
       } else if (avatar.href) {
-        avatar.alt = getDomain(avatar.href);
-        avatar.initials = avatar.alt[0].toUpperCase();
+        avatar.alt = getDomain(avatar.href)
+        avatar.initials = avatar.alt[0].toUpperCase()
       }
       if (avatar.src) {
-        avatar.src = resizeImage(avatar.src, { w: 50, h: 50, t: 'square' });
+        avatar.src = resizeImage(avatar.src, { w: 50, h: 50, t: 'square' })
       }
     }
   }
-  avatar.color = stringToColor(avatar.href);
-  return avatar;
+  avatar.color = stringToColor(avatar.href)
+  return avatar
 }

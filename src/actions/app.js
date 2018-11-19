@@ -1,28 +1,20 @@
-export const toggleChannelsMenu = () => {
-  return {
-    type: 'TOGGLE_CHANNELS_MENU',
-  };
-};
+export const toggleChannelsMenu = () => ({
+  type: 'TOGGLE_CHANNELS_MENU',
+})
 
-export const addNotification = (message, type = 'normal') => {
-  return {
-    notification: {
-      message: message,
-      type: type,
-    },
-    type: 'ADD_NOTIFICATION',
-  };
-};
+export const addNotification = (message, type = 'normal') => ({
+  notification: {
+    message: message,
+    type: type,
+  },
+  type: 'ADD_NOTIFICATION',
+})
 
-export const removeNotification = (index = 0) => {
-  return {
-    notificationIndex: index,
-    type: 'REMOVE_NOTIFICATION',
-  };
-};
+export const removeNotification = (index = 0) => ({
+  notificationIndex: index,
+  type: 'REMOVE_NOTIFICATION',
+})
 
-export const toggleTheme = () => {
-  return {
-    type: 'TOGGLE_THEME',
-  };
-};
+export const toggleTheme = () => ({
+  type: 'TOGGLE_THEME',
+})

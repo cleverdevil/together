@@ -1,5 +1,5 @@
-import { Map } from 'immutable';
-import { getTheme, changeTitleBarTheme } from '../modules/windows-functions';
+import { Map } from 'immutable'
+import { getTheme, changeTitleBarTheme } from '../modules/windows-functions'
 
 const defaultState = new Map({
   channelsMenuOpen: false,
@@ -8,49 +8,49 @@ const defaultState = new Map({
   timelineAfter: '',
   notifications: [],
   theme: localStorage.getItem('together-theme') || getTheme() || 'light',
-});
+})
 
-changeTitleBarTheme(defaultState.get('theme'));
+changeTitleBarTheme(defaultState.get('theme'))
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
     case 'TOGGLE_CHANNELS_MENU': {
-      return state.set('channelsMenuOpen', !state.get('channelsMenuOpen'));
+      return state.set('channelsMenuOpen', !state.get('channelsMenuOpen'))
     }
     case 'SET_SELECTED_CHANNEL': {
-      return state.set('selectedChannel', payload.uid);
+      return state.set('selectedChannel', payload.uid)
     }
     case 'SET_TIMELINE_BEFORE': {
-      return state.set('timelineBefore', payload.before);
+      return state.set('timelineBefore', payload.before)
     }
     case 'SET_TIMELINE_AFTER': {
-      return state.set('timelineAfter', payload.after);
+      return state.set('timelineAfter', payload.after)
     }
     case 'ADD_NOTIFICATION': {
-      let notifications = [...state.get('notifications')];
-      notifications.push(payload.notification);
-      return state.set('notifications', notifications);
+      let notifications = [...state.get('notifications')]
+      notifications.push(payload.notification)
+      return state.set('notifications', notifications)
     }
     case 'REMOVE_NOTIFICATION': {
-      let notifications = [...state.get('notifications')];
+      let notifications = [...state.get('notifications')]
       if (notifications.length < 2) {
-        notifications = [];
+        notifications = []
       } else {
-        notifications.splice(payload.notificationIndex, 1);
+        notifications.splice(payload.notificationIndex, 1)
       }
-      return state.set('notifications', notifications);
+      return state.set('notifications', notifications)
     }
     case 'TOGGLE_THEME': {
-      const newTheme = state.get('theme') === 'light' ? 'dark' : 'light';
-      localStorage.setItem('together-theme', newTheme);
-      changeTitleBarTheme(newTheme);
-      return state.set('theme', newTheme);
+      const newTheme = state.get('theme') === 'light' ? 'dark' : 'light'
+      localStorage.setItem('together-theme', newTheme)
+      changeTitleBarTheme(newTheme)
+      return state.set('theme', newTheme)
     }
     case 'LOGOUT': {
-      return defaultState;
+      return defaultState
     }
     default: {
-      return state;
+      return state
     }
   }
-};
+}

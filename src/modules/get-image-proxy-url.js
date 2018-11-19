@@ -3,18 +3,18 @@
  */
 export default function(originalUrl, options = { dpr: 1, il: true }) {
   const url = encodeURI(
-    originalUrl.replace('http://', '').replace('https://', ''),
-  );
-  let proxyUrl = `https://images.weserv.nl/?url=${url}`;
+    originalUrl.replace('http://', '').replace('https://', '')
+  )
+  let proxyUrl = `https://images.weserv.nl/?url=${url}`
   for (const key in options) {
     if (options.hasOwnProperty(key)) {
-      const value = options[key];
+      const value = options[key]
       if (value === true) {
-        proxyUrl += '&' + key;
+        proxyUrl += '&' + key
       } else {
-        proxyUrl += `&${key}=${value}`;
+        proxyUrl += `&${key}=${value}`
       }
     }
   }
-  return proxyUrl;
+  return proxyUrl
 }

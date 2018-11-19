@@ -1,7 +1,7 @@
-import PhotoIcon from '@material-ui/icons/PhotoCamera';
-import CheckinIcon from '@material-ui/icons/LocationOn';
-import AllIcon from '@material-ui/icons/Chat';
-import ClassicIcon from '@material-ui/icons/ChromeReaderMode';
+import PhotoIcon from '@material-ui/icons/PhotoCamera'
+import CheckinIcon from '@material-ui/icons/LocationOn'
+import AllIcon from '@material-ui/icons/Chat'
+import ClassicIcon from '@material-ui/icons/ChromeReaderMode'
 
 const layouts = [
   {
@@ -30,6 +30,6 @@ const layouts = [
       (post.location && post.location.latitude && post.location.longitude) ||
       (post.checkin && post.checkin.latitude && post.checkin.longitude),
   },
-];
+]
 
-export default layouts;
+export default layouts

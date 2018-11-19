@@ -1,7 +1,7 @@
-const swPrecache = require('sw-precache');
+const swPrecache = require('sw-precache')
 
 // Generate Service Worker
-const rootDir = 'build';
+const rootDir = 'build'
 swPrecache.write(
   `${rootDir}/service-worker.js`,
   {
@@ -12,6 +12,6 @@ swPrecache.write(
     maximumFileSizeToCacheInBytes: 4194304,
   },
   () => {
-    console.log('Service worker generated');
-  },
-);
+    console.log('Service worker generated')
+  }
+)

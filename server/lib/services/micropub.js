@@ -8,27 +8,27 @@ class MicropubService {
    */
   get(id, params) {
     if (id) {
-      return params.micropub.querySource(id, params.query.properties || []);
+      return params.micropub.querySource(id, params.query.properties || [])
     } else {
-      return params.micropub.query(params.query.query);
+      return params.micropub.query(params.query.query)
     }
   }
 
   create(data, params) {
     if (data.undelete) {
-      return params.micropub.undelete(data.undelete);
+      return params.micropub.undelete(data.undelete)
     } else {
-      return params.micropub.create(data.post, data.type || 'json');
+      return params.micropub.create(data.post, data.type || 'json')
     }
   }
 
   update(id, params) {
-    return params.micropub.update(id, params.update);
+    return params.micropub.update(id, params.update)
   }
 
   remove(id, params) {
-    return params.micropub.delete(id);
+    return params.micropub.delete(id)
   }
 }
 
-module.exports = new MicropubService();
+module.exports = new MicropubService()

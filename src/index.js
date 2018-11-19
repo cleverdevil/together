@@ -1,13 +1,13 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import App from './App';
-import Theme from './components/theme';
-import Store from './store';
-import serviceWorker from './service-worker';
-import { addNotification } from './actions';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
+import App from './containers/App'
+import Theme from './components/Theme'
+import Store from './store'
+import serviceWorker from './service-worker'
+import { addNotification } from './actions'
 
-const StoreInstance = Store();
+const StoreInstance = Store()
 
 ReactDOM.render(
   <Provider store={StoreInstance}>
@@ -15,12 +15,12 @@ ReactDOM.render(
       <App />
     </Theme>
   </Provider>,
-  document.getElementById('root'),
-);
+  document.getElementById('root')
+)
 
 serviceWorker(() => {
-  console.log('Worker updated');
+  console.log('Worker updated')
   StoreInstance.dispatch(
-    addNotification('App updated. Reopen Together to load update'),
-  );
-});
+    addNotification('App updated. Reopen Together to load update')
+  )
+})

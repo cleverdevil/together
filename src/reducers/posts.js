@@ -1,43 +1,41 @@
-import { Map, List } from 'immutable';
+import { Map, List } from 'immutable'
 
-const defaultState = new List([]);
+const defaultState = new List([])
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
     case 'ADD_POST': {
-      return state.push(new Map(payload.post));
+      return state.push(new Map(payload.post))
     }
     case 'ADD_POSTS': {
       if (payload.method === 'append') {
-        payload.posts.forEach(post => (state = state.push(new Map(post))));
+        payload.posts.forEach(post => (state = state.push(new Map(post))))
       } else if (payload.method === 'prepend') {
         payload.posts
           .reverse()
-          .forEach(post => (state = state.unshift(new Map(post))));
+          .forEach(post => (state = state.unshift(new Map(post))))
       }
-      return state;
+      return state
     }
     case 'UPDATE_POST': {
-      const index = state.findIndex(post => post.get('_id') === payload.id);
+      const index = state.findIndex(post => post.get('_id') === payload.id)
       if (index > -1) {
-        return state.update(index, post =>
-          post.set(payload.key, payload.value),
-        );
+        return state.update(index, post => post.set(payload.key, payload.value))
       } else {
-        return state;
+        return state
       }
     }
     case 'REMOVE_POST': {
-      return state.filter(post => post.get('_id') !== payload.id);
+      return state.filter(post => post.get('_id') !== payload.id)
     }
     case 'SET_SELECTED_CHANNEL': {
-      return state.clear();
+      return state.clear()
     }
     case 'LOGOUT': {
-      return defaultState;
+      return defaultState
     }
     default: {
-      return state;
+      return state
     }
   }
-};
+}

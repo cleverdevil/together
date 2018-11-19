@@ -1,14 +1,14 @@
-const NeDB = require('nedb');
-const { Service } = require('feathers-nedb');
+const NeDB = require('nedb')
+const { Service } = require('feathers-nedb')
 
 const UserModel = new NeDB({
   filename: './data/users.db',
   autoload: true,
-});
+})
 
 class UserService extends Service {
   constructor() {
-    super({ Model: UserModel });
+    super({ Model: UserModel })
   }
 
   create(data, params) {
@@ -21,22 +21,22 @@ class UserService extends Service {
       })
         .then(res => {
           if (res && res[0] && res[0].me == data.me) {
-            const user = res[0];
-            const settings = Object.assign({}, user.settings, data.settings);
-            const update = Object.assign({}, user, data);
-            update.settings = settings;
-            return super.update(user._id, update, params);
+            const user = res[0]
+            const settings = Object.assign({}, user.settings, data.settings)
+            const update = Object.assign({}, user, data)
+            update.settings = settings
+            return super.update(user._id, update, params)
           } else {
-            return super.create(data, params);
+            return super.create(data, params)
           }
         })
         .then(res => resolve(res))
         .catch(err => {
-          console.log('Error creating user in the together database', err);
-          reject(err);
-        });
-    });
+          console.log('Error creating user in the together database', err)
+          reject(err)
+        })
+    })
   }
 }
 
-module.exports = new UserService();
+module.exports = new UserService()
