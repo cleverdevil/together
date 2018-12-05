@@ -1,19 +1,12 @@
 export default theme => ({
   dialogPaper: {
-    display: 'block',
+    overflow: 'hidden',
   },
   wrapper: {
     position: 'relative',
     width: '50em',
     maxWidth: '100%',
-    paddingTop: 50,
-  },
-  appBar: {
-    display: 'block',
-    top: 0,
-    left: 0,
-    right: 0,
-    position: 'fixed',
+    overflow: 'auto',
   },
   title: {
     flex: 1,

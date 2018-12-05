@@ -258,7 +258,7 @@ ChannelSettings.propTypes = {
 
 const mapStateToProps = state => ({
   channels: state.channels.toJS(),
-  channelSettings: state.settings.get('settings'),
+  channelSettings: state.settings.get('channels'),
 })
 
 const mapDispatchToProps = dispatch =>

@@ -7,8 +7,11 @@ const defaultSettings = {
 }
 
 export default function getSetting(uid, key, channelSettings = {}) {
-  if (channelSettings[uid]) {
-    return channelSettings[uid][key] || defaultSettings[key]
+  if (
+    channelSettings[uid] &&
+    typeof channelSettings[uid][key] !== 'undefined'
+  ) {
+    return channelSettings[uid][key]
   } else {
     return defaultSettings[key]
   }

@@ -46,7 +46,7 @@ class SettingsModal extends Component {
           paper: this.props.classes.dialogPaper,
         }}
       >
-        <AppBar color="secondary" className={this.props.classes.appBar}>
+        <AppBar color="secondary" position="sticky">
           <Toolbar>
             <Typography
               variant="h6"

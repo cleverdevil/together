@@ -9,10 +9,8 @@ export default (state = initialState, payload) => {
       const userId = state.get('userId')
       if (userId && payload.feathers) {
         users
-          .update(userId, {
-            $set: {
-              [`settings.${payload.key}`]: payload.value,
-            },
+          .patch(userId, {
+            [`settings.${payload.key}`]: payload.value,
           })
           .then(res => () => {
             /* All good */
@@ -27,12 +25,10 @@ export default (state = initialState, payload) => {
         const userId = state.get('userId')
         if (userId && payload.feathers) {
           users
-            .update(userId, {
-              $set: {
-                [`settings.channels.${payload.uid}.${
-                  payload.key
-                }`]: payload.value,
-              },
+            .patch(userId, {
+              [`settings.channels.${payload.uid}.${
+                payload.key
+              }`]: payload.value,
             })
             .then(res => () => {
               /* All good */
