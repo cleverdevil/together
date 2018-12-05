@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import 'intersection-observer'
+import Observer from '@researchgate/react-intersection-observer'
 import List from '@material-ui/core/List'
 import Button from '@material-ui/core/Button'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -24,15 +26,10 @@ class ClassicView extends Component {
       nextPost: null,
     }
     this.articleRef = React.createRef()
-    this.handleScroll = this.handleScroll.bind(this)
-    this.fillScreen = this.fillScreen.bind(this)
+    this.handleIntersection = this.handleIntersection.bind(this)
     this.handlePostSelect = this.handlePostSelect.bind(this)
     this.renderItem = this.renderItem.bind(this)
     this.renderLoadMore = this.renderLoadMore.bind(this)
-  }
-
-  componentDidMount() {
-    this.fillScreen()
   }
 
   componentWillReceiveProps(newProps) {
@@ -46,38 +43,39 @@ class ClassicView extends Component {
     }
   }
 
-  handleScroll() {
-    const infiniteScrollEnabled = getChannelSetting(
-      this.props.selectedChannel,
-      'infiniteScroll',
-      this.props.channelSettings
-    )
-    if (
-      infiniteScrollEnabled &&
-      this.infiniteScroll &&
-      !this.props.channelsMenuOpen
-    ) {
-      const lastVisibleIndex = this.infiniteScroll.getVisibleRange()[1]
-      if (lastVisibleIndex >= this.props.posts.length - 1) {
-        if (this.props.loadMore) {
-          this.props.loadMore()
-          return null
-        }
-        return true
-      }
+  handleIntersection(entry) {
+    if (!entry || !entry.intersectionRatio) {
+      return null
     }
-    return null
-  }
 
-  /**
-   * When the first articles are loaded they might not be tall enough to fill the screen so it is impossible to scroll to load more
-   */
-  fillScreen() {
-    // TODO: Should really make this more smart and only run once more posts have loaded
-    const filled = this.handleScroll()
-    if (!filled) {
-      setTimeout(this.fillScreen, 2000)
+    const target = entry.target
+    const itemId = target.dataset.id
+
+    const {
+      selectedChannel,
+      channelSettings,
+      channelsMenuOpen,
+      posts,
+      loadMore,
+    } = this.props
+
+    const infiniteScrollEnabled = getChannelSetting(
+      selectedChannel,
+      'infiniteScroll',
+      channelSettings
+    )
+
+    const isSecondLastItem = itemId === posts[posts.length - 2]._id
+
+    if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
+      if (loadMore) {
+        loadMore()
+        return null
+      }
+      return true
     }
+
+    return null
   }
 
   handlePostSelect(index) {
@@ -117,11 +115,18 @@ class ClassicView extends Component {
 
   renderItem(index, key) {
     return (
-      <Preview
+      <Observer
         key={key}
-        post={this.props.posts[index]}
-        onClick={() => this.handlePostSelect(index)}
-      />
+        root={'#classic-view-previews'}
+        margin="0px"
+        threshold={0}
+        onChange={this.handleIntersection}
+      >
+        <Preview
+          post={this.props.posts[index]}
+          onClick={() => this.handlePostSelect(index)}
+        />
+      </Observer>
     )
   }
 
@@ -153,16 +158,12 @@ class ClassicView extends Component {
     const { post, nextPost, previousPost } = this.state
     return (
       <div className={classes.wrapper}>
-        <List className={classes.previewColumn} onScroll={this.handleScroll}>
+        <List className={classes.previewColumn} id="classic-view-previews">
           <ReactList
             itemRenderer={this.renderItem}
             length={posts.length}
             type="simple"
-            useTranslate3d={true}
             minSize={3}
-            ref={el => {
-              this.infiniteScroll = el
-            }}
           />
           {this.renderLoadMore()}
         </List>

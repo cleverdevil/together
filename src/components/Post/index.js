@@ -63,7 +63,12 @@ const TogetherCard = ({
   }
 
   return (
-    <Card className={classes.card} style={style}>
+    <Card
+      className={classes.card}
+      style={style}
+      data-isread={item._is_read}
+      data-id={item._id}
+    >
       {item.featured && <TogetherCardPhotos photos={item.featured} />}
       <CardHeader
         title={authorNameLink}

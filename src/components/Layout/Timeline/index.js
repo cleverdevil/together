@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import 'intersection-observer'
+import Observer from '@researchgate/react-intersection-observer'
 import Button from '@material-ui/core/Button'
 import ReactList from 'react-list'
 import Post from '../../Post'
@@ -15,18 +17,20 @@ class Timeline extends Component {
   constructor(props) {
     super(props)
     this.state = {}
-    this.handleScroll = this.handleScroll.bind(this)
-    this.fillScreen = this.fillScreen.bind(this)
+    this.handleIntersection = this.handleIntersection.bind(this)
     this.renderItem = this.renderItem.bind(this)
     this.renderLoadMore = this.renderLoadMore.bind(this)
   }
 
-  componentDidMount() {
-    // Wait a little bit to see if we should load more posts
-    setTimeout(this.fillScreen, 3000)
-  }
+  handleIntersection(entry) {
+    if (!entry || !entry.intersectionRatio) {
+      return null
+    }
 
-  handleScroll(markRead = true) {
+    const target = entry.target
+    const itemId = target.dataset.id
+    const itemIsRead = target.dataset.isread === 'true'
+
     const {
       selectedChannel,
       channelSettings,
@@ -36,62 +40,54 @@ class Timeline extends Component {
       decrementChannelUnread,
       loadMore,
     } = this.props
-    if (this.infiniteScroll) {
-      const infiniteScrollEnabled = getChannelSetting(
-        selectedChannel,
-        'infiniteScroll',
-        channelSettings
-      )
-      const autoReadEnabled = getChannelSetting(
-        selectedChannel,
-        'autoRead',
-        channelSettings
-      )
-      const [
-        firstVisibleIndex,
-        lastVisibleIndex,
-      ] = this.infiniteScroll.getVisibleRange()
 
-      if (autoReadEnabled && markRead) {
-        for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-          const post = posts[i]
-          if (!post._is_read) {
-            updatePost(post._id, '_is_read', true)
-            postsService
-              .update(post._id, {
-                channel: selectedChannel,
-                method: 'mark_read',
-              })
-              .then(res => decrementChannelUnread(selectedChannel))
-              .catch(err => updatePost(post._id, '_is_read', false))
-          }
-        }
-      }
+    const infiniteScrollEnabled = getChannelSetting(
+      selectedChannel,
+      'infiniteScroll',
+      channelSettings
+    )
+    const autoReadEnabled = getChannelSetting(
+      selectedChannel,
+      'autoRead',
+      channelSettings
+    )
 
-      if (
-        infiniteScrollEnabled &&
-        !channelsMenuOpen &&
-        lastVisibleIndex >= posts.length - 1
-      ) {
-        if (loadMore) {
-          loadMore()
-          return null
-        }
-        return true
-      }
+    if (autoReadEnabled && !itemIsRead) {
+      updatePost(itemId, '_is_read', true)
+      postsService
+        .update(itemId, {
+          channel: selectedChannel,
+          method: 'mark_read',
+        })
+        .then(res => decrementChannelUnread(selectedChannel))
+        .catch(err => updatePost(itemId, '_is_read', false))
     }
+
+    const isSecondLastItem = itemId === posts[posts.length - 2]._id
+
+    if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
+      if (loadMore) {
+        loadMore()
+        return null
+      }
+      return true
+    }
+
     return null
   }
 
-  fillScreen() {
-    const filled = this.handleScroll(false)
-    if (!filled) {
-      setTimeout(this.fillScreen, 2000)
-    }
-  }
-
   renderItem(index, key) {
-    return <Post key={key} post={this.props.posts[index]} />
+    return (
+      <Observer
+        key={key}
+        root={null}
+        margin="0px"
+        threshold={0}
+        onChange={this.handleIntersection}
+      >
+        <Post post={this.props.posts[index]} />
+      </Observer>
+    )
   }
 
   renderLoadMore() {
@@ -117,16 +113,12 @@ class Timeline extends Component {
   render() {
     const { classes, posts } = this.props
     return (
-      <div className={classes.timeline} onScroll={this.handleScroll}>
+      <div className={classes.timeline}>
         <ReactList
           itemRenderer={this.renderItem}
           length={posts.length}
           type="simple"
-          useTranslate3d={true}
           minSize={3}
-          ref={el => {
-            this.infiniteScroll = el
-          }}
         />
         {this.renderLoadMore()}
       </div>

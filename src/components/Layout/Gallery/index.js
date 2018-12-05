@@ -2,8 +2,9 @@ import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-
 import { withStyles } from '@material-ui/core/styles'
+import 'intersection-observer'
+import Observer from '@researchgate/react-intersection-observer'
 import GridList from '@material-ui/core/GridList'
 import GridListTile from '@material-ui/core/GridListTile'
 import GridListTileBar from '@material-ui/core/GridListTileBar'
@@ -30,16 +31,10 @@ class Gallery extends Component {
       selectedMediaIndex: false,
     }
     this.markPostRead = this.markPostRead.bind(this)
-    this.handleScroll = this.handleScroll.bind(this)
-    this.fillScreen = this.fillScreen.bind(this)
+    this.handleIntersection = this.handleIntersection.bind(this)
     this.handleGallerySliderChange = this.handleGallerySliderChange.bind(this)
     this.renderRow = this.renderRow.bind(this)
     this.renderLoadMore = this.renderLoadMore.bind(this)
-  }
-
-  componentDidMount() {
-    // Wait a little bit to see if we should load more images
-    setTimeout(this.fillScreen, 3000)
   }
 
   componentWillReceiveProps(newProps) {
@@ -106,66 +101,58 @@ class Gallery extends Component {
       .catch(err => updatePost(postId, '_is_read', false))
   }
 
-  handleScroll(markRead = true) {
+  handleIntersection(entry) {
+    if (!entry || !entry.intersectionRatio) {
+      return null
+    }
+
+    const target = entry.target
+    const itemId = target.dataset.id
+    const itemIsRead = target.dataset.isread === 'true'
+
     const {
       selectedChannel,
       channelSettings,
-      posts,
       channelsMenuOpen,
+      posts,
+      updatePost,
+      decrementChannelUnread,
       loadMore,
     } = this.props
-    if (this.infiniteScroll) {
-      const autoReadEnabled = getChannelSetting(
-        selectedChannel,
-        'autoRead',
-        channelSettings
-      )
-      const infiniteScrollEnabled = getChannelSetting(
-        selectedChannel,
-        'infiniteScroll',
-        channelSettings
-      )
-      let [
-        firstVisibleIndex,
-        lastVisibleIndex,
-      ] = this.infiniteScroll.getVisibleRange()
-      firstVisibleIndex = firstVisibleIndex * columnCount
-      lastVisibleIndex = lastVisibleIndex * columnCount + columnCount
-      const scrollEl = this.infiniteScroll.scrollParent
 
-      if (autoReadEnabled && markRead) {
-        for (let i = firstVisibleIndex; i < lastVisibleIndex; i++) {
-          const post = posts[i]
-          if (post && !post._is_read) {
-            this.markPostRead(post._id)
-          }
-        }
-      }
+    const infiniteScrollEnabled = getChannelSetting(
+      selectedChannel,
+      'infiniteScroll',
+      channelSettings
+    )
+    const autoReadEnabled = getChannelSetting(
+      selectedChannel,
+      'autoRead',
+      channelSettings
+    )
 
-      if (
-        infiniteScrollEnabled &&
-        !channelsMenuOpen &&
-        scrollEl.scrollTop > scrollEl.scrollHeight - scrollEl.clientHeight - 5
-      ) {
-        if (loadMore) {
-          loadMore()
-          return null
-        }
-        return true
-      }
+    if (autoReadEnabled && !itemIsRead) {
+      updatePost(itemId, '_is_read', true)
+      postsService
+        .update(itemId, {
+          channel: selectedChannel,
+          method: 'mark_read',
+        })
+        .then(res => decrementChannelUnread(selectedChannel))
+        .catch(err => updatePost(itemId, '_is_read', false))
     }
+
+    const isSecondLastItem = itemId === posts[posts.length - 2]._id
+
+    if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
+      if (loadMore) {
+        loadMore()
+        return null
+      }
+      return true
+    }
+
     return null
-  }
-
-  /**
-   * When the first articles are loaded they might not be tall enough to fill the screen so it is impossible to scroll to load more
-   */
-  fillScreen() {
-    // TODO: Should really make this more smart and wait for posts to load
-    const filled = this.handleScroll(false)
-    if (!filled) {
-      setTimeout(this.fillScreen, 2000)
-    }
   }
 
   handleGallerySliderChange(post) {
@@ -201,44 +188,53 @@ class Gallery extends Component {
           const avatarData = authorToAvatarData(post.author)
 
           return (
-            <GridListTile
+            <Observer
               key={post._id + index}
-              cols={1}
-              onClick={e => {
-                this.setState({ selectedMediaIndex: index })
-                this.markPostRead(post._id)
-              }}
-              style={{ height: cellHeight, width: 100 / columnCount + '%' }}
+              root={null}
+              margin="0px"
+              threshold={0}
+              onChange={this.handleIntersection}
             >
-              {media.photo && (
-                <img
-                  src={resizeImage(media.photo, {
-                    w: 300,
-                    h: 300,
-                    t: 'square',
-                  })}
-                  alt=""
+              <GridListTile
+                cols={1}
+                onClick={e => {
+                  this.setState({ selectedMediaIndex: index })
+                  this.markPostRead(post._id)
+                }}
+                style={{ height: cellHeight, width: 100 / columnCount + '%' }}
+                data-id={post._id}
+                data-isread={post._is_read}
+              >
+                {media.photo && (
+                  <img
+                    src={resizeImage(media.photo, {
+                      w: 300,
+                      h: 300,
+                      t: 'square',
+                    })}
+                    alt=""
+                  />
+                )}
+                {media.video && (
+                  <video
+                    className={classes.video}
+                    src={media.video}
+                    poster={media.poster}
+                    controls
+                    loop
+                  />
+                )}
+                <GridListTileBar
+                  title={post.name || (post.content && post.content.text) || ''}
+                  subtitle={avatarData.alt}
+                  actionIcon={
+                    <div style={{ marginRight: 14 }}>
+                      <AuthorAvatar author={post.author} />
+                    </div>
+                  }
                 />
-              )}
-              {media.video && (
-                <video
-                  className={classes.video}
-                  src={media.video}
-                  poster={media.poster}
-                  controls
-                  loop
-                />
-              )}
-              <GridListTileBar
-                title={post.name || (post.content && post.content.text) || ''}
-                subtitle={avatarData.alt}
-                actionIcon={
-                  <div style={{ marginRight: 14 }}>
-                    <AuthorAvatar author={post.author} />
-                  </div>
-                }
-              />
-            </GridListTile>
+              </GridListTile>
+            </Observer>
           )
         })}
       </GridList>
@@ -277,16 +273,12 @@ class Gallery extends Component {
     const { medias, selectedMediaIndex } = this.state
     return (
       <Fragment>
-        <div className={classes.galleryWrapper} onScroll={this.handleScroll}>
+        <div className={classes.galleryWrapper}>
           <ReactList
             itemRenderer={this.renderRow}
             length={Math.ceil(medias.length / columnCount)}
             type="simple"
-            useTranslate3d={true}
             minSize={3}
-            ref={el => {
-              this.infiniteScroll = el
-            }}
           />
           {this.renderLoadMore()}
         </div>

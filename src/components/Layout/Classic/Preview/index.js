@@ -66,6 +66,8 @@ class ClassicPreview extends Component {
         onClick={this.handleClick}
         style={readStyle}
         className={this.props.classes.item}
+        data-id={item._id}
+        data-isread={item._is_read}
       >
         <AuthorAvatar author={item.author} />
         <ListItemText
