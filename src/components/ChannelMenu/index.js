@@ -12,7 +12,6 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import {
-  selectChannel,
   toggleChannelsMenu,
   addChannel,
   updateChannel,
@@ -250,12 +249,11 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      selectChannel: selectChannel,
-      toggleChannelsMenu: toggleChannelsMenu,
-      addChannel: addChannel,
-      updateChannel: updateChannel,
-      reorderChannels: reorderChannels,
-      addNotification: addNotification,
+      toggleChannelsMenu,
+      addChannel,
+      updateChannel,
+      reorderChannels,
+      addNotification,
     },
     dispatch
   )

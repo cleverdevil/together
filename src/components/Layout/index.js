@@ -25,9 +25,21 @@ import styles from './style'
 class MainPosts extends Component {
   constructor(props) {
     super(props)
+
+    // Get the layout for the selected channel
+    const foundLayout = layouts.find(
+      layout =>
+        layout.id ===
+        getChannelSetting(
+          props.selectedChannel,
+          'layout',
+          props.channelSettings
+        )
+    )
+
     this.state = {
       loading: false,
-      layout: layouts[0],
+      layout: foundLayout || layouts[0],
     }
 
     this.handleLoadMore = this.handleLoadMore.bind(this)
@@ -36,14 +48,12 @@ class MainPosts extends Component {
   }
 
   componentDidMount() {
-    if (
-      this.props.user.me &&
-      this.props.match &&
-      this.props.match.params &&
-      this.props.match.params.channelSlug
-    ) {
-      const channel = decodeURIComponent(this.props.match.params.channelSlug)
-      this.props.selectChannel(channel)
+    const { match, user, selectChannel, selectedChannel } = this.props
+    if (user.me && match && match.params && match.params.channelSlug) {
+      const channel = decodeURIComponent(match.params.channelSlug)
+      if (channel !== selectedChannel) {
+        selectChannel(channel)
+      }
     }
     this.checkForNewPostsInterval = setInterval(
       this.checkForNewPosts,
@@ -173,44 +183,46 @@ class MainPosts extends Component {
   }
 
   renderTimelinePosts() {
-    let posts = this.props.items
-    if (this.state.layout && this.state.layout.filter) {
-      posts = posts.filter(this.state.layout.filter)
+    const { items, timelineAfter } = this.props
+    const { layout } = this.state
+    let posts = [...items]
+    if (layout && layout.filter) {
+      posts = posts.filter(layout.filter)
     }
-    switch (this.state.layout.id) {
+    switch (layout.id) {
       case 'gallery':
         return (
           <Gallery
             posts={posts}
-            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.handleLoadMore : null}
           />
         )
       case 'map':
         return (
           <Map
             posts={posts}
-            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.handleLoadMore : null}
           />
         )
       case 'classic':
         return (
           <Classic
             posts={posts}
-            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.handleLoadMore : null}
           />
         )
       case 'timeline':
         return (
           <Timeline
             posts={posts}
-            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.handleLoadMore : null}
           />
         )
       default:
         return (
           <Timeline
             posts={posts}
-            loadMore={this.props.timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.handleLoadMore : null}
           />
         )
     }

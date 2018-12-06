@@ -27,7 +27,7 @@ class Gallery extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      medias: [],
+      medias: props.posts ? this.getMediasFromPosts(props.posts) : [],
       selectedMediaIndex: false,
     }
     this.markPostRead = this.markPostRead.bind(this)
@@ -39,54 +39,59 @@ class Gallery extends Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.posts && newProps.posts !== this.props.posts) {
-      const medias = []
-      newProps.posts.forEach(post => {
-        if (
-          post.photo &&
-          post.video &&
-          post.photo.length === 1 &&
-          post.video.length === 1
-        ) {
-          // This is a video with a poster
-          medias.push({ post, video: post.video[0], poster: post.photo[0] })
-        } else {
-          if (post.photo) {
-            if (typeof post.photo === 'string') {
-              post.photo = [post.photo]
-            }
-            post.photo.forEach(photo =>
-              medias.push({
-                post,
-                photo,
-              })
-            )
-          }
-
-          if (post.featured) {
-            if (typeof post.featured === 'string') {
-              post.featured = [post.featured]
-            }
-            post.featured.forEach(featured =>
-              medias.push({
-                post,
-                photo: featured,
-              })
-            )
-          }
-
-          if (post.video) {
-            if (typeof post.video === 'string') {
-              post.video = [post.video]
-            }
-            post.video.forEach(video => medias.push({ post, video }))
-          }
-        }
-      })
+      const medias = this.getMediasFromPosts(newProps.posts)
 
       if (medias.length !== this.state.medias.length) {
         this.setState({ medias: medias })
       }
     }
+  }
+
+  getMediasFromPosts(posts) {
+    const medias = []
+    posts.forEach(post => {
+      if (
+        post.photo &&
+        post.video &&
+        post.photo.length === 1 &&
+        post.video.length === 1
+      ) {
+        // This is a video with a poster
+        medias.push({ post, video: post.video[0], poster: post.photo[0] })
+      } else {
+        if (post.photo) {
+          if (typeof post.photo === 'string') {
+            post.photo = [post.photo]
+          }
+          post.photo.forEach(photo =>
+            medias.push({
+              post,
+              photo,
+            })
+          )
+        }
+
+        if (post.featured) {
+          if (typeof post.featured === 'string') {
+            post.featured = [post.featured]
+          }
+          post.featured.forEach(featured =>
+            medias.push({
+              post,
+              photo: featured,
+            })
+          )
+        }
+
+        if (post.video) {
+          if (typeof post.video === 'string') {
+            post.video = [post.video]
+          }
+          post.video.forEach(video => medias.push({ post, video }))
+        }
+      }
+    })
+    return medias
   }
 
   markPostRead(postId) {

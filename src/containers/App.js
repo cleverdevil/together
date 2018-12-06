@@ -38,8 +38,8 @@ class App extends Component {
                   path="/channel/:channelSlug/edit"
                   component={ChannelSettings}
                 />
-                <Route exact path="/editor" component={MicropubEditor} />
-                <Route exact path="/settings" component={AppSettings} />
+                <Route path="/editor" component={MicropubEditor} />
+                <Route path="/settings" component={AppSettings} />
               </Grid>
               <Login />
               <Notification />

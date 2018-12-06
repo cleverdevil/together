@@ -97,7 +97,7 @@ class MicropubForm extends Component {
               <span style={{ width: 10, display: 'inline-block' }} />
             </Fragment>
           )}
-          selectComponent={props => <Select fullWidth="true" {...props} />}
+          selectComponent={props => <Select fullWidth={true} {...props} />}
           syndication={syndicationProviders}
           onChange={this.handleChange}
         />
