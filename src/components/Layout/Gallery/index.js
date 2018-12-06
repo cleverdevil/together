@@ -57,7 +57,11 @@ class Gallery extends Component {
         post.video.length === 1
       ) {
         // This is a video with a poster
-        medias.push({ post, video: post.video[0], poster: post.photo[0] })
+        medias.push({
+          postId: post._id,
+          video: post.video[0],
+          poster: post.photo[0],
+        })
       } else {
         if (post.photo) {
           if (typeof post.photo === 'string') {
@@ -65,7 +69,7 @@ class Gallery extends Component {
           }
           post.photo.forEach(photo =>
             medias.push({
-              post,
+              postId: post._id,
               photo,
             })
           )
@@ -77,7 +81,7 @@ class Gallery extends Component {
           }
           post.featured.forEach(featured =>
             medias.push({
-              post,
+              postId: post._id,
               photo: featured,
             })
           )
@@ -87,7 +91,7 @@ class Gallery extends Component {
           if (typeof post.video === 'string') {
             post.video = [post.video]
           }
-          post.video.forEach(video => medias.push({ post, video }))
+          post.video.forEach(video => medias.push({ postId: post._id, video }))
         }
       }
     })
@@ -160,9 +164,9 @@ class Gallery extends Component {
     return null
   }
 
-  handleGallerySliderChange(post) {
-    const { selectedChannel, channelSettings } = this.props
-    post = post.post
+  handleGallerySliderChange(media) {
+    const { selectedChannel, channelSettings, posts } = this.props
+    const post = posts.find(post => post._id === media.postId)
     const autoReadEnabled = getChannelSetting(
       selectedChannel,
       'autoRead',
@@ -177,7 +181,7 @@ class Gallery extends Component {
   }
 
   renderRow(rowIndex, key) {
-    const { classes } = this.props
+    const { classes, posts } = this.props
     const startIndex = rowIndex * columnCount
     const medias = this.state.medias.slice(startIndex, startIndex + columnCount)
     return (
@@ -189,7 +193,7 @@ class Gallery extends Component {
       >
         {medias.map((media, rowItemIndex) => {
           const index = startIndex + rowItemIndex
-          const post = media.post
+          const post = posts.find(post => post._id === media.postId)
           const avatarData = authorToAvatarData(post.author)
 
           return (

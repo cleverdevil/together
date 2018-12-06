@@ -61,9 +61,16 @@ class Gallery extends Component {
 
   render() {
     const { width, open } = this.state
-    const { classes, startIndex, medias, onLastPhoto, onChange } = this.props
+    const {
+      classes,
+      startIndex,
+      medias,
+      onLastPhoto,
+      onChange,
+      posts,
+    } = this.props
     const isPermanentDrawer =
-      medias.find(media => media.post) && width > alwaysOpenWidth
+      medias.find(media => media.postId) && width > alwaysOpenWidth
     return (
       <Dialog
         fullScreen
@@ -107,7 +114,7 @@ class Gallery extends Component {
               !medias ||
               typeof currentSlide === 'undefined' ||
               !medias[currentSlide] ||
-              !medias[currentSlide].post ||
+              !medias[currentSlide].postId ||
               isPermanentDrawer
             ) {
               return null
@@ -137,11 +144,13 @@ class Gallery extends Component {
               !medias ||
               typeof currentSlide === 'undefined' ||
               !medias[currentSlide] ||
-              !medias[currentSlide].post
+              !medias[currentSlide].postId
             ) {
               return null
             }
-            const post = medias[currentSlide].post
+            const post = posts.find(
+              post => post._id === medias[currentSlide].postId
+            )
             return (
               <Drawer
                 open={isPermanentDrawer ? true : this.state.drawerOpen}

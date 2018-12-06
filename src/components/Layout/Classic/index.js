@@ -21,26 +21,13 @@ class ClassicView extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      post: null,
-      previousPost: null,
-      nextPost: null,
+      selectedPostId: null,
     }
     this.articleRef = React.createRef()
     this.handleIntersection = this.handleIntersection.bind(this)
     this.handlePostSelect = this.handlePostSelect.bind(this)
     this.renderItem = this.renderItem.bind(this)
     this.renderLoadMore = this.renderLoadMore.bind(this)
-  }
-
-  componentWillReceiveProps(newProps) {
-    // TODO: Will need to figure out something for when new content is prepended to the top of the list
-    if (
-      newProps.posts.length > this.props.posts.length &&
-      this.state.post &&
-      this.state.nextPost === null
-    ) {
-      this.setState(state => ({ nextPost: state.nextPost + 1 }))
-    }
   }
 
   handleIntersection(entry) {
@@ -78,42 +65,41 @@ class ClassicView extends Component {
     return null
   }
 
-  handlePostSelect(index) {
-    const post = this.props.posts[index]
-    const nextPost = index + 1
-    const prevPost = index - 1
-    const read = post._is_read
-    post._is_read = true
-    this.setState({
-      post,
-      previousPost: prevPost < 0 ? null : prevPost,
-      nextPost: nextPost < this.props.posts.length ? nextPost : null,
-    })
-    if (this.articleRef.current) {
-      this.articleRef.current.scrollTop = 0
-    }
-    // Mark the post as read
-    if (!read) {
-      postsService
-        .update(post._id, {
-          channel: this.props.selectedChannel,
-          method: 'mark_read',
-        })
-        .then(res => {
-          this.props.updatePost(post._id, '_is_read', true)
-          this.props.decrementChannelUnread(this.props.selectedChannel)
-        })
-        .catch(err => {
-          console.log('Error marking post read', err)
-        })
-    }
-    // Load the next posts if reading the final post
-    if (index === this.props.posts.length - 1 && this.props.loadMore) {
-      this.props.loadMore()
+  handlePostSelect(postId) {
+    const { posts } = this.props
+    const index = posts.findIndex(post => post._id === postId)
+    if (index > -1) {
+      const post = posts[index]
+      this.setState({
+        selectedPostId: post._id,
+      })
+      if (this.articleRef.current) {
+        this.articleRef.current.scrollTop = 0
+      }
+      // Mark the post as read
+      if (!post._is_read) {
+        postsService
+          .update(post._id, {
+            channel: this.props.selectedChannel,
+            method: 'mark_read',
+          })
+          .then(res => {
+            this.props.updatePost(post._id, '_is_read', true)
+            this.props.decrementChannelUnread(this.props.selectedChannel)
+          })
+          .catch(err => {
+            console.log('Error marking post read', err)
+          })
+      }
+      // Load the next posts if reading the final post
+      if (index === posts.length - 1 && this.props.loadMore) {
+        this.props.loadMore()
+      }
     }
   }
 
   renderItem(index, key) {
+    const post = this.props.posts[index]
     return (
       <Observer
         key={key}
@@ -122,10 +108,7 @@ class ClassicView extends Component {
         threshold={0}
         onChange={this.handleIntersection}
       >
-        <Preview
-          post={this.props.posts[index]}
-          onClick={() => this.handlePostSelect(index)}
-        />
+        <Preview post={post} onClick={() => this.handlePostSelect(post._id)} />
       </Observer>
     )
   }
@@ -155,7 +138,14 @@ class ClassicView extends Component {
 
   render() {
     const { classes, posts } = this.props
-    const { post, nextPost, previousPost } = this.state
+    const { selectedPostId } = this.state
+    const postIndex = selectedPostId
+      ? posts.findIndex(post => post._id === selectedPostId)
+      : -1
+    const post = postIndex > -1 && posts[postIndex] ? posts[postIndex] : null
+    const nextPostId = posts[postIndex + 1] ? posts[postIndex + 1]._id : null
+    const previousPostId =
+      postIndex > 0 && posts[postIndex - 1] ? posts[postIndex - 1]._id : null
     return (
       <div className={classes.wrapper}>
         <List className={classes.previewColumn} id="classic-view-previews">
@@ -167,7 +157,7 @@ class ClassicView extends Component {
           />
           {this.renderLoadMore()}
         </List>
-        {post && (
+        {selectedPostId && (
           <div ref={this.articleRef} className={classes.postColumn}>
             <Post
               post={post}
@@ -186,23 +176,21 @@ class ClassicView extends Component {
             >
               <Toolbar variant="dense">
                 <Button
-                  onClick={() => this.handlePostSelect(previousPost)}
-                  disabled={previousPost === null}
+                  onClick={() => this.handlePostSelect(previousPostId)}
+                  disabled={previousPostId === null}
                 >
                   Previous
                 </Button>
                 <Button
-                  onClick={() => this.handlePostSelect(nextPost)}
-                  disabled={nextPost === null}
+                  onClick={() => this.handlePostSelect(nextPostId)}
+                  disabled={nextPostId === null}
                 >
                   Next
                 </Button>
                 <Button
                   onClick={() =>
                     this.setState({
-                      post: null,
-                      nextPost: null,
-                      previousPost: null,
+                      selectedPostId: null,
                     })
                   }
                 >

@@ -196,6 +196,17 @@ app.post('/api/getAuthUrl', (req, res, next) => {
   }
 })
 
+app.get('/api/parse/:url', (req, res) => {
+  const read = require('node-read')
+  const url = decodeURIComponent(req.params.url)
+  read(url, (err, article, meta) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error parsing article' })
+    }
+    return res.json({ article, meta })
+  })
+})
+
 app.get('*', (req, res, next) => {
   if (req.path.indexOf('/static/js/') === 0) {
     res.send(404, 'File not found')

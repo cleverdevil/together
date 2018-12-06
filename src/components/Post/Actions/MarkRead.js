@@ -25,7 +25,6 @@ const ActionMarkRead = ({
   <BaseAction
     title={'Mark as ' + (isRead ? 'Unread' : 'Read')}
     onClick={() => {
-      console.log('selectedChannel', channel)
       if (isRead === false) {
         updatePost(_id, '_is_read', true)
         postsService

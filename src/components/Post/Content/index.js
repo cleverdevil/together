@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button'
 import Divider from '@material-ui/core/Divider'
 import ExpandIcon from '@material-ui/icons/ExpandMore'
 import CollapseIcon from '@material-ui/icons/ExpandLess'
+import TruncatedContentLoader from './TruncatedContentLoader'
 import style from './style'
 
 class TogetherCardContent extends Component {
@@ -29,15 +30,44 @@ class TogetherCardContent extends Component {
     }
 
     this.toggleExpand = this.toggleExpand.bind(this)
+    this.getContent = this.getContent.bind(this)
   }
 
   toggleExpand() {
     this.setState(state => ({ expanded: !state.expanded }))
   }
 
+  getContent() {
+    const { post } = this.props
+
+    if (post.summary && !post.content) {
+      return {
+        component: 'p',
+        content: post.summary,
+      }
+    }
+
+    if (post.content && post.content.html) {
+      return {
+        component: 'div',
+        content: post.content.html,
+      }
+    }
+
+    if (post.content && post.content.text) {
+      return {
+        component: 'p',
+        content: post.content.text,
+      }
+    }
+
+    return null
+  }
+
   render() {
     const { post, classes } = this.props
     const { expandable, expanded } = this.state
+    const content = this.getContent()
 
     return (
       <CardContent>
@@ -49,30 +79,19 @@ class TogetherCardContent extends Component {
           />
         )}
 
-        {post.summary && !post.content && (
-          <Typography
-            component="p"
-            dangerouslySetInnerHTML={{ __html: post.summary }}
-          />
-        )}
-
-        <Collapse
-          in={!expandable || expanded}
-          collapsedHeight={expandable ? '5em' : null}
-        >
-          {post.content && post.content.html ? (
+        {!!content && (
+          <Collapse
+            in={!expandable || expanded}
+            collapsedHeight={expandable ? '5em' : null}
+          >
             <Typography
-              component="div"
               className={classes.content}
-              dangerouslySetInnerHTML={{ __html: post.content.html }}
+              component={content.component}
+              dangerouslySetInnerHTML={{ __html: content.content }}
             />
-          ) : post.content && post.content.text ? (
-            <Typography
-              component="p"
-              dangerouslySetInnerHTML={{ __html: post.content.text }}
-            />
-          ) : null}
-        </Collapse>
+            <TruncatedContentLoader post={post} />
+          </Collapse>
+        )}
 
         {expandable && (
           <Fragment>

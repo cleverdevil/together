@@ -23,7 +23,7 @@ export default theme => ({
   },
   button: {
     color: 'white',
-    background: theme.palette.action.active,
+    background: 'rgba(0,0,0,.4)',
   },
   drawer: {
     display: 'block',
