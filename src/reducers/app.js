@@ -7,6 +7,7 @@ const defaultState = new Map({
   timelineBefore: '',
   timelineAfter: '',
   notifications: [],
+  focusedComponent: null,
   theme: localStorage.getItem('together-theme') || getTheme() || 'light',
 })
 
@@ -18,7 +19,7 @@ export default (state = defaultState, payload) => {
       return state.set('channelsMenuOpen', !state.get('channelsMenuOpen'))
     }
     case 'SET_SELECTED_CHANNEL': {
-      return state.set('selectedChannel', payload.uid)
+      return state.set('selectedChannel', payload.uid).set('timelineAfter', '')
     }
     case 'SET_TIMELINE_BEFORE': {
       return state.set('timelineBefore', payload.before)
@@ -48,6 +49,9 @@ export default (state = defaultState, payload) => {
     }
     case 'LOGOUT': {
       return defaultState
+    }
+    case 'SET_FOCUSED_COMPONENT': {
+      return state.set('focusedComponent', payload.component)
     }
     default: {
       return state

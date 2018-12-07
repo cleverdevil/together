@@ -10,6 +10,7 @@ import Button from '@material-ui/core/Button'
 import Toolbar from '@material-ui/core/Toolbar'
 import AppBar from '@material-ui/core/AppBar'
 import ReactList from 'react-list'
+import Shortcuts from '../Shortcuts'
 import Preview from './Preview'
 import Post from '../../Post'
 import { decrementChannelUnread, updatePost } from '../../../actions'
@@ -24,6 +25,7 @@ class ClassicView extends Component {
       selectedPostId: null,
     }
     this.articleRef = React.createRef()
+    this.listRef = React.createRef()
     this.handleIntersection = this.handleIntersection.bind(this)
     this.handlePostSelect = this.handlePostSelect.bind(this)
     this.renderItem = this.renderItem.bind(this)
@@ -95,11 +97,42 @@ class ClassicView extends Component {
       if (index === posts.length - 1 && this.props.loadMore) {
         this.props.loadMore()
       }
+      // Scroll the selected post into view
+      this.listRef.current.scrollAround(index)
+    }
+  }
+
+  handleNextPost = () => {
+    const { posts } = this.props
+    const { selectedPostId } = this.state
+    const postIndex = selectedPostId
+      ? posts.findIndex(post => post._id === selectedPostId)
+      : -1
+    let nextPostId = posts[postIndex + 1] ? posts[postIndex + 1]._id : null
+    if (!nextPostId && !selectedPostId) {
+      nextPostId = posts[0]._id
+    }
+    if (nextPostId) {
+      this.handlePostSelect(nextPostId)
+    }
+  }
+
+  handlePreviousPost = () => {
+    const { posts } = this.props
+    const { selectedPostId } = this.state
+    const postIndex = selectedPostId
+      ? posts.findIndex(post => post._id === selectedPostId)
+      : -1
+    const previousPostId = postIndex > 0 ? posts[postIndex - 1]._id : null
+    if (previousPostId) {
+      this.handlePostSelect(previousPostId)
     }
   }
 
   renderItem(index, key) {
-    const post = this.props.posts[index]
+    const { posts } = this.props
+    const { selectedPostId } = this.state
+    const post = posts[index]
     return (
       <Observer
         key={key}
@@ -108,7 +141,11 @@ class ClassicView extends Component {
         threshold={0}
         onChange={this.handleIntersection}
       >
-        <Preview post={post} onClick={() => this.handlePostSelect(post._id)} />
+        <Preview
+          post={post}
+          onClick={() => this.handlePostSelect(post._id)}
+          highlighted={selectedPostId === post._id}
+        />
       </Observer>
     )
   }
@@ -147,13 +184,19 @@ class ClassicView extends Component {
     const previousPostId =
       postIndex > 0 && posts[postIndex - 1] ? posts[postIndex - 1]._id : null
     return (
-      <div className={classes.wrapper}>
+      <Shortcuts
+        className={classes.wrapper}
+        onNext={this.handleNextPost}
+        onPrevious={this.handlePreviousPost}
+        onMarkRead={() => {}}
+      >
         <List className={classes.previewColumn} id="classic-view-previews">
           <ReactList
             itemRenderer={this.renderItem}
             length={posts.length}
             type="simple"
             minSize={3}
+            ref={this.listRef}
           />
           {this.renderLoadMore()}
         </List>
@@ -176,13 +219,13 @@ class ClassicView extends Component {
             >
               <Toolbar variant="dense">
                 <Button
-                  onClick={() => this.handlePostSelect(previousPostId)}
+                  onClick={this.handlePreviousPost}
                   disabled={previousPostId === null}
                 >
                   Previous
                 </Button>
                 <Button
-                  onClick={() => this.handlePostSelect(nextPostId)}
+                  onClick={this.handleNextPost}
                   disabled={nextPostId === null}
                 >
                   Next
@@ -200,7 +243,7 @@ class ClassicView extends Component {
             </AppBar>
           </div>
         )}
-      </div>
+      </Shortcuts>
     )
   }
 }

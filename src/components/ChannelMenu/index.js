@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
+import { Shortcuts } from 'react-shortcuts'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -17,8 +18,10 @@ import {
   updateChannel,
   reorderChannels,
   addNotification,
+  selectChannel,
 } from '../../actions'
 import { channels as channelsService } from '../../modules/feathers-services'
+
 import styles from './style'
 
 const refreshTimeout = 1000 * 60
@@ -29,12 +32,15 @@ class ChannelMenu extends Component {
     this.state = {
       newChannelName: '',
       newChannel: false,
+      focusedChannel: props.selectedChannel ? props.selectedChannel : null,
     }
     this.getChannels = this.getChannels.bind(this)
+    this.handleShortcuts = this.handleShortcuts.bind(this)
     this.handleAddChannel = this.handleAddChannel.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
     this.renderChannelForm = this.renderChannelForm.bind(this)
     this.handleClose = this.handleClose.bind(this)
+    this.ref = React.createRef()
   }
 
   componentDidMount() {
@@ -59,6 +65,12 @@ class ChannelMenu extends Component {
         }, refreshTimeout)
       }
     }
+
+    const el = this.ref.current._domNode
+    if (newProps.isFocused && el !== document.activeElement) {
+      el.focus()
+      this.setState({ focusedChannel: newProps.selectedChannel })
+    }
   }
 
   componentWillUnmount() {
@@ -79,10 +91,38 @@ class ChannelMenu extends Component {
       .catch(err => console.log('Error getting channels', err))
   }
 
+  handleShortcuts(action) {
+    const { history, channels, selectChannel } = this.props
+    const { focusedChannel } = this.state
+    const channelIndex = channels.findIndex(
+      channel => channel.uid === focusedChannel
+    )
+
+    switch (action) {
+      case 'NEXT':
+        if (channels[channelIndex + 1]) {
+          this.setState({ focusedChannel: channels[channelIndex + 1].uid })
+        }
+        break
+      case 'PREVIOUS':
+        if (channelIndex > 0 && channels[channelIndex - 1]) {
+          this.setState({ focusedChannel: channels[channelIndex - 1].uid })
+        }
+        break
+      case 'SELECT_CHANNEL':
+        history.push(`/channel/${focusedChannel}`)
+        selectChannel(focusedChannel)
+        break
+      default:
+        break
+    }
+  }
+
   handleClose() {
     if (this.props.open) {
       this.props.toggleChannelsMenu()
     }
+    return true
   }
 
   handleAddChannel(e) {
@@ -107,12 +147,12 @@ class ChannelMenu extends Component {
       return
     }
     this.props.reorderChannels(result.source.index, result.destination.index)
-    console.log(this.props.channels.map(channel => channel.uid))
+
     channelsService
       .patch(null, { order: this.props.channels.map(channel => channel.uid) })
       .then(channels => this.props.addNotification('Channel order saved'))
       .catch(err => {
-        console.log(err)
+        console.log('Error saving channel order', err)
         this.props.addNotification('Error saving channel order', 'error')
       })
   }
@@ -150,24 +190,34 @@ class ChannelMenu extends Component {
   }
 
   render() {
+    const { classes, channels, selectedChannel, isFocused } = this.props
+    const { focusedChannel } = this.state
     return (
-      <div className={this.props.classes.drawer}>
+      <Shortcuts
+        name="CHANNEL_LIST"
+        handler={this.handleShortcuts}
+        className={classes.drawer}
+        ref={this.ref}
+      >
         <List>
           <DragDropContext onDragEnd={this.onDragEnd}>
             <Droppable droppableId="droppable">
-              {(provided, snapshot) => (
+              {provided => (
                 <div ref={provided.innerRef}>
-                  {this.props.channels
+                  {channels
                     .filter(channel => channel.uid !== 'notifications')
                     .map((channel, index) => {
-                      let textClassName = this.props.classes.button
-                      if (channel.uid === this.props.selectedChannel) {
-                        textClassName = this.props.classes.highlightedButton
+                      let textClassName = classes.button
+                      if (channel.uid === selectedChannel) {
+                        textClassName = classes.highlightedButton
+                      }
+                      if (isFocused && channel.uid === focusedChannel) {
+                        textClassName += ' ' + classes.focused
                       }
                       let unreadCount = null
                       if (channel.unread) {
                         unreadCount = (
-                          <span className={this.props.classes.unread}>
+                          <span className={classes.unread}>
                             {channel.unread}
                           </span>
                         )
@@ -178,20 +228,15 @@ class ChannelMenu extends Component {
                           draggableId={channel.uid}
                           index={index}
                         >
-                          {(provided, snapshot) => (
+                          {provided => (
                             <div>
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                // style={getItemStyle(
-                                //   snapshot.isDragging,
-                                //   provided.draggableProps.style,
-                                // )}
                               >
                                 <Link
                                   to={`/channel/${channel.slug}`}
-                                  key={`channel-${channel.uid}`}
                                   style={{ textDecoration: 'none' }}
                                   className={textClassName}
                                   onClick={this.handleClose}
@@ -199,10 +244,8 @@ class ChannelMenu extends Component {
                                   <ListItem button>
                                     <ListItemText
                                       classes={{
-                                        root: this.props.classes
-                                          .channelTextRoot,
-                                        primary: this.props.classes
-                                          .channelTextRoot,
+                                        root: classes.channelTextRoot,
+                                        primary: classes.channelTextRoot,
                                       }}
                                       primary={
                                         <Fragment>
@@ -224,9 +267,10 @@ class ChannelMenu extends Component {
             </Droppable>
           </DragDropContext>
         </List>
+
         <div style={{ flexGrow: 1 }} />
         {this.renderChannelForm()}
-      </div>
+      </Shortcuts>
     )
   }
 }
@@ -244,6 +288,7 @@ const mapStateToProps = state => ({
   selectedChannel: state.app.get('selectedChannel'),
   channels: state.channels.toJS(),
   open: state.app.get('channelsMenuOpen'),
+  isFocused: state.app.get('focusedComponent') === 'channels',
 })
 
 const mapDispatchToProps = dispatch =>
@@ -252,13 +297,16 @@ const mapDispatchToProps = dispatch =>
       toggleChannelsMenu,
       addChannel,
       updateChannel,
+      selectChannel,
       reorderChannels,
       addNotification,
     },
     dispatch
   )
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(ChannelMenu))
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(withStyles(styles)(ChannelMenu))
+)

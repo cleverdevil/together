@@ -18,3 +18,8 @@ export const removeNotification = (index = 0) => ({
 export const toggleTheme = () => ({
   type: 'TOGGLE_THEME',
 })
+
+export const focusComponent = component => ({
+  type: 'SET_FOCUSED_COMPONENT',
+  component,
+})

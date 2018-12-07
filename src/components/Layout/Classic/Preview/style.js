@@ -11,7 +11,19 @@ export default theme => ({
       paddingRight: theme.spacing.unit * 2,
     },
   },
+  read: {
+    opacity: 0.5,
+  },
+  highlighted: {
+    opacity: 1,
+    color: theme.palette.primary.contrastText,
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? theme.palette.secondary.main
+        : theme.palette.primary.main,
+  },
   text: {
     paddingRight: 0,
+    color: 'inherit',
   },
 })

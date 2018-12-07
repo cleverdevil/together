@@ -19,6 +19,7 @@ import {
   setTimelineBefore,
   selectChannel,
   addNotification,
+  focusComponent,
 } from '../../actions'
 import styles from './style'
 
@@ -27,32 +28,33 @@ class MainPosts extends Component {
     super(props)
 
     // Get the layout for the selected channel
-    const foundLayout = layouts.find(
-      layout =>
-        layout.id ===
-        getChannelSetting(
-          props.selectedChannel,
-          'layout',
-          props.channelSettings
-        )
-    )
 
     this.state = {
       loading: false,
-      layout: foundLayout || layouts[0],
     }
 
-    this.handleLoadMore = this.handleLoadMore.bind(this)
+    this.loadPosts = this.loadPosts.bind(this)
     this.checkForNewPosts = this.checkForNewPosts.bind(this)
     this.renderTimelinePosts = this.renderTimelinePosts.bind(this)
   }
 
   componentDidMount() {
-    const { match, user, selectChannel, selectedChannel } = this.props
-    if (user.me && match && match.params && match.params.channelSlug) {
+    const {
+      match,
+      user,
+      selectChannel,
+      selectedChannel,
+      focusComponent,
+      posts,
+    } = this.props
+    if (user.me && match.params.channelSlug) {
       const channel = decodeURIComponent(match.params.channelSlug)
       if (channel !== selectedChannel) {
         selectChannel(channel)
+        focusComponent(null)
+        focusComponent('timeline')
+      } else if (posts.length === 0) {
+        this.loadPosts()
       }
     }
     this.checkForNewPostsInterval = setInterval(
@@ -61,73 +63,36 @@ class MainPosts extends Component {
     )
   }
 
-  componentWillReceiveProps(newProps) {
-    let newState = {}
-    if (
-      newProps.user.me &&
-      newProps.match &&
-      newProps.match.params &&
-      newProps.match.params.channelSlug &&
-      newProps.match.params.channelSlug !== newProps.selectedChannel
-    ) {
-      const channel = decodeURIComponent(newProps.match.params.channelSlug)
-      newProps.selectChannel(channel)
-    } else if (
-      newProps.match &&
-      newProps.match.params &&
-      !newProps.match.params.channelSlug &&
-      !newProps.selectedChannel &&
-      newProps.channels.length &&
-      newProps.user.me
-    ) {
-      const firstChannel = newProps.channels.find(
+  componentDidUpdate(prevProps) {
+    const { focusComponent, selectChannel, user, match } = this.props
+    const hasUser = !!user.me
+    const currentChannel = this.props.selectedChannel
+    const previousChannel = prevProps.selectedChannel
+    const channelParam = match.params.channelSlug
+      ? decodeURIComponent(match.params.channelSlug)
+      : null
+
+    if (hasUser && channelParam && channelParam !== currentChannel) {
+      // Changed channel url
+      selectChannel(channelParam)
+      focusComponent(null)
+      focusComponent('timeline')
+    } else if (hasUser && !channelParam && !currentChannel) {
+      // No channel selected so select the first one
+      const firstChannel = this.props.channels.find(
         channel => channel.uid !== 'notifications'
       )
       if (firstChannel && firstChannel.uid) {
-        newProps.selectChannel(firstChannel.uid)
+        selectChannel(firstChannel.uid)
+        focusComponent(null)
+        focusComponent('timeline')
       }
     }
-    if (
-      newProps.selectedChannel &&
-      newProps.user.me &&
-      newProps.selectedChannel !== this.props.selectedChannel
-    ) {
-      newState.loading = true
-      newState.layout = layouts[0]
-      postsService
-        .find({ query: { channel: newProps.selectedChannel } })
-        .then(res => {
-          this.setState({ loading: false })
-          if (res.items) {
-            this.props.addPosts(res.items)
-          }
-          if (res.paging) {
-            if (res.paging.before) {
-              this.props.setTimelineBefore(res.paging.before)
-            }
-            if (res.paging.after) {
-              this.props.setTimelineAfter(res.paging.after)
-            }
-          }
-        })
-        .catch(err => {
-          this.setState({ loading: false })
-          console.log(err)
-        })
+
+    if (hasUser && currentChannel && currentChannel !== previousChannel) {
+      // Channel has changed so load posts
+      this.loadPosts()
     }
-    const foundLayout = layouts.find(
-      layout =>
-        layout.id ===
-        getChannelSetting(
-          newProps.selectedChannel,
-          'layout',
-          newProps.channelSettings
-        )
-    )
-    if (foundLayout) {
-      newState.layout = foundLayout
-    }
-    this.setState(newState)
   }
 
   componentWillUnmount() {
@@ -135,56 +100,63 @@ class MainPosts extends Component {
   }
 
   checkForNewPosts() {
-    const { selectedChannel, timelineBefore, addNotification } = this.props
+    const { selectedChannel, timelineBefore } = this.props
     if (document.hasFocus && selectedChannel && timelineBefore) {
-      postsService
-        .find({ query: { channel: selectedChannel, before: timelineBefore } })
-        .then(res => {
-          if (res.items && res.items.length) {
-            this.props.addPosts(res.items, 'prepend')
-            addNotification('Loaded new posts')
-          }
-          if (res.paging && res.paging.before) {
-            this.props.setTimelineBefore(res.paging.before)
-          }
-        })
-        .catch(err => {
-          console.log('Error checking for new posts', err)
-        })
+      this.loadPosts()
     }
   }
 
-  handleLoadMore() {
-    if (!this.state.loading) {
+  getLayout = () =>
+    layouts.find(
+      layout =>
+        layout.id ===
+        getChannelSetting(
+          this.props.selectedChannel,
+          'layout',
+          this.props.channelSettings
+        )
+    )
+
+  async loadPosts() {
+    const { loading } = this.state
+    const {
+      selectedChannel,
+      timelineAfter,
+      addPosts,
+      setTimelineAfter,
+    } = this.props
+    if (!loading) {
       this.setState({ loading: true })
-      postsService
-        .find({
-          query: {
-            channel: this.props.selectedChannel,
-            after: this.props.timelineAfter,
-          },
+      let query = {
+        channel: selectedChannel,
+      }
+      if (timelineAfter) {
+        query.after = timelineAfter
+        console.log('getting old posts')
+      }
+      try {
+        const res = await postsService.find({
+          query,
         })
-        .then(res => {
-          if (res.items) {
-            this.props.addPosts(res.items)
-          }
-          if (res.paging && res.paging.after) {
-            this.props.setTimelineAfter(res.paging.after)
-          } else {
-            this.props.setTimelineAfter('')
-          }
-          this.setState({ loading: false })
-        })
-        .catch(err => {
-          this.setState({ loading: false })
-          console.log(err)
-        })
+        if (res.items) {
+          addPosts(res.items)
+        }
+        if (res.paging && res.paging.after) {
+          setTimelineAfter(res.paging.after)
+        } else {
+          setTimelineAfter('')
+        }
+        this.setState({ loading: false })
+      } catch (err) {
+        this.setState({ loading: false })
+        console.log('Error loading posts', err)
+      }
     }
   }
 
   renderTimelinePosts() {
     const { items, timelineAfter } = this.props
-    const { layout } = this.state
+    const layout = this.getLayout()
     let posts = [...items]
     if (layout && layout.filter) {
       posts = posts.filter(layout.filter)
@@ -194,35 +166,32 @@ class MainPosts extends Component {
         return (
           <Gallery
             posts={posts}
-            loadMore={timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.loadPosts : null}
           />
         )
       case 'map':
         return (
-          <Map
-            posts={posts}
-            loadMore={timelineAfter ? this.handleLoadMore : null}
-          />
+          <Map posts={posts} loadMore={timelineAfter ? this.loadPosts : null} />
         )
       case 'classic':
         return (
           <Classic
             posts={posts}
-            loadMore={timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.loadPosts : null}
           />
         )
       case 'timeline':
         return (
           <Timeline
             posts={posts}
-            loadMore={timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.loadPosts : null}
           />
         )
       default:
         return (
           <Timeline
             posts={posts}
-            loadMore={timelineAfter ? this.handleLoadMore : null}
+            loadMore={timelineAfter ? this.loadPosts : null}
           />
         )
     }
@@ -285,6 +254,7 @@ const mapDispatchToProps = dispatch =>
       setTimelineBefore,
       selectChannel,
       addNotification,
+      focusComponent,
     },
     dispatch
   )

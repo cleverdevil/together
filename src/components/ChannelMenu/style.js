@@ -19,7 +19,7 @@ export default theme => ({
   button: {
     display: 'block',
     textAlign: 'left',
-    color: theme.palette.text.primary,
+    color: theme.palette.text.secondary,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -35,6 +35,9 @@ export default theme => ({
     overflow: 'hidden',
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
+  },
+  focused: {
+    color: theme.palette.text.primary,
   },
   addButton: {
     textAlign: 'center',

@@ -46,17 +46,21 @@ class ClassicPreview extends Component {
   }
 
   render() {
-    const item = this.props.post
+    const { post, highlighted, classes } = this.props
 
     // Parse published date
     let date = 'unknown'
-    if (item.published) {
-      date = moment(item.published).fromNow()
+    if (post.published) {
+      date = moment(post.published).fromNow()
     }
 
-    let readStyle = {}
-    if (item._is_read) {
-      readStyle.opacity = 0.5
+    let classNames = [classes.item]
+
+    if (post._is_read) {
+      classNames.push(classes.read)
+    }
+    if (highlighted) {
+      classNames.push(classes.highlighted)
     }
 
     return (
@@ -64,16 +68,15 @@ class ClassicPreview extends Component {
         dense
         button
         onClick={this.handleClick}
-        style={readStyle}
-        className={this.props.classes.item}
-        data-id={item._id}
-        data-isread={item._is_read}
+        className={classNames.join(' ')}
+        data-id={post._id}
+        data-isread={post._is_read}
       >
-        <AuthorAvatar author={item.author} />
+        <AuthorAvatar author={post.author} />
         <ListItemText
           primary={this.getPreviewText()}
           secondary={date}
-          className={this.props.classes.text}
+          className={classes.text}
         />
       </ListItem>
     )
@@ -82,10 +85,12 @@ class ClassicPreview extends Component {
 
 ClassicPreview.defaultProps = {
   post: {},
+  highlighted: false,
 }
 
 ClassicPreview.propTypes = {
   post: PropTypes.object.isRequired,
+  highlighted: PropTypes.bool.isRequired,
 }
 
 export default withStyles(styles)(ClassicPreview)
