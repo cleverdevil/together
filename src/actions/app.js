@@ -23,3 +23,7 @@ export const focusComponent = component => ({
   type: 'SET_FOCUSED_COMPONENT',
   component,
 })
+
+export const toggleShortcutHelp = () => ({
+  type: 'TOGGLE_SHORTCUT_HELP',
+})

@@ -15,6 +15,7 @@ import Notification from '../components/Notification'
 import MicropubEditor from '../components/MicropubEditorFull'
 import ErrorBoundary from '../components/ErrorBoundary'
 import GlobalShortcuts from '../components/GlobalShotcuts'
+import ShortcutHelp from '../components/ShortcutHelp'
 import keymap from '../modules/keymap'
 import style from './style'
 
@@ -61,6 +62,7 @@ class App extends Component {
                   />
                   <Route path="/editor" component={MicropubEditor} />
                   <Route path="/settings" component={AppSettings} />
+                  <ShortcutHelp />
                 </Grid>
                 <Login />
                 <Notification />

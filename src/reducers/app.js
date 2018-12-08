@@ -8,6 +8,7 @@ const defaultState = new Map({
   timelineAfter: '',
   notifications: [],
   focusedComponent: null,
+  shortcutHelpOpen: false,
   theme: localStorage.getItem('together-theme') || getTheme() || 'light',
 })
 
@@ -52,6 +53,9 @@ export default (state = defaultState, payload) => {
     }
     case 'SET_FOCUSED_COMPONENT': {
       return state.set('focusedComponent', payload.component)
+    }
+    case 'TOGGLE_SHORTCUT_HELP': {
+      return state.set('shortcutHelpOpen', !state.get('shortcutHelpOpen'))
     }
     default: {
       return state

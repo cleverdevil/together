@@ -35,37 +35,37 @@ class SettingsModal extends Component {
   }
 
   render() {
+    const { open } = this.state
+    const { classes, children, singleColumn, ...dialogProps } = this.props
     return (
       <Dialog
-        // fullScreen
-        open={this.state.open}
+        open={open}
         onClose={this.handleClose}
-        transition={Transition}
+        TransitionComponent={Transition}
         classes={{
-          root: this.props.classes.dialogRoot,
-          paper: this.props.classes.dialogPaper,
+          root: classes.dialogRoot,
+          paper: classes.dialogPaper,
         }}
+        {...dialogProps}
       >
         <AppBar color="secondary" position="sticky">
           <Toolbar>
-            <Typography
-              variant="h6"
-              color="inherit"
-              className={this.props.classes.title}
-            >
+            <Typography variant="h6" color="inherit" className={classes.title}>
               {this.props.title}
             </Typography>
             <IconButton
-              className={this.props.classes.popupClose}
+              className={classes.popupClose}
               onClick={this.handleClose}
             >
               <CloseIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
-        <div className={this.props.classes.wrapper}>
-          <DialogContent className={this.props.classes.content}>
-            {this.props.children}
+        <div className={classes.wrapper}>
+          <DialogContent
+            className={singleColumn ? classes.singleColumn : classes.twoColumns}
+          >
+            {children}
           </DialogContent>
         </div>
       </Dialog>
@@ -73,11 +73,14 @@ class SettingsModal extends Component {
   }
 }
 
-SettingsModal.defaultProps = {}
+SettingsModal.defaultProps = {
+  singleColumn: false,
+}
 
 SettingsModal.propTypes = {
   title: PropTypes.string.isRequired,
   onClose: PropTypes.func,
+  singleColumn: PropTypes.bool.isRequired,
 }
 
 export default withRouter(withStyles(styles)(SettingsModal))

@@ -12,7 +12,10 @@ export default theme => ({
     flex: 1,
     fontWeight: 'normal',
   },
-  content: {
+  singleColumn: {
+    display: 'block',
+  },
+  twoColumns: {
     [theme.breakpoints.up('sm')]: {
       display: 'flex',
       flexWrap: 'wrap',

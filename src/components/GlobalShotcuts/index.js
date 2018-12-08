@@ -7,6 +7,7 @@ import {
   selectChannel,
   toggleChannelsMenu,
   focusComponent,
+  toggleShortcutHelp,
 } from '../../actions'
 
 class GlobalShortcutHandler extends Component {
@@ -16,7 +17,13 @@ class GlobalShortcutHandler extends Component {
   }
 
   handleShortcuts(action) {
-    const { channels, selectChannel, history, focusComponent } = this.props
+    const {
+      channels,
+      selectChannel,
+      history,
+      focusComponent,
+      toggleShortcutHelp,
+    } = this.props
 
     if (action.indexOf('CHANNEL_') === 0) {
       // Switch channel
@@ -40,7 +47,7 @@ class GlobalShortcutHandler extends Component {
           focusComponent('channels')
           break
         case 'HELP':
-          alert("Sorry, I can't help you yet")
+          toggleShortcutHelp()
           break
         case 'KONAMI':
           alert('Look at you. You are very clever')
@@ -69,7 +76,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { selectChannel, toggleChannelsMenu, focusComponent },
+    { selectChannel, toggleChannelsMenu, focusComponent, toggleShortcutHelp },
     dispatch
   )
 
