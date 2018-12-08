@@ -18,6 +18,13 @@ export default {
     NEXT: ['space'],
     OPEN: ['v'],
     TOGGLE_READ: ['m'],
+    // TODO:
+    // Load full content
+    // Previous
+    // Like
+    // Repost
+    // Reply
+    //
   },
   GLOBAL: {
     KONAMI: ['up up down down left right left right b a'],
@@ -33,14 +40,9 @@ export default {
     NEW_POST: ['ctrl+n', 'meta+n', 'alt+n'],
     FOCUS_CHANNEL_LIST: ['c'],
     HELP: ['?'],
+    // TODO:
+    // Open notifications
+    // Mark channel read
+    // Jump to timeline
   },
 }
-
-/**
- * TODO: Classic view needs to mark stuff as read
- * TODO: Global keymapping for:
- * Open notifications
- * Mark channel read
- * Jump to channel list
- * Jump to timeline
- */

@@ -203,6 +203,7 @@ class ClassicView extends Component {
         {selectedPostId && (
           <div ref={this.articleRef} className={classes.postColumn}>
             <Post
+              focus
               post={post}
               expandableContent={false}
               style={{
@@ -211,6 +212,8 @@ class ClassicView extends Component {
                 maxWidth: 700,
                 boxShadow: 'none',
               }}
+              shortcutOnNext={this.handleNextPost}
+              scrollElement={this.articleRef.current}
             />
             <AppBar
               position="sticky"

@@ -36,6 +36,7 @@ class LayoutShortcuts extends Component {
         onPrevious()
         break
       case 'SELECT_POST':
+        focusComponent('post')
         onSelectPost()
         break
       case 'FOCUS_CHANNEL_LIST':
