@@ -15,12 +15,13 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import {
   toggleChannelsMenu,
   addChannel,
+  createChannel,
+  getChannels,
   updateChannel,
   reorderChannels,
   addNotification,
   selectChannel,
 } from '../../actions'
-import { channels as channelsService } from '../../modules/feathers-services'
 
 import styles from './style'
 
@@ -34,7 +35,6 @@ class ChannelMenu extends Component {
       newChannel: false,
       focusedChannel: props.selectedChannel ? props.selectedChannel : null,
     }
-    this.getChannels = this.getChannels.bind(this)
     this.handleShortcuts = this.handleShortcuts.bind(this)
     this.handleAddChannel = this.handleAddChannel.bind(this)
     this.onDragEnd = this.onDragEnd.bind(this)
@@ -45,10 +45,10 @@ class ChannelMenu extends Component {
 
   componentDidMount() {
     if (this.props.userId) {
-      this.getChannels()
+      this.props.getChannels()
       this.refreshInterval = setInterval(() => {
         if (document.hasFocus) {
-          this.getChannels()
+          this.props.getChannels()
         }
       }, refreshTimeout)
     }
@@ -56,11 +56,11 @@ class ChannelMenu extends Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.userId && this.props.userId !== newProps.userId) {
-      this.getChannels()
+      this.props.getChannels()
       if (!this.refreshInterval) {
         this.refreshInterval = setInterval(() => {
           if (document.hasFocus) {
-            this.getChannels()
+            this.props.getChannels()
           }
         }, refreshTimeout)
       }
@@ -78,17 +78,6 @@ class ChannelMenu extends Component {
       clearInterval(this.refreshInterval)
       this.refreshInterval = null
     }
-  }
-
-  getChannels() {
-    channelsService
-      .find({})
-      .then(channels =>
-        channels.forEach(channel =>
-          this.props.addChannel(channel.name, channel.uid, channel.unread)
-        )
-      )
-      .catch(err => console.log('Error getting channels', err))
   }
 
   handleShortcuts(action) {
@@ -127,34 +116,26 @@ class ChannelMenu extends Component {
 
   handleAddChannel(e) {
     e.preventDefault()
-    channelsService
-      .create({ name: this.state.newChannelName })
-      .then(newChannel => {
-        this.setState({
-          newChannelName: '',
-          newChannel: false,
-        })
-        this.props.addChannel(newChannel.name, newChannel.uid)
-      })
-      .catch(err => {
-        this.props.addNotification('Error creating channel', 'error')
-      })
+    const { newChannelName } = this.state
+    const { createChannel } = this.props
+    createChannel(newChannelName)
+    this.setState({
+      newChannelName: '',
+      newChannel: false,
+    })
     return false
   }
 
-  onDragEnd(result) {
-    if (!result.destination) {
-      return
+  onDragEnd({ source, destination }) {
+    if (!destination) {
+      return null
     }
-    this.props.reorderChannels(result.source.index, result.destination.index)
-
-    channelsService
-      .patch(null, { order: this.props.channels.map(channel => channel.uid) })
-      .then(channels => this.props.addNotification('Channel order saved'))
-      .catch(err => {
-        console.log('Error saving channel order', err)
-        this.props.addNotification('Error saving channel order', 'error')
-      })
+    const { reorderChannels, channels } = this.props
+    let uids = channels.map(channel => channel.uid)
+    const uidToMove = uids[source.index]
+    uids.splice(source.index, 1)
+    uids.splice(destination.index, 0, uidToMove)
+    reorderChannels(uids)
   }
 
   renderChannelForm() {
@@ -296,6 +277,8 @@ const mapDispatchToProps = dispatch =>
     {
       toggleChannelsMenu,
       addChannel,
+      createChannel,
+      getChannels,
       updateChannel,
       selectChannel,
       reorderChannels,

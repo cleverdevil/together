@@ -44,10 +44,11 @@ export default (state = defaultState, payload) => {
       }
     }
     case 'REORDER_CHANNELS': {
-      const movedChannel = state.get(payload.source)
-      return state
-        .delete(payload.source)
-        .insert(payload.destination, movedChannel)
+      const { uids } = payload
+      return state.sort(
+        (channelA, channelB) =>
+          uids.indexOf(channelA.get('uid')) - uids.indexOf(channelB.get('uid'))
+      )
     }
     case 'REMOVE_CHANNEL': {
       return state.remove(

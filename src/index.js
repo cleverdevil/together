@@ -3,14 +3,12 @@ import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import App from './containers/App'
 import Theme from './components/Theme'
-import Store from './store'
+import store from './store'
 import serviceWorker from './service-worker'
 import { addNotification } from './actions'
 
-const StoreInstance = Store()
-
 ReactDOM.render(
-  <Provider store={StoreInstance}>
+  <Provider store={store}>
     <Theme>
       <App />
     </Theme>
@@ -20,7 +18,5 @@ ReactDOM.render(
 
 serviceWorker(() => {
   console.log('Worker updated')
-  StoreInstance.dispatch(
-    addNotification('App updated. Reopen Together to load update')
-  )
+  store.dispatch(addNotification('App updated. Reopen Together to load update'))
 })

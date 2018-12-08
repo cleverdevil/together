@@ -65,7 +65,8 @@ class Timeline extends Component {
         .catch(err => updatePost(itemId, '_is_read', false))
     }
 
-    const isSecondLastItem = itemId === posts[posts.length - 2]._id
+    const isSecondLastItem =
+      posts.length > 2 && itemId === posts[posts.length - 2]._id
 
     if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
       if (loadMore) {

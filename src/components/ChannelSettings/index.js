@@ -19,10 +19,7 @@ import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import SettingsModal from '../SettingsModal'
 import { updateChannel, removeChannel } from '../../actions'
-import {
-  follows as followsService,
-  channels as channelsService,
-} from '../../modules/feathers-services'
+import { follows as followsService } from '../../modules/feathers-services'
 import { getAll as getChannelSettings } from '../../modules/get-channel-setting'
 import styles from './style'
 
@@ -105,23 +102,15 @@ class ChannelSettings extends Component {
   }
 
   handleDelete() {
+    const { uid } = this.state
+    const { history, removeChannel } = this.props
     if (
-      this.state.uid &&
+      uid &&
       window.confirm('Are you sure you want to delete this channel?')
     ) {
-      console.log('deleting ' + this.state.uid)
-      channelsService
-        .remove(this.state.uid)
-        .then(res => {
-          console.log(res)
-          if (!res.error) {
-            // Should be deleted
-            this.props.removeChannel(this.state.uid)
-            this.setState({ uid: null })
-            this.props.history.push('/')
-          }
-        })
-        .catch(err => console.log(err))
+      removeChannel(uid)
+      this.setState({ uid: null })
+      history.push('/')
     }
   }
 
@@ -131,20 +120,12 @@ class ChannelSettings extends Component {
   }
 
   handleNameChange(e) {
-    this.setState({ name: e.target.value })
+    const name = e.target.value
+    const { uid } = this.state
+    const { updateChannel } = this.props
+    this.setState({ name })
     // TODO: Only send this request when typing is finished.
-
-    channelsService
-      .update(this.state.uid, {
-        name: e.target.value,
-      })
-      .then(res => {
-        if (!res.error) {
-          // Should be renamed
-          console.log(res)
-        }
-      })
-      .catch(err => console.log(err))
+    updateChannel(uid, 'name', name)
   }
 
   handleUnsubscribe(url) {
