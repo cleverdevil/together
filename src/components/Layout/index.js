@@ -132,7 +132,6 @@ class MainPosts extends Component {
       }
       if (timelineAfter) {
         query.after = timelineAfter
-        console.log('getting old posts')
       }
       try {
         const res = await postsService.find({

@@ -73,6 +73,7 @@ class Gallery extends Component {
       medias.find(media => media.postId) && width > alwaysOpenWidth
     return (
       <Dialog
+        disableAutoFocus
         fullScreen
         open={open}
         onClose={this.handleClose}

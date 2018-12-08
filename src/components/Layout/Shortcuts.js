@@ -15,7 +15,6 @@ class LayoutShortcuts extends Component {
   componentWillReceiveProps(newProps) {
     const el = this.ref.current._domNode
     if (newProps.isFocused && el !== document.activeElement) {
-      console.log('Focusing layout on change')
       el.focus()
     }
   }

@@ -17,6 +17,16 @@ class MapMarker extends Component {
     this.renderPost = this.renderPost.bind(this)
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.postOpen !== this.props.postOpen) {
+      if (this.props.postOpen && !this.state.postOpen) {
+        this.setState({ postOpen: true })
+      } else if (!this.props.postOpen && this.state.postOpen) {
+        this.setState({ postOpen: false })
+      }
+    }
+  }
+
   handleClick(e) {
     e.preventDefault()
     this.setState({
@@ -31,6 +41,7 @@ class MapMarker extends Component {
     }
     return (
       <Popover
+        disableAutoFocus
         open={this.state.postOpen}
         className={this.props.classes.popover}
         anchorEl={this.state.anchor}
@@ -77,6 +88,7 @@ MapMarker.defaultProps = {
 
 MapMarker.propTypes = {
   post: PropTypes.object,
+  postOpen: PropTypes.bool,
   author: PropTypes.any.isRequired,
 }
 

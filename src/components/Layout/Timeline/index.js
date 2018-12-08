@@ -7,6 +7,7 @@ import 'intersection-observer'
 import Observer from '@researchgate/react-intersection-observer'
 import Button from '@material-ui/core/Button'
 import ReactList from 'react-list'
+import Shortcuts from '../Shortcuts'
 import Post from '../../Post'
 import { updatePost, decrementChannelUnread } from '../../../actions'
 import getChannelSetting from '../../../modules/get-channel-setting'
@@ -17,6 +18,7 @@ class Timeline extends Component {
   constructor(props) {
     super(props)
     this.state = {}
+    this.ref = React.createRef()
     this.handleIntersection = this.handleIntersection.bind(this)
     this.renderItem = this.renderItem.bind(this)
     this.renderLoadMore = this.renderLoadMore.bind(this)
@@ -113,15 +115,22 @@ class Timeline extends Component {
   render() {
     const { classes, posts } = this.props
     return (
-      <div className={classes.timeline}>
-        <ReactList
-          itemRenderer={this.renderItem}
-          length={posts.length}
-          type="simple"
-          minSize={3}
-        />
-        {this.renderLoadMore()}
-      </div>
+      <Shortcuts
+        onNext={() => this.ref.current.scrollBy(0, 50)}
+        onPrevious={() => this.ref.current.scrollBy(0, -50)}
+        onMarkRead={() => {}}
+        className={classes.shortcuts}
+      >
+        <div className={classes.timeline} ref={this.ref}>
+          <ReactList
+            itemRenderer={this.renderItem}
+            length={posts.length}
+            type="simple"
+            minSize={3}
+          />
+          {this.renderLoadMore()}
+        </div>
+      </Shortcuts>
     )
   }
 }

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -10,6 +10,7 @@ import GridListTile from '@material-ui/core/GridListTile'
 import GridListTileBar from '@material-ui/core/GridListTileBar'
 import Button from '@material-ui/core/Button'
 import ReactList from 'react-list'
+import Shortcuts from '../Shortcuts'
 import AuthorAvatar from '../../AuthorAvatar'
 import GallerySlider from '../../GallerySlider'
 import { updatePost, decrementChannelUnread } from '../../../actions'
@@ -281,7 +282,22 @@ class Gallery extends Component {
     } = this.props
     const { medias, selectedMediaIndex } = this.state
     return (
-      <Fragment>
+      <Shortcuts
+        onNext={() => {
+          if (selectedMediaIndex === false) {
+            this.setState({ selectedMediaIndex: 0 })
+          } else {
+            this.setState({ selectedMediaIndex: selectedMediaIndex + 1 })
+          }
+        }}
+        onPrevious={() => {
+          if (selectedMediaIndex > 0) {
+            this.setState({ selectedMediaIndex: selectedMediaIndex - 1 })
+          }
+        }}
+        onMarkRead={() => {}}
+        className={classes.shortcuts}
+      >
         <div className={classes.galleryWrapper}>
           <ReactList
             itemRenderer={this.renderRow}
@@ -312,7 +328,7 @@ class Gallery extends Component {
             open={true}
           />
         )}
-      </Fragment>
+      </Shortcuts>
     )
   }
 }

@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import Map from 'pigeon-maps'
 import Overlay from 'pigeon-overlay'
 import WebMercatorViewport from 'viewport-mercator-project'
+import Shortcuts from '../Shortcuts'
 import MapMarker from '../../Map/Marker'
 
 class CheckinMap extends Component {
@@ -21,7 +22,9 @@ class CheckinMap extends Component {
         height: document.body.clientHeight - 64, // The toolbar is 64px tall,
       }),
       markers: [],
+      focusedPost: null,
     }
+    this.focusPost = this.focusPost.bind(this)
     this.setMarkers = this.setMarkers.bind(this)
     this.zoomToPosts = this.zoomToPosts.bind(this)
   }
@@ -99,7 +102,8 @@ class CheckinMap extends Component {
         const viewport = Object.assign({}, this.state.viewport, {
           latitude: markers[0].lat,
           longitude: markers[0].lng,
-          zoom: this.state.viewport.zoom > 8 ? this.state.viewport.zoom : 11,
+          // zoom: this.state.viewport.zoom > 8 ? this.state.viewport.zoom : 11,
+          zoom: 12,
         })
         this.setState({ viewport: new WebMercatorViewport(viewport) })
       }
@@ -116,8 +120,19 @@ class CheckinMap extends Component {
     }
   }
 
+  focusPost(postId) {
+    const { markers } = this.state
+    const index = markers.findIndex(marker => marker._id === postId)
+    if (index > -1) {
+      this.setState({ focusedPost: postId })
+      this.zoomToPosts([markers[index]])
+    } else {
+      this.setState({ focusedPost: null })
+    }
+  }
+
   render() {
-    const { viewport, markers } = this.state
+    const { viewport, markers, focusedPost } = this.state
     const { theme } = this.props
     const mapProps = {
       center: [viewport.latitude, viewport.longitude],
@@ -132,18 +147,49 @@ class CheckinMap extends Component {
           : `https://a.tile.openstreetmap.se/hydda/full/${z}/${x}/${y}.png`,
     }
     return (
-      <Map {...mapProps}>
-        {markers.map((post, i) => {
-          return (
-            <Overlay
-              anchor={[post.marker.lat, post.marker.lng]}
-              key={`marker-${i}`}
-            >
-              <MapMarker author={post.author} post={post} />
-            </Overlay>
-          )
-        })}
-      </Map>
+      <Shortcuts
+        style={{ display: 'block', overflow: 'hidden' }}
+        onNext={() => {
+          if (focusedPost !== null) {
+            const index = markers.findIndex(
+              marker => marker._id === focusedPost
+            )
+            if (index > -1 && markers[index + 1]) {
+              this.focusPost(markers[index + 1]._id)
+            }
+          } else if (focusedPost === null && markers.length) {
+            this.focusPost(markers[0]._id)
+          }
+        }}
+        onPrevious={() => {
+          if (focusedPost !== null) {
+            const index = markers.findIndex(
+              marker => marker._id === focusedPost
+            )
+            if (index > 0 && markers[index - 1]) {
+              this.focusPost(markers[index - 1]._id)
+            }
+          }
+        }}
+        onMarkRead={() => {}}
+      >
+        <Map {...mapProps}>
+          {markers.map((post, i) => {
+            return (
+              <Overlay
+                anchor={[post.marker.lat, post.marker.lng]}
+                key={`marker-${i}`}
+              >
+                <MapMarker
+                  author={post.author}
+                  post={post}
+                  postOpen={post._id === focusedPost}
+                />
+              </Overlay>
+            )
+          })}
+        </Map>
+      </Shortcuts>
     )
   }
 }
