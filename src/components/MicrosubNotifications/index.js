@@ -17,13 +17,10 @@ import HasNotificationsIcon from '@material-ui/icons/NotificationsActive'
 import MarkAllReadIcon from '@material-ui/icons/ClearAll'
 import Post from '../Post'
 import {
-  addMicrosubNotifications,
-  replaceMicrosubNotifications,
-  updatePost,
-  updateChannel,
-  addNotification,
+  getMicrosubNotifications,
+  getMoreMicrosubNotifications,
+  markAllRead,
 } from '../../actions'
-import { posts as postsService } from '../../modules/feathers-services'
 import styles from './style'
 
 class NotificationsList extends Component {
@@ -33,92 +30,33 @@ class NotificationsList extends Component {
       open: false,
       anchor: null,
       loading: false,
-      after: null,
-      before: null,
     }
-    this.loadNotifications = this.loadNotifications.bind(this)
+    this.handleOpen = this.handleOpen.bind(this)
     this.loadMore = this.loadMore.bind(this)
     this.handleMarkAllRead = this.handleMarkAllRead.bind(this)
   }
 
-  loadNotifications() {
-    this.setState({ loading: true, open: this.props.notifications.length > 0 })
-    postsService
-      .find({ query: { channel: 'notifications' } })
-      .then(res => {
-        let update = { open: true, loading: false, after: null, before: null }
-        if (res.items) {
-          this.props.replaceMicrosubNotifications(res.items)
-        }
-        if (res.paging) {
-          if (res.paging.before) {
-            update.before = res.paging.before
-          }
-          if (res.paging.after) {
-            update.after = res.paging.after
-          }
-        }
-        this.setState(update)
-      })
-      .catch(err => {
-        this.setState({ loading: false })
-        console.log('Error loading notifications', err)
-      })
+  async handleOpen(e) {
+    const { getMicrosubNotifications, notifications } = this.props
+    this.setState({
+      loading: true,
+      anchor: e.target,
+      open: notifications.length > 0,
+    })
+    await getMicrosubNotifications()
+    this.setState({ loading: false, open: true })
   }
 
-  loadMore(e) {
+  async loadMore(e) {
+    const { getMoreMicrosubNotifications, after } = this.props
     this.setState({ loading: true })
-    postsService
-      .find({ query: { channel: 'notifications', after: this.state.after } })
-      .then(res => {
-        let update = { open: true, loading: false, after: null, before: null }
-        if (res.items) {
-          this.props.addMicrosubNotifications(res.items)
-        }
-        if (res.paging) {
-          if (res.paging.before) {
-            update.before = res.paging.before
-          }
-          if (res.paging.after) {
-            update.after = res.paging.after
-          }
-        }
-        this.setState(update)
-      })
-      .catch(err => {
-        this.setState({ loading: false })
-        console.log('Error loading notifications', err)
-      })
+    await getMoreMicrosubNotifications(after)
+    this.setState({ loading: false })
   }
 
   handleMarkAllRead(e) {
-    const uid = 'notifications'
-    const {
-      notifications,
-      updatePost,
-      updateChannel,
-      addNotification,
-    } = this.props
-
-    postsService
-      .update(null, {
-        method: 'mark_read',
-        channel: uid,
-        last_read_entry: notifications[0]._id,
-      })
-      .then(res => {
-        notifications.forEach(post => {
-          if (!post._is_read) {
-            updatePost(post._id, '_is_read', true)
-          }
-        })
-        updateChannel(uid, 'unread', 0)
-        addNotification('Marked all notifications as read')
-      })
-      .catch(err => {
-        console.log('Error marking notifications as read', err)
-        addNotification('Error marking notifications as read', 'error')
-      })
+    const { notifications, markAllRead } = this.props
+    markAllRead('notifications', notifications[0]._id)
   }
 
   render() {
@@ -145,14 +83,7 @@ class NotificationsList extends Component {
                 loading ? classes.loadingIcon + ' ' + buttonClass : buttonClass
               }
               aria-label={`Notifications (${unread})`}
-              onClick={e => {
-                if (!open) {
-                  this.loadNotifications()
-                  this.setState({ anchor: e.target })
-                } else {
-                  this.setState({ open: false })
-                }
-              }}
+              onClick={this.handleOpen}
             >
               {unread > 0 ? <HasNotificationsIcon /> : <NotificationsIcon />}
             </IconButton>
@@ -251,6 +182,8 @@ const mapStateToProps = state => {
     exists: state.notifications.get('uid') === 'notifications',
     name: state.notifications.get('name'),
     unread: state.notifications.get('unread'),
+    before: state.notifications.get('before'),
+    after: state.notifications.get('after'),
     notifications: state.notifications.get('notifications').toJS(),
   }
 }
@@ -258,11 +191,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      addMicrosubNotifications,
-      replaceMicrosubNotifications,
-      updatePost,
-      updateChannel,
-      addNotification,
+      getMicrosubNotifications,
+      getMoreMicrosubNotifications,
+      markAllRead,
     },
     dispatch
   )

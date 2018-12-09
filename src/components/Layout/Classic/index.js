@@ -13,8 +13,7 @@ import ReactList from 'react-list'
 import Shortcuts from '../Shortcuts'
 import Preview from './Preview'
 import Post from '../../Post'
-import { decrementChannelUnread, updatePost } from '../../../actions'
-import { posts as postsService } from '../../../modules/feathers-services'
+import { markPostRead } from '../../../actions'
 import getChannelSetting from '../../../modules/get-channel-setting'
 import styles from './style'
 
@@ -68,7 +67,7 @@ class ClassicView extends Component {
   }
 
   handlePostSelect(postId) {
-    const { posts } = this.props
+    const { posts, markPostRead, selectedChannel } = this.props
     const index = posts.findIndex(post => post._id === postId)
     if (index > -1) {
       const post = posts[index]
@@ -80,18 +79,7 @@ class ClassicView extends Component {
       }
       // Mark the post as read
       if (!post._is_read) {
-        postsService
-          .update(post._id, {
-            channel: this.props.selectedChannel,
-            method: 'mark_read',
-          })
-          .then(res => {
-            this.props.updatePost(post._id, '_is_read', true)
-            this.props.decrementChannelUnread(this.props.selectedChannel)
-          })
-          .catch(err => {
-            console.log('Error marking post read', err)
-          })
+        markPostRead(selectedChannel, post._id)
       }
       // Load the next posts if reading the final post
       if (index === posts.length - 1 && this.props.loadMore) {
@@ -266,13 +254,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      decrementChannelUnread: decrementChannelUnread,
-      updatePost: updatePost,
-    },
-    dispatch
-  )
+  bindActionCreators({ markPostRead }, dispatch)
 
 export default connect(
   mapStateToProps,

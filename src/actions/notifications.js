@@ -1,14 +1,32 @@
-export const addMicrosubNotification = post => ({
-  type: 'ADD_MICROSUB_NOTIFICATION',
-  post: post,
-})
+import { addNotification } from './index'
+import { posts as postsService } from '../modules/feathers-services'
 
-export const addMicrosubNotifications = posts => ({
-  type: 'ADD_MICROSUB_NOTIFICATIONS',
-  posts: posts,
-})
+export const getMicrosubNotifications = () => async dispatch => {
+  try {
+    const res = await postsService.find({
+      query: { channel: 'notifications' },
+    })
+    return dispatch({
+      ...res,
+      type: 'SET_MICROSUB_NOTIFICATIONS',
+    })
+  } catch (err) {
+    console.log('Error getting microsub notifications', err)
+    dispatch(addNotification('Error getting microsub notifications', 'error'))
+  }
+}
 
-export const replaceMicrosubNotifications = posts => ({
-  type: 'REPLACE_MICROSUB_NOTIFICATIONS',
-  posts: posts,
-})
+export const getMoreMicrosubNotifications = after => async dispatch => {
+  try {
+    const res = await postsService.find({
+      query: { channel: 'notifications', after },
+    })
+    return dispatch({
+      ...res,
+      type: 'ADD_MICROSUB_NOTIFICATIONS',
+    })
+  } catch (err) {
+    console.log('Error getting microsub notifications', err)
+    dispatch(addNotification('Error getting microsub notifications', 'error'))
+  }
+}

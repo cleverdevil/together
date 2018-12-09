@@ -23,6 +23,9 @@ export default (state = defaultState, payload) => {
       return state.set('selectedChannel', payload.uid).set('timelineAfter', '')
     }
     case 'SET_TIMELINE_BEFORE': {
+      if (state.get('timelineBefore') && payload.before) {
+        return state
+      }
       return state.set('timelineBefore', payload.before)
     }
     case 'SET_TIMELINE_AFTER': {

@@ -23,7 +23,7 @@ const ActionMute = ({
           mute: url,
         })
         .then(res => {
-          removePost(_id)
+          removePost(channel, _id)
           notification('User muted')
         })
         .catch(err => {

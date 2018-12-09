@@ -43,6 +43,12 @@ export default (state = defaultState, payload) => {
         return state
       }
     }
+    case 'MARK_ALL_READ': {
+      const channelIndex = state.findIndex(
+        channel => channel.get('uid') === payload.channel
+      )
+      return state.update(channelIndex, channel => channel.set('unread', 0))
+    }
     case 'REORDER_CHANNELS': {
       const { uids } = payload
       return state.sort(

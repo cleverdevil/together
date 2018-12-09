@@ -23,7 +23,7 @@ const ActionBlock = ({
           block: url,
         })
         .then(res => {
-          removePost(_id)
+          removePost(channel, _id)
           notification('User blocked')
         })
         .catch(err => {
@@ -36,8 +36,6 @@ const ActionBlock = ({
   />
 )
 
-const mapStateToProps = state => ({})
-
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
@@ -48,6 +46,6 @@ const mapDispatchToProps = dispatch =>
   )
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(ActionBlock)

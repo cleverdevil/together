@@ -35,7 +35,7 @@ const TogetherCardReplyContext = ({ type, url, reference, classes }) => {
   return (
     <Fragment>
       <CardContent className={classes.replyContext}>
-        <Typography component="p">
+        <Typography component="p" className={classes.replyUrl}>
           {icon}
           <a href={url} target="_blank" rel="noopener noreferrer">
             {url}

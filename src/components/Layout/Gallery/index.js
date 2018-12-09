@@ -13,10 +13,9 @@ import ReactList from 'react-list'
 import Shortcuts from '../Shortcuts'
 import AuthorAvatar from '../../AuthorAvatar'
 import GallerySlider from '../../GallerySlider'
-import { updatePost, decrementChannelUnread } from '../../../actions'
+import { markPostRead } from '../../../actions'
 import authorToAvatarData from '../../../modules/author-to-avatar-data'
 import getChannelSetting from '../../../modules/get-channel-setting'
-import { posts as postsService } from '../../../modules/feathers-services'
 import resizeImage from '../../../modules/get-image-proxy-url'
 import styles from './style'
 
@@ -100,15 +99,8 @@ class Gallery extends Component {
   }
 
   markPostRead(postId) {
-    const { updatePost, selectedChannel, decrementChannelUnread } = this.props
-    updatePost(postId, '_is_read', true)
-    postsService
-      .update(postId, {
-        channel: selectedChannel,
-        method: 'mark_read',
-      })
-      .then(res => decrementChannelUnread(selectedChannel))
-      .catch(err => updatePost(postId, '_is_read', false))
+    const { selectedChannel, markPostRead } = this.props
+    markPostRead(selectedChannel, postId)
   }
 
   handleIntersection(entry) {
@@ -125,9 +117,8 @@ class Gallery extends Component {
       channelSettings,
       channelsMenuOpen,
       posts,
-      updatePost,
-      decrementChannelUnread,
       loadMore,
+      markPostRead,
     } = this.props
 
     const infiniteScrollEnabled = getChannelSetting(
@@ -142,14 +133,7 @@ class Gallery extends Component {
     )
 
     if (autoReadEnabled && !itemIsRead) {
-      updatePost(itemId, '_is_read', true)
-      postsService
-        .update(itemId, {
-          channel: selectedChannel,
-          method: 'mark_read',
-        })
-        .then(res => decrementChannelUnread(selectedChannel))
-        .catch(err => updatePost(itemId, '_is_read', false))
+      markPostRead(selectedChannel, itemId)
     }
 
     const isSecondLastItem = itemId === posts[posts.length - 2]._id
@@ -342,13 +326,7 @@ Gallery.propTypes = {
 }
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      decrementChannelUnread: decrementChannelUnread,
-      updatePost: updatePost,
-    },
-    dispatch
-  )
+  bindActionCreators({ markPostRead }, dispatch)
 
 const mapStateToProps = state => ({
   selectedChannel: state.app.get('selectedChannel'),

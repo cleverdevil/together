@@ -11,12 +11,11 @@ import Map from './Map'
 import Classic from './Classic'
 import Timeline from './Timeline'
 import layouts from '../../modules/layouts'
-import { posts as postsService } from '../../modules/feathers-services'
 import getChannelSetting from '../../modules/get-channel-setting'
 import {
-  addPosts,
-  setTimelineAfter,
-  setTimelineBefore,
+  getPosts,
+  getMorePosts,
+  getNewPosts,
   selectChannel,
   addNotification,
   focusComponent,
@@ -27,8 +26,6 @@ class MainPosts extends Component {
   constructor(props) {
     super(props)
 
-    // Get the layout for the selected channel
-
     this.state = {
       loading: false,
     }
@@ -38,13 +35,14 @@ class MainPosts extends Component {
     this.renderTimelinePosts = this.renderTimelinePosts.bind(this)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const {
       match,
       user,
       selectChannel,
       selectedChannel,
       focusComponent,
+      getPosts,
       posts,
     } = this.props
     if (user.me && match.params.channelSlug) {
@@ -54,7 +52,9 @@ class MainPosts extends Component {
         focusComponent(null)
         focusComponent('timeline')
       } else if (posts.length === 0) {
-        this.loadPosts()
+        this.setState({ loading: true })
+        await getPosts(channel)
+        this.setState({ loading: false })
       }
     }
     this.checkForNewPostsInterval = setInterval(
@@ -63,8 +63,8 @@ class MainPosts extends Component {
     )
   }
 
-  componentDidUpdate(prevProps) {
-    const { focusComponent, selectChannel, user, match } = this.props
+  async componentDidUpdate(prevProps) {
+    const { focusComponent, selectChannel, user, match, getPosts } = this.props
     const hasUser = !!user.me
     const currentChannel = this.props.selectedChannel
     const previousChannel = prevProps.selectedChannel
@@ -91,7 +91,9 @@ class MainPosts extends Component {
 
     if (hasUser && currentChannel && currentChannel !== previousChannel) {
       // Channel has changed so load posts
-      this.loadPosts()
+      this.setState({ loading: true })
+      await getPosts(currentChannel)
+      this.setState({ loading: false })
     }
   }
 
@@ -100,9 +102,9 @@ class MainPosts extends Component {
   }
 
   checkForNewPosts() {
-    const { selectedChannel, timelineBefore } = this.props
-    if (document.hasFocus && selectedChannel && timelineBefore) {
-      this.loadPosts()
+    const { selectedChannel, before, getNewPosts } = this.props
+    if (document.hasFocus && selectedChannel && before) {
+      getNewPosts(selectedChannel, before)
     }
   }
 
@@ -119,42 +121,16 @@ class MainPosts extends Component {
 
   async loadPosts() {
     const { loading } = this.state
-    const {
-      selectedChannel,
-      timelineAfter,
-      addPosts,
-      setTimelineAfter,
-    } = this.props
+    const { selectedChannel, after, getMorePosts } = this.props
     if (!loading) {
       this.setState({ loading: true })
-      let query = {
-        channel: selectedChannel,
-      }
-      if (timelineAfter) {
-        query.after = timelineAfter
-      }
-      try {
-        const res = await postsService.find({
-          query,
-        })
-        if (res.items) {
-          addPosts(res.items)
-        }
-        if (res.paging && res.paging.after) {
-          setTimelineAfter(res.paging.after)
-        } else {
-          setTimelineAfter('')
-        }
-        this.setState({ loading: false })
-      } catch (err) {
-        this.setState({ loading: false })
-        console.log('Error loading posts', err)
-      }
+      await getMorePosts(selectedChannel, after)
+      this.setState({ loading: false })
     }
   }
 
   renderTimelinePosts() {
-    const { items, timelineAfter } = this.props
+    const { items, after } = this.props
     const layout = this.getLayout()
     let posts = [...items]
     if (layout && layout.filter) {
@@ -163,35 +139,21 @@ class MainPosts extends Component {
     switch (layout.id) {
       case 'gallery':
         return (
-          <Gallery
-            posts={posts}
-            loadMore={timelineAfter ? this.loadPosts : null}
-          />
+          <Gallery posts={posts} loadMore={after ? this.loadPosts : null} />
         )
       case 'map':
-        return (
-          <Map posts={posts} loadMore={timelineAfter ? this.loadPosts : null} />
-        )
+        return <Map posts={posts} loadMore={after ? this.loadPosts : null} />
       case 'classic':
         return (
-          <Classic
-            posts={posts}
-            loadMore={timelineAfter ? this.loadPosts : null}
-          />
+          <Classic posts={posts} loadMore={after ? this.loadPosts : null} />
         )
       case 'timeline':
         return (
-          <Timeline
-            posts={posts}
-            loadMore={timelineAfter ? this.loadPosts : null}
-          />
+          <Timeline posts={posts} loadMore={after ? this.loadPosts : null} />
         )
       default:
         return (
-          <Timeline
-            posts={posts}
-            loadMore={timelineAfter ? this.loadPosts : null}
-          />
+          <Timeline posts={posts} loadMore={after ? this.loadPosts : null} />
         )
     }
   }
@@ -236,11 +198,11 @@ MainPosts.propTypes = {
 }
 
 const mapStateToProps = state => ({
-  timelineBefore: state.app.get('timelineBefore'),
-  timelineAfter: state.app.get('timelineAfter'),
   selectedChannel: state.app.get('selectedChannel'),
   channels: state.channels.toJS(),
-  items: state.posts.toJS(),
+  items: state.posts.get('posts').toJS(),
+  after: state.posts.get('after'),
+  before: state.posts.get('before'),
   user: state.user.toJS(),
   channelSettings: state.settings.get('channels') || {},
 })
@@ -248,9 +210,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      addPosts,
-      setTimelineAfter,
-      setTimelineBefore,
+      getPosts,
+      getNewPosts,
+      getMorePosts,
       selectChannel,
       addNotification,
       focusComponent,

@@ -4,29 +4,42 @@ const defaultState = new Map({
   name: '',
   uid: '',
   unread: 0,
+  before: '',
+  after: '',
   notifications: new List([]),
 })
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
-    case 'ADD_MICROSUB_NOTIFICATION': {
-      return state.update('notifications', notifications =>
-        notifications.push(new Map(payload.post))
-      )
+    case 'SET_MICROSUB_NOTIFICATIONS': {
+      const { items, paging } = payload
+      let update = state
+      if (items) {
+        update = update.set(
+          'notifications',
+          new List(items.map(item => new Map(item)))
+        )
+      }
+      if (paging && paging.before) {
+        update = update.set('before', paging.before)
+      }
+      if (paging && paging.after) {
+        update = update.set('after', paging.after)
+      }
+      return update
     }
     case 'ADD_MICROSUB_NOTIFICATIONS': {
-      // TODO: Needs to append not replace
-      return state.update('notifications', notifications =>
-        payload.posts.forEach(
-          post => (notifications = notifications.push(new Map(post)))
+      const { items, paging } = payload
+      let update = state
+      if (items) {
+        update = update.update('notifications', notifications =>
+          notifications.concat(new List(items.map(item => new Map(item))))
         )
-      )
-    }
-    case 'REPLACE_MICROSUB_NOTIFICATIONS': {
-      return state.set(
-        'notifications',
-        new List(payload.posts.map(post => new Map(post)))
-      )
+      }
+      if (paging && paging.after) {
+        update = update.set('after', paging.after)
+      }
+      return update
     }
     case 'UPDATE_POST': {
       const index = state

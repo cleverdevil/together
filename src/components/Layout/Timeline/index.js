@@ -9,9 +9,8 @@ import Button from '@material-ui/core/Button'
 import ReactList from 'react-list'
 import Shortcuts from '../Shortcuts'
 import Post from '../../Post'
-import { updatePost, decrementChannelUnread } from '../../../actions'
+import { markPostRead } from '../../../actions'
 import getChannelSetting from '../../../modules/get-channel-setting'
-import { posts as postsService } from '../../../modules/feathers-services'
 import styles from './style'
 
 class Timeline extends Component {
@@ -38,8 +37,7 @@ class Timeline extends Component {
       channelSettings,
       channelsMenuOpen,
       posts,
-      updatePost,
-      decrementChannelUnread,
+      markPostRead,
       loadMore,
     } = this.props
 
@@ -55,14 +53,7 @@ class Timeline extends Component {
     )
 
     if (autoReadEnabled && !itemIsRead) {
-      updatePost(itemId, '_is_read', true)
-      postsService
-        .update(itemId, {
-          channel: selectedChannel,
-          method: 'mark_read',
-        })
-        .then(res => decrementChannelUnread(selectedChannel))
-        .catch(err => updatePost(itemId, '_is_read', false))
+      markPostRead(selectedChannel, itemId)
     }
 
     const isSecondLastItem =
@@ -151,13 +142,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      updatePost: updatePost,
-      decrementChannelUnread: decrementChannelUnread,
-    },
-    dispatch
-  )
+  bindActionCreators({ markPostRead }, dispatch)
 
 export default connect(
   mapStateToProps,

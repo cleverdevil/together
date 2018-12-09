@@ -1,35 +1,72 @@
 import { Map, List } from 'immutable'
 
-const defaultState = new List([])
+const defaultState = new Map({
+  posts: new List([]),
+  before: null,
+  after: null,
+})
 
 export default (state = defaultState, payload) => {
   switch (payload.type) {
-    case 'ADD_POST': {
-      return state.push(new Map(payload.post))
-    }
-    case 'ADD_POSTS': {
-      if (payload.method === 'append') {
-        payload.posts.forEach(post => (state = state.push(new Map(post))))
-      } else if (payload.method === 'prepend') {
-        payload.posts
-          .reverse()
-          .forEach(post => (state = state.unshift(new Map(post))))
-      }
-      return state
-    }
     case 'UPDATE_POST': {
-      const index = state.findIndex(post => post.get('_id') === payload.id)
+      const index = state
+        .get('posts')
+        .findIndex(post => post.get('_id') === payload.id)
       if (index > -1) {
-        return state.update(index, post => post.set(payload.key, payload.value))
+        return state.update('posts', posts =>
+          posts.update(index, post => post.set(payload.key, payload.value))
+        )
       } else {
         return state
       }
     }
+    case 'REPLACE_TIMELINE': {
+      let update = defaultState
+      const { items, paging } = payload
+      if (items) {
+        const newPosts = new List(items.map(post => new Map(post)))
+        update = update.set('posts', newPosts)
+      }
+      if (paging.after) {
+        update = update.set('after', paging.after)
+      }
+      if (paging.before) {
+        update = update.set('before', paging.before)
+      }
+      return update
+    }
+    case 'PREPEND_TIMELINE': {
+      let update = state
+      const { items, paging } = payload
+      if (items) {
+        const newPosts = new List(items.map(post => new Map(post)))
+        update = update.update('posts', posts => newPosts.concat(posts))
+      }
+      update = update.set('before', paging.before)
+      return update
+    }
+    case 'APPEND_TIMELINE': {
+      let update = state
+      const { items, paging } = payload
+      if (items) {
+        const newPosts = new List(items.map(post => new Map(post)))
+        update = update.update('posts', posts => posts.concat(newPosts))
+      }
+      update = update.set('after', paging.after)
+      return update
+    }
+    case 'MARK_ALL_READ': {
+      return state.update('posts', posts =>
+        posts.map(post => post.set('_is_read', true))
+      )
+    }
     case 'REMOVE_POST': {
-      return state.filter(post => post.get('_id') !== payload.id)
+      return state.update('posts', posts =>
+        posts.filter(post => post.get('_id') !== payload.id)
+      )
     }
     case 'SET_SELECTED_CHANNEL': {
-      return state.clear()
+      return defaultState
     }
     case 'LOGOUT': {
       return defaultState

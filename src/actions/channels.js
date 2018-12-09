@@ -1,4 +1,4 @@
-import { addNotification } from './app'
+import { addNotification } from './index'
 import { channels as channelsService } from '../modules/feathers-services'
 
 export const addChannel = (name, uid, unread = 0, layout = 'timeline') => ({
@@ -51,13 +51,13 @@ export const updateChannel = (
         throw res.error
       }
     }
-    return {
+    return dispatch({
       type: 'UPDATE_CHANNEL',
       uid: uid,
       key: key,
       value: value,
       feathers: feathers,
-    }
+    })
   } catch (err) {
     console.log('Error updating channel', err)
     dispatch(addNotification('Error updating channel', 'error'))
@@ -80,10 +80,10 @@ export const removeChannel = uid => async dispatch => {
     if (res.error) {
       throw res.error
     }
-    return {
+    return dispatch({
       type: 'REMOVE_CHANNEL',
       uid: uid,
-    }
+    })
   } catch (err) {
     console.log('Error removing channel', err)
     dispatch(addNotification('Error removing channel', 'error'))

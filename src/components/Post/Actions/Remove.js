@@ -3,44 +3,21 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import RemoveIcon from '@material-ui/icons/Delete'
 import BaseAction from './Base'
-import { addNotification, removePost } from '../../../actions'
-import { posts as postsService } from '../../../modules/feathers-services'
+import { removePost } from '../../../actions'
 
-const ActionRemove = ({ _id, notification, removePost, channel, menuItem }) => (
+const ActionRemove = ({ _id, removePost, channel, menuItem }) => (
   <BaseAction
     title={'Remove from channel'}
-    onClick={() => {
-      postsService
-        .update(_id, {
-          channel: channel,
-          method: 'remove',
-        })
-        .then(res => {
-          removePost(_id)
-          notification('Post removed')
-        })
-        .catch(err => {
-          console.log('Error removing post', err)
-          notification('Error removing post', 'error')
-        })
-    }}
+    onClick={() => removePost(channel, _id)}
     icon={<RemoveIcon />}
     menuItem={menuItem}
   />
 )
 
-const mapStateToProps = state => ({})
-
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      notification: addNotification,
-      removePost,
-    },
-    dispatch
-  )
+  bindActionCreators({ removePost }, dispatch)
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(ActionRemove)

@@ -21,16 +21,13 @@ import LayoutSwitcher from '../LayoutSwitcher'
 import { version } from '../../../package.json'
 import {
   toggleChannelsMenu,
-  updateChannel,
   addNotification,
+  markAllRead,
   updatePost,
   toggleTheme,
   logout,
 } from '../../actions'
-import {
-  posts as postsService,
-  micropub,
-} from '../../modules/feathers-services'
+import { micropub } from '../../modules/feathers-services'
 import styles from './style'
 
 class TogetherAppBar extends Component {
@@ -53,34 +50,9 @@ class TogetherAppBar extends Component {
   }
 
   handleMarkRead() {
-    const {
-      items,
-      selectedChannel,
-      updateChannel,
-      addNotification,
-    } = this.props
+    const { items, selectedChannel, markAllRead } = this.props
     if (items && items[0] && items[0]._id) {
-      postsService
-        .update(null, {
-          method: 'mark_read',
-          channel: selectedChannel,
-          last_read_entry: items[0]._id,
-        })
-        .then(res => {
-          if (res.channel && res.channel === selectedChannel) {
-            items.forEach(post => {
-              if (!post._is_read) {
-                updatePost(post._id, '_is_read', true)
-              }
-            })
-          }
-          updateChannel(res.channel || selectedChannel, 'unread', 0)
-          addNotification(`Marked ${res.updated} items as read`)
-        })
-        .catch(err => {
-          console.log(err)
-          addNotification('Error marking items as read', 'error')
-        })
+      markAllRead(selectedChannel, items[0]._id)
     }
   }
 
@@ -255,7 +227,7 @@ const mapStateToProps = state => ({
   selectedChannel: state.app.get('selectedChannel'),
   theme: state.app.get('theme'),
   channels: state.channels.toJS(),
-  items: state.posts.toJS(),
+  items: state.posts.get('posts').toJS(),
   noteSyndication: state.settings.get('noteSyndication'),
   supportsMicropub: !!state.settings.get('micropubEndpoint'),
 })
@@ -263,12 +235,12 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      toggleChannelsMenu: toggleChannelsMenu,
-      updateChannel: updateChannel,
-      addNotification: addNotification,
-      updatePost: updatePost,
-      toggleTheme: toggleTheme,
-      logout: logout,
+      toggleChannelsMenu,
+      addNotification,
+      updatePost,
+      toggleTheme,
+      logout,
+      markAllRead,
     },
     dispatch
   )
