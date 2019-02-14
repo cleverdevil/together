@@ -68,11 +68,11 @@ class TogetherCardPhotos extends Component {
     return (
       <Fragment>
         {this.renderPhotos()}
-        {this.state.selectedPhoto != null && (
+        {this.state.selectedPhoto !== null && (
           <GallerySlider
             medias={photos.map(photo => ({ photo }))}
             startIndex={this.state.selectedPhoto}
-            onClose={() => this.setState({ selectedPhoto: false })}
+            onClose={() => this.setState({ selectedPhoto: null })}
             open={true}
           />
         )}
