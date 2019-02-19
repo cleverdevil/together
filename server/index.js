@@ -197,14 +197,16 @@ app.post('/api/getAuthUrl', (req, res, next) => {
 })
 
 app.get('/api/parse/:url', (req, res) => {
-  const read = require('node-read')
+  const Mercury = require('@postlight/mercury-parser')
   const url = decodeURIComponent(req.params.url)
-  read(url, (err, article, meta) => {
-    if (err) {
+  Mercury.parse(url)
+    .then(result => {
+      return res.json(result)
+    })
+    .catch(err => {
+      console.log(`Error parsing article at ${url}:`, err)
       return res.status(500).json({ error: 'Error parsing article' })
-    }
-    return res.json({ article, meta })
-  })
+    })
 })
 
 app.get('*', (req, res, next) => {

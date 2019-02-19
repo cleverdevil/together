@@ -67,8 +67,8 @@ class TruncatedContentLoader extends Component {
     if (data.error) {
       notification('Error parsing full content', 'error')
       console.log('Error parsing full content', data.error)
-    } else if (data.article && data.article.content) {
-      updatePost(post._id, 'content', { html: data.article.content })
+    } else if (data.content) {
+      updatePost(post._id, 'content', { html: data.content })
     } else {
       notification('Full content not found', 'error')
     }
