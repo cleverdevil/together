@@ -187,9 +187,9 @@ app.post('/api/getAuthUrl', (req, res, next) => {
     })
     micropub
       .getAuthUrl()
-      .then(url => res.json({ url: url }))
+      .then(url => res.json({ url }))
       .catch(err => {
-        console.log('Error getting auth url', err)
+        console.log('Error getting auth url: ' + url, err)
         res.status(err.status || 500)
         res.json({ error: err.message })
       })
