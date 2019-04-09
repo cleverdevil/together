@@ -189,7 +189,7 @@ app.post('/api/getAuthUrl', (req, res, next) => {
       .getAuthUrl()
       .then(url => res.json({ url }))
       .catch(err => {
-        console.log('Error getting auth url: ' + url, err)
+        console.log('Error getting auth url: ' + req.body.me, err)
         res.status(err.status || 500)
         res.json({ error: err.message })
       })
