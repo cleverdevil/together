@@ -31,7 +31,7 @@
     "intersection-observer": "^0.5.1",
     "isomorphic-fetch": "^2.2.1",
     "micropub-client-editor": "^1.0.7",
-    "micropub-helper": "^1.6.0",
+    "micropub-helper": "^1.6.1",
     "moment": "^2.22.2",
     "nconf": "^0.10.0",
     "nedb": "^1.8.0",
