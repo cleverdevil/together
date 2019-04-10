@@ -18,6 +18,7 @@ import ReadIcon from '@material-ui/icons/DoneAll'
 import MicrosubNotifications from '../MicrosubNotifications'
 import MicropubForm from '../MicropubForm'
 import LayoutSwitcher from '../LayoutSwitcher'
+import Meta from '../Meta'
 import { version } from '../../../package.json'
 import {
   toggleChannelsMenu,
@@ -116,14 +117,20 @@ class TogetherAppBar extends Component {
       channel => channel.uid === this.props.selectedChannel
     )
     let title = 'Together'
+    let metaTitle = ''
     if (selectedChannel) {
-      title = selectedChannel.name
+      metaTitle = selectedChannel.name
       if (selectedChannel.unread) {
-        title += ` (${selectedChannel.unread})`
+        metaTitle += ` (${selectedChannel.unread})`
       }
     }
+    if (metaTitle) {
+      title = metaTitle
+    }
+
     return (
       <AppBar position="static">
+        <Meta title={metaTitle} />
         <Toolbar>
           <Tooltip title="Channels" placement="bottom">
             <IconButton

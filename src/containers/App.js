@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { withStyles } from '@material-ui/core/styles'
 import { ShortcutManager } from 'react-shortcuts'
+import Meta from '../components/Meta'
 import Grid from '@material-ui/core/Grid'
 import AppBar from '../components/AppBar'
 import MainPosts from '../components/Layout'
@@ -43,6 +44,7 @@ class App extends Component {
               spacing={0}
               className={this.props.classes.appWrapper}
             >
+              <Meta />
               <AppBar />
               <Grid
                 item
