@@ -18,7 +18,7 @@
     "@feathersjs/socketio-client": "^1.1.5",
     "@material-ui/core": "^3.5.1",
     "@material-ui/icons": "^3.0.1",
-    "@postlight/mercury-parser": "^2.0.0",
+    "@postlight/mercury-parser": "^2.1.0",
     "@researchgate/react-intersection-observer": "^0.7.4",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
