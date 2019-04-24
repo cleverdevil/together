@@ -11,6 +11,6 @@
     "ENV PORT 80",
     "RUN npm run build",
     "EXPOSE 80",
-    "CMD [ \"npm\", \"start\" ]"
+    "CMD [ \"npm\", \"run\", \"backend\" ]"
   ]
 }
