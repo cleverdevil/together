@@ -2,6 +2,7 @@
   "schemaVersion": 2,
   "dockerfileLines": [
     "FROM node:11.14-alpine",
+    "RUN apk add --no-cache git",
     "RUN mkdir -p /usr/src/app",
     "COPY ./ /usr/src/app",
     "WORKDIR /usr/src/app",
