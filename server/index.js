@@ -17,18 +17,24 @@ const users = require('./lib/services/users')
 const micropubService = require('./lib/services/micropub')
 const requireUserHook = require('./lib/hooks/require-user')
 const initiateMicropubHook = require('./lib/hooks/initiate-micropub')
-const config = require('./lib/config')
 const Micropub = require('micropub-helper')
+
+require('dotenv').config({
+  path: path.resolve(
+    process.cwd(),
+    process.env.NODE_ENV === 'production' ? '.env' : 'development.env'
+  ),
+})
 
 const app = express(feathers())
 app.configure(express.rest())
 
 app.configure(
   authentication({
-    secret: config.get('secret'),
+    secret: process.env.SECRET,
     service: 'users',
     jwt: {
-      audience: config.get('url'),
+      audience: process.env.URL,
       expiresIn: '14d',
     },
   })
@@ -47,7 +53,7 @@ app.configure(
         me: req.body.me,
         state: req.body.state,
         redirectUri: req.body.redirectUri,
-        clientId: config.get('url'),
+        clientId: process.env.URL,
         scope: 'post create delete update read follow mute block channels',
       })
       relParser(req.body.me)
@@ -183,7 +189,7 @@ app.post('/api/getAuthUrl', (req, res, next) => {
       state: req.body.state,
       redirectUri: req.body.redirectUri,
       scope: 'post create delete update read follow mute block channels',
-      clientId: config.get('url'),
+      clientId: process.env.URL,
     })
     micropub
       .getAuthUrl()
@@ -217,5 +223,5 @@ app.get('*', (req, res, next) => {
   }
 })
 
-app.listen(process.env.PORT || config.get('port'))
-console.log(`Watching on ${process.env.PORT || config.get('port')}`)
+app.listen(process.env.PORT || 3001)
+console.log(`Watching on ${process.env.PORT || 3001}`)
