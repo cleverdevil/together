@@ -20,7 +20,7 @@ const ClassicView = ({ classes, posts, channel, loadMore }) => {
   const listRef = useRef()
   const markRead = useMarkRead()
 
-  const infiniteScrollEnabled = true
+  const infiniteScrollEnabled = channel._t_infiniteScroll
   const postIndex = selectedPostId
     ? posts.findIndex(post => post._id === selectedPostId)
     : -1
@@ -35,9 +35,7 @@ const ClassicView = ({ classes, posts, channel, loadMore }) => {
     const target = entry.target
     const itemId = target.dataset.id
 
-    // TODO: Handle infinite scroll options
     const isSecondLastItem = itemId === posts[posts.length - 2]._id
-
     if (
       posts &&
       posts.length &&
@@ -56,7 +54,9 @@ const ClassicView = ({ classes, posts, channel, loadMore }) => {
       articleRef.current.scrollTop = 0
     }
     // Mark the post as read
-    markRead(channel.uid, post._id)
+    if (channel._t_autoRead) {
+      markRead(channel.uid, post._id)
+    }
     // Load the next posts if reading the final post
     if (index === posts.length - 1 && loadMore) {
       loadMore()

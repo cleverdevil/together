@@ -70,7 +70,6 @@ class MicrosubAPI extends RESTDataSource {
       if (channelSettings.layout) {
         layout = channelSettings.layout
       }
-      // TODO: Think about just setting autoread and infinite scroll as always true?
       if (channelSettings.autoRead === false) {
         autoRead = channelSettings.autoRead
       }

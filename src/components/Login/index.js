@@ -11,12 +11,7 @@ import {
 } from '@material-ui/core'
 import gql from 'graphql-tag'
 import { useMutation, useQuery } from 'react-apollo-hooks'
-
-const GET_TOKEN = gql`
-  {
-    token @client
-  }
-`
+import useLocalState from '../../hooks/use-local-state'
 
 const GET_AUTH_URL = gql`
   mutation GetAuthUrl($url: String!) {
@@ -25,9 +20,7 @@ const GET_AUTH_URL = gql`
 `
 
 const Login = props => {
-  const {
-    data: { token },
-  } = useQuery(GET_TOKEN)
+  const [localState] = useLocalState()
   const [me, setMe] = useState('')
   const [loading, setLoading] = useState(false)
   // TODO: Auto login using saved jwt?
@@ -56,8 +49,8 @@ const Login = props => {
     return false
   }
 
-  if (token) {
-    // return <Redirect to="/" />
+  if (localState && localState.token) {
+    return <Redirect to="/" />
   }
 
   return (

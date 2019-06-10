@@ -4,17 +4,12 @@ import { useQuery, useMutation } from 'react-apollo-hooks'
 import { GET_MUTED, UNMUTE } from '../../queries'
 import { withStyles } from '@material-ui/core/styles'
 import {
-  FormLabel,
-  FormControl,
-  FormGroup,
-  List,
+  ListSubheader,
   ListItem,
-  ListItemSecondaryAction,
   ListItemText,
-  IconButton,
-  CircularProgress,
+  LinearProgress,
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
+import ChannelSettingUrl from './ChannelSettingUrl'
 import styles from './style'
 
 const ChannelMuted = ({ classes, channel }) => {
@@ -56,34 +51,31 @@ const ChannelMuted = ({ classes, channel }) => {
     })
 
   return (
-    <div>
-      <FormControl component="fieldset" className={classes.fieldset}>
-        <FormLabel component="legend">Muted</FormLabel>
-        <FormGroup>
-          {!!loading && <CircularProgress />}
-          {!!muted && (
-            <List className={classes.muted}>
-              {muted.map(item => (
-                <ListItem key={`list-muted-${item.url}`}>
-                  <ListItemText
-                    className={classes.mutedUrl}
-                    primary={`${item.url} (${item.type})`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      aria-label={`Unmute ${item.url}`}
-                      onClick={() => unmute(item.url)}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </FormGroup>
-      </FormControl>
-    </div>
+    <>
+      <ListSubheader>Muted</ListSubheader>
+
+      {!!loading && (
+        <ListItem>
+          <LinearProgress style={{ width: '100%' }} />
+        </ListItem>
+      )}
+
+      {!!muted &&
+        muted.map(item => (
+          <ChannelSettingUrl
+            {...item}
+            key={`list-muted-${item.url}`}
+            onRemove={() => unmute(item.url)}
+            onRemoveLabel={`Unmute ${item.url}`}
+          />
+        ))}
+
+      {!loading && (!muted || muted.length === 0) && (
+        <ListItem>
+          <ListItemText>No muted urls in this channel</ListItemText>
+        </ListItem>
+      )}
+    </>
   )
 }
 

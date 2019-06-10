@@ -2,26 +2,29 @@ import React, { Fragment } from 'react'
 import useMicropubQuery from '../../hooks/use-micropub-query'
 import { withStyles } from '@material-ui/core/styles'
 import {
-  FormControl,
-  FormGroup,
-  FormControlLabel,
-  FormLabel,
-  Switch,
+  List,
+  ListItem,
+  ListSubheader,
+  ListItemText,
+  ListItemSecondaryAction,
   Button,
-  CircularProgress,
+  Switch,
+  LinearProgress,
 } from '@material-ui/core'
 import useUser from '../../hooks/use-user'
 import styles from './style'
 
 const SyndicationSettings = ({ classes }) => {
-  const { data, loading, error, refetch } = useMicropubQuery('syndicate-to')
+  const { data, error, refetch, networkStatus } = useMicropubQuery(
+    'syndicate-to',
+    { notifyOnNetworkStatusChange: true }
+  )
   const { user, setOption } = useUser()
 
   const syndicationProviders =
     data && data['syndicate-to'] ? data['syndicate-to'] : false
 
-  const handleChange = e => {
-    const { value: provider, name } = e.target
+  const toggleProvider = (name, provider) => {
     const syndication = user.settings[name]
     const index = syndication.findIndex(s => s === provider)
     if (index > -1) {
@@ -36,18 +39,27 @@ const SyndicationSettings = ({ classes }) => {
     return null
   }
 
-  if (loading || !user) {
-    return <CircularProgress />
+  if (networkStatus < 7 || !user) {
+    return (
+      <ListItem>
+        <LinearProgress style={{ width: '100%' }} />
+      </ListItem>
+    )
   }
 
   const SyndicationSet = ({ title, settingKey }) => (
-    <FormControl component="div">
-      <FormLabel component="span">{title}</FormLabel>
-      <FormGroup>
-        {syndicationProviders.map(provider => (
-          <FormControlLabel
+    <>
+      <ListSubheader>{title}</ListSubheader>
+      {syndicationProviders.map(provider => {
+        const handleChange = () => toggleProvider(settingKey, provider.uid)
+        return (
+          <ListItem
+            button
             key={`${settingKey}-setting-${provider.uid}`}
-            control={
+            onClick={handleChange}
+          >
+            <ListItemText>{provider.name}</ListItemText>
+            <ListItemSecondaryAction>
               <Switch
                 checked={
                   user && user.settings[settingKey].includes(provider.uid)
@@ -56,17 +68,16 @@ const SyndicationSettings = ({ classes }) => {
                 onChange={handleChange}
                 name={settingKey}
               />
-            }
-            label={provider.name}
-          />
-        ))}
-      </FormGroup>
-    </FormControl>
+            </ListItemSecondaryAction>
+          </ListItem>
+        )
+      })}
+    </>
   )
 
   if (syndicationProviders) {
     return (
-      <Fragment>
+      <List>
         <SyndicationSet title="Like Syndication" settingKey="likeSyndication" />
         <SyndicationSet
           title="Repost Syndication"
@@ -74,10 +85,18 @@ const SyndicationSettings = ({ classes }) => {
         />
         <SyndicationSet title="Note Syndication" settingKey="noteSyndication" />
 
-        <Button onClick={refetch} variant="contained">
-          Update Syndication Providers
-        </Button>
-      </Fragment>
+        <ListSubheader>Update Providers</ListSubheader>
+        <ListItem>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
+            onClick={() => refetch()}
+          >
+            Update Syndication Providers
+          </Button>
+        </ListItem>
+      </List>
     )
   }
 

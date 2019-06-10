@@ -16,14 +16,14 @@ export default theme => ({
     display: 'block',
   },
   twoColumns: {
-    [theme.breakpoints.up('sm')]: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      '& > *': {
-        width: '48%',
-      },
-    },
+    // [theme.breakpoints.up('sm')]: {
+    //   display: 'flex',
+    //   flexWrap: 'wrap',
+    //   flexDirection: 'row',
+    //   justifyContent: 'space-between',
+    //   '& > *': {
+    //     width: '48%',
+    //   },
+    // },
   },
 })

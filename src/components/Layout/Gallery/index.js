@@ -26,9 +26,8 @@ const Gallery = ({ classes, posts, channel, loadMore }) => {
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(false)
   const markRead = useMarkRead()
 
-  // TODO: Get channel settings
-  const infiniteScrollEnabled = true
-  const autoReadEnabled = true
+  const infiniteScrollEnabled = channel._t_infiniteScroll
+  const autoReadEnabled = channel._t_autoRead
 
   const getMediasFromPosts = posts => {
     const medias = []

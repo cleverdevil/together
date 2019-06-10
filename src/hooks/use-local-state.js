@@ -5,6 +5,7 @@ import gql from 'graphql-tag'
 const GET_ALL = gql`
   {
     theme @client
+    token @client
     channelsMenuOpen @client
     focusedComponent @client
     shortcutHelpOpen @client

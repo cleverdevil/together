@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
 import useReactRouter from 'use-react-router'
+import { useApolloClient } from 'react-apollo-hooks'
 import { IconButton, Menu, MenuItem, Tooltip } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings'
 import useLocalState from '../../hooks/use-local-state'
 import LayoutSwitcher from '../LayoutSwitcher'
 import { version } from '../../../package.json'
 
-// TODO: Logout
 const SettingsMenu = ({ classes }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const {
@@ -16,6 +16,13 @@ const SettingsMenu = ({ classes }) => {
     },
   } = useReactRouter()
   const [localState, setLocalState] = useLocalState()
+  const client = useApolloClient()
+
+  const logout = e => {
+    window.localStorage.removeItem('token')
+    client.resetStore()
+    window.location.href = '/'
+  }
 
   return (
     <Fragment>
@@ -62,7 +69,7 @@ const SettingsMenu = ({ classes }) => {
           >
             {localState.theme === 'light' ? 'Dark' : 'Light'} Mode
           </MenuItem>
-          {/* <MenuItem onClick={logout}>Logout</MenuItem> */}
+          <MenuItem onClick={logout}>Logout</MenuItem>
           <MenuItem>Version {version}</MenuItem>
           <LayoutSwitcher className={classes.layoutSwitcher} />
         </Fragment>

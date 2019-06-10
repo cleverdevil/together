@@ -9,7 +9,6 @@ import SnackbarLinkAction from '../../SnackbarLinkAction'
 import MicropubForm from '../../MicropubForm'
 import { MICROPUB_CREATE } from '../../../queries'
 
-// TODO: Get reply syndication options and test
 const ActionReply = ({ url, syndication, menuItem }) => {
   const { enqueueSnackbar } = useSnackbar()
   const { user } = useUser()

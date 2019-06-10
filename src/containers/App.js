@@ -29,6 +29,28 @@ import style from './style'
 
 const shortcutManager = new ShortcutManager(keymap)
 
+const AuthedRoute = ({ component: Component, ...routeProps }) => {
+  const [localState] = useLocalState()
+
+  return (
+    <Route
+      {...routeProps}
+      render={props =>
+        localState && localState.token ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/login',
+              state: { from: props.location },
+            }}
+          />
+        )
+      }
+    />
+  )
+}
+
 const App = ({ classes }) => {
   // getChildContext() {
   //   return { shortcuts: shortcutManager }
@@ -72,16 +94,19 @@ const App = ({ classes }) => {
                 </Switch>
               </Grid>
               <Grid item className={classes.main}>
-                <Route exact path="/" component={MainPosts} />
-                <Route path="/channel/:channelSlug" component={MainPosts} />
-                <Route path="/me/:postType" component={TestMe} />
-                <Route path="/me" component={TestMe} />
-                <Route
+                <AuthedRoute exact path="/" component={MainPosts} />
+                <AuthedRoute
+                  path="/channel/:channelSlug"
+                  component={MainPosts}
+                />
+                <AuthedRoute path="/me/:postType" component={TestMe} />
+                <AuthedRoute path="/me" component={TestMe} />
+                <AuthedRoute
                   path="/channel/:channelSlug/edit"
                   component={ChannelSettings}
                 />
-                <Route path="/editor" component={MicropubEditor} />
-                <Route path="/settings" component={AppSettings} />
+                <AuthedRoute path="/editor" component={MicropubEditor} />
+                <AuthedRoute path="/settings" component={AppSettings} />
                 {/* <ShortcutHelp /> */}
               </Grid>
               <Route path="/login" component={Login} />

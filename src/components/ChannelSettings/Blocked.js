@@ -4,17 +4,12 @@ import { useQuery, useMutation } from 'react-apollo-hooks'
 import { GET_BLOCKED, UNBLOCK } from '../../queries'
 import { withStyles } from '@material-ui/core/styles'
 import {
-  FormLabel,
-  FormControl,
-  FormGroup,
-  List,
+  ListSubheader,
   ListItem,
-  ListItemSecondaryAction,
   ListItemText,
-  IconButton,
-  CircularProgress,
+  LinearProgress,
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
+import ChannelSettingUrl from './ChannelSettingUrl'
 import styles from './style'
 
 const ChannelBlocked = ({ classes, channel }) => {
@@ -56,34 +51,31 @@ const ChannelBlocked = ({ classes, channel }) => {
     })
 
   return (
-    <div>
-      <FormControl component="fieldset" className={classes.fieldset}>
-        <FormLabel component="legend">Blocked</FormLabel>
-        <FormGroup>
-          {!!loading && <CircularProgress />}
-          {!!blocked && (
-            <List className={classes.blocked}>
-              {blocked.map(item => (
-                <ListItem key={`list-blocked-${item.url}`}>
-                  <ListItemText
-                    className={classes.blockedUrl}
-                    primary={`${item.url} (${item.type})`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      aria-label={`Unblock ${item.url}`}
-                      onClick={() => unblock(item.url)}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </FormGroup>
-      </FormControl>
-    </div>
+    <>
+      <ListSubheader>Blocked</ListSubheader>
+
+      {!!loading && (
+        <ListItem>
+          <LinearProgress style={{ width: '100%' }} />
+        </ListItem>
+      )}
+
+      {!!blocked &&
+        blocked.map(item => (
+          <ChannelSettingUrl
+            {...item}
+            key={`list-blocked-${item.url}`}
+            onRemove={() => unblock(item.url)}
+            onRemoveLabel={`Unblock ${item.url}`}
+          />
+        ))}
+
+      {!loading && (!blocked || blocked.length === 0) && (
+        <ListItem>
+          <ListItemText>No blocked urls in this channel</ListItemText>
+        </ListItem>
+      )}
+    </>
   )
 }
 

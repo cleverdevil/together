@@ -14,8 +14,6 @@ const Timeline = ({ classes, posts, channel, loadMore }) => {
   const ref = useRef()
   const markRead = useMarkRead()
 
-  // TODO: No longer respects infinite scroll or auto read settings
-
   const handleIntersection = async entry => {
     if (!entry || !entry.intersectionRatio) {
       return null
@@ -25,14 +23,14 @@ const Timeline = ({ classes, posts, channel, loadMore }) => {
     const itemId = target.dataset.id
     const itemIsRead = target.dataset.isread === 'true'
 
-    if (channel && !itemIsRead) {
+    if (channel && channel._t_autoRead && !itemIsRead) {
       markRead(channel.uid, itemId)
     }
 
     const isSecondLastItem =
       posts.length > 2 && itemId === posts[posts.length - 2]._id
 
-    if (channel && isSecondLastItem) {
+    if (channel && channel._t_infiniteScroll && isSecondLastItem) {
       if (loadMore) {
         loadMore()
         return null

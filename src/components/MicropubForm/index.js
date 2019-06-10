@@ -56,7 +56,14 @@ const MicropubForm = ({
         buttonComponent={Button}
         inputComponent={props => <Input fullWidth={true} {...props} />}
         textareaComponent={props => (
-          <Input fullWidth={true} multiline={true} {...props} rows={3} />
+          <Input
+            {...props}
+            rows={3}
+            fullWidth={true}
+            multiline={true}
+            rowsMax={!expanded ? 6 : null}
+            autoFocus={!expanded && props.id === 'mf2_content'}
+          />
         )}
         labelComponent={props => (
           <InputLabel

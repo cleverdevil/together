@@ -4,17 +4,12 @@ import { useQuery, useMutation } from 'react-apollo-hooks'
 import { GET_FOLLOWING, UNFOLLOW } from '../../queries'
 import { withStyles } from '@material-ui/core/styles'
 import {
-  FormLabel,
-  FormControl,
-  FormGroup,
-  List,
+  ListSubheader,
   ListItem,
-  ListItemSecondaryAction,
   ListItemText,
-  IconButton,
-  CircularProgress,
+  LinearProgress,
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
+import ChannelSettingUrl from './ChannelSettingUrl'
 import styles from './style'
 
 const ChannelFollowing = ({ classes, channel }) => {
@@ -56,34 +51,33 @@ const ChannelFollowing = ({ classes, channel }) => {
     })
 
   return (
-    <div>
-      <FormControl component="fieldset" className={classes.fieldset}>
-        <FormLabel component="legend">Following</FormLabel>
-        <FormGroup>
-          {!!loading && <CircularProgress />}
-          {!!following && (
-            <List className={classes.following}>
-              {following.map(item => (
-                <ListItem key={`list-following-${item.url}`}>
-                  <ListItemText
-                    className={classes.followingUrl}
-                    primary={`${item.url} (${item.type})`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      aria-label={`Unfollow ${item.url}`}
-                      onClick={() => unfollow(item.url)}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </FormGroup>
-      </FormControl>
-    </div>
+    <>
+      <ListSubheader>Following</ListSubheader>
+
+      {!!loading && (
+        <ListItem>
+          <LinearProgress style={{ width: '100%' }} />
+        </ListItem>
+      )}
+
+      {!!following &&
+        following.map(item => (
+          <ChannelSettingUrl
+            {...item}
+            key={`list-following-${item.url}`}
+            onRemove={() => unfollow(item.url)}
+            onRemoveLabel={`Unfollow ${item.url}`}
+          />
+        ))}
+
+      {!loading && (!following || following.length === 0) && (
+        <ListItem>
+          <ListItemText>
+            You are not following anything at the moment
+          </ListItemText>
+        </ListItem>
+      )}
+    </>
   )
 }
 

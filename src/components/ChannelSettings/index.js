@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import useReactRouter from 'use-react-router'
 import { useSnackbar } from 'notistack'
@@ -6,18 +6,23 @@ import { useQuery, useMutation } from 'react-apollo-hooks'
 import { GET_CHANNELS, UPDATE_CHANNEL, REMOVE_CHANNEL } from '../../queries'
 import { withStyles } from '@material-ui/core/styles'
 import {
-  FormControl,
-  FormGroup,
-  FormControlLabel,
   Switch,
   TextField,
   Button,
-  CircularProgress,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListSubheader,
+  ListItemSecondaryAction,
+  Select,
+  MenuItem,
 } from '@material-ui/core'
 import SettingsModal from '../SettingsModal'
 import Following from './Following'
 import Blocked from './Blocked'
 import Muted from './Muted'
+import layouts from '../../modules/layouts'
 import styles from './style'
 
 const ChannelSettings = ({ classes }) => {
@@ -37,6 +42,10 @@ const ChannelSettings = ({ classes }) => {
   const [channel, setChannel] = useState(
     channels ? channels.find(c => c.uid === channelUid) : {}
   )
+
+  useEffect(() => {
+    setChannel(channels ? channels.find(c => c.uid === channelUid) : {})
+  }, [channels])
 
   const updateChannel = useMutation(UPDATE_CHANNEL)
   const removeChannel = useMutation(REMOVE_CHANNEL, {
@@ -77,10 +86,9 @@ const ChannelSettings = ({ classes }) => {
     const optimisticChannel = Object.assign({}, channel, { [key]: value })
     setChannel(optimisticChannel)
     updateChannel({
-      variables: {
-        uid: channelUid,
+      variables: Object.assign({}, channel, {
         [key]: value,
-      },
+      }),
       optimisticResponse: {
         __typename: 'Mutation',
         updateChannel: {
@@ -105,60 +113,97 @@ const ChannelSettings = ({ classes }) => {
 
   return (
     <SettingsModal
+      singleColumn
       title={loading ? 'Loading...' : `${channel.name} Settings`}
       onClose={handleClose}
     >
-      {loading ? (
-        <CircularProgress style={{ margin: '1rem auto' }} />
-      ) : (
-        <div>
-          <FormControl component="fieldset" className={classes.fieldset}>
-            <FormGroup>
+      <List className={classes.list}>
+        <ListSubheader>Channel Options</ListSubheader>
+        {loading ? (
+          <ListItem>
+            <LinearProgress style={{ width: '100%' }} />
+          </ListItem>
+        ) : (
+          <>
+            <ListItem>
+              <ListItemText>Name</ListItemText>
               <TextField
-                label="Name"
                 value={channel.name}
                 onChange={e => handleUpdate('name', e.target.value)}
-                margin="normal"
+                margin="none"
                 type="text"
               />
+            </ListItem>
 
-              <FormControlLabel
-                label="Infinite Scroll"
-                control={
-                  <Switch
-                    checked={channel._t_infiniteScroll}
-                    value="infiniteScrollChecked"
-                    onChange={e =>
-                      handleUpdate(
-                        '_t_infiniteScroll',
-                        !channel._t_infiniteScroll
-                      )
-                    }
-                  />
-                }
-              />
+            <ListItem>
+              <ListItemText>Layout</ListItemText>
+              <Select
+                value={channel._t_layout}
+                onChange={e => handleUpdate('_t_layout', e.target.value)}
+                margin="none"
+              >
+                {layouts.map(layout => (
+                  <MenuItem value={layout.id}>{layout.name}</MenuItem>
+                ))}
+              </Select>
+            </ListItem>
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={channel._t_autoRead}
-                    value="autoReadChecked"
-                    onChange={e =>
-                      handleUpdate('_t_autoRead', !channel._t_autoRead)
-                    }
-                  />
-                }
-                label="Auto Mark As Read"
-              />
+            <ListItem
+              button
+              onClick={e =>
+                handleUpdate('_t_infiniteScroll', !channel._t_infiniteScroll)
+              }
+            >
+              <ListItemText>Infinite Scroll</ListItemText>
+              <ListItemSecondaryAction>
+                <Switch
+                  checked={!!channel._t_infiniteScroll}
+                  value="infiniteScrollChecked"
+                  onChange={e =>
+                    handleUpdate(
+                      '_t_infiniteScroll',
+                      !channel._t_infiniteScroll
+                    )
+                  }
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
 
-              <Button onClick={handleDelete}>Delete Channel</Button>
-            </FormGroup>
-          </FormControl>
-        </div>
-      )}
-      <Following channel={channelUid} />
-      <Blocked channel={channelUid} />
-      <Muted channel={channelUid} />
+            <ListItem
+              button
+              onClick={e => handleUpdate('_t_autoRead', !!!channel._t_autoRead)}
+            >
+              <ListItemText>Auto Mark as Read</ListItemText>
+              <ListItemSecondaryAction>
+                <Switch
+                  checked={!!channel._t_autoRead}
+                  value="autoReadChecked"
+                  onChange={e =>
+                    handleUpdate('_t_autoRead', !!!channel._t_autoRead)
+                  }
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
+
+            <ListItem>
+              <ListItemText>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  onClick={handleDelete}
+                  className={classes.delete}
+                >
+                  Delete Channel
+                </Button>
+              </ListItemText>
+            </ListItem>
+          </>
+        )}
+        <Following channel={channelUid} />
+        <Blocked channel={channelUid} />
+        <Muted channel={channelUid} />
+      </List>
     </SettingsModal>
   )
 }

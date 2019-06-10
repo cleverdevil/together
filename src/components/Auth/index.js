@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import gql from 'graphql-tag'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation, useApolloClient } from 'react-apollo-hooks'
 import { useSnackbar } from 'notistack'
 import { Redirect } from 'react-router-dom'
 import {
@@ -24,6 +24,7 @@ const Auth = props => {
   const [loading, setLoading] = useState(false)
   const login = useMutation(LOGIN)
   const { enqueueSnackbar } = useSnackbar()
+  const client = useApolloClient()
 
   const handleLogin = async () => {
     setLoading(true)
@@ -41,6 +42,8 @@ const Auth = props => {
         const jwt = data.login.token
         localStorage.setItem('token', jwt)
         enqueueSnackbar(`Welcome to Together`)
+        client.resetStore()
+        window.location.href = '/'
         setStatus(true)
       }
     } catch (err) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { Shortcuts } from 'react-shortcuts'
-import { List } from '@material-ui/core'
+import { List, ListItem, ListItemText } from '@material-ui/core'
 import { SortableContainer } from 'react-sortable-hoc'
 import useReactRouter from 'use-react-router'
 import ChannelMenuItem from './ChannelMenuItem'
@@ -98,11 +98,23 @@ const ChannelMenu = ({ classes, isFocused }) => {
   }
 
   if (error) {
-    return <p>Error loading channels 😢</p>
+    return (
+      <div className={classes.drawer}>
+        <ListItem>
+          <ListItemText>Error loading channels 😢</ListItemText>
+        </ListItem>
+      </div>
+    )
   }
 
   if (loading) {
-    return <p>Loading channels...</p>
+    return (
+      <div className={classes.drawer}>
+        <ListItem>
+          <ListItemText>Loading channels...</ListItemText>
+        </ListItem>
+      </div>
+    )
   }
 
   return (

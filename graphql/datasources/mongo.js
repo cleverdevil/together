@@ -95,10 +95,16 @@ class UserAPI extends DataSource {
     if (key.startsWith('_t_')) {
       key = key.substring(3)
     }
+    if (key === 'slug') {
+      // Slug is just a helper that shouldn't be updated
+      return true
+    }
+
     const validKeys = ['layout', 'autoRead', 'infiniteScroll']
     if (!validKeys.includes(key)) {
       throw new Error(`${key} is not a valid channel option`)
     }
+
     const res = await this.User.findOneAndUpdate(
       {
         _id: this.context.user._id,
@@ -110,6 +116,7 @@ class UserAPI extends DataSource {
         upsert: true,
       }
     ).exec()
+
     return true
   }
 
