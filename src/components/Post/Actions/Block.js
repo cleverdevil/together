@@ -1,51 +1,52 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import BlockIcon from '@material-ui/icons/Block'
 import BaseAction from './Base'
-import { addNotification, removePost } from '../../../actions'
-import { posts as postsService } from '../../../modules/feathers-services'
+import BlockIcon from '@material-ui/icons/Block'
+import { useMutation } from 'react-apollo-hooks'
+import { useSnackbar } from 'notistack'
+import { BLOCK, GET_TIMELINE } from '../../../queries'
 
-const ActionBlock = ({
-  _id,
-  url,
-  notification,
-  removePost,
-  channel,
-  menuItem,
-}) => (
-  <BaseAction
-    title={'Block user'}
-    onClick={() => {
-      postsService
-        .update(url, {
-          channel,
-          block: url,
-        })
-        .then(res => {
-          removePost(channel, _id)
-          notification('User blocked')
-        })
-        .catch(err => {
-          console.log('Error blocking user', err)
-          notification('Error blocking user', 'error')
-        })
-    }}
-    icon={<BlockIcon />}
-    menuItem={menuItem}
-  />
-)
+const ActionBlock = ({ url, channel, menuItem }) => {
+  const { enqueueSnackbar } = useSnackbar()
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      notification: addNotification,
-      removePost,
+  const block = useMutation(BLOCK, {
+    variables: { channel, url },
+    optimisticResponse: {
+      __typename: 'Mutation',
+      block: true,
     },
-    dispatch
-  )
+    update: (proxy, _) => {
+      // Read the data from our cache for this query.
+      const data = proxy.readQuery({
+        query: GET_TIMELINE,
+        variables: { channel },
+      })
+      // Find and remove posts with the given author url
+      data.timeline.items = data.timeline.items.filter(
+        post => post.author.url !== url
+      )
+      // Write our data back to the cache.
+      proxy.writeQuery({ query: GET_TIMELINE, variables: { channel }, data })
+    },
+  })
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(ActionBlock)
+  const handleBlock = async e => {
+    try {
+      await block()
+      enqueueSnackbar('User blocked', { variant: 'success' })
+    } catch (err) {
+      console.error('Error blocking user', err)
+      enqueueSnackbar('Error blocking user', { variant: 'error' })
+    }
+  }
+
+  return (
+    <BaseAction
+      title={'Block user'}
+      onClick={handleBlock}
+      icon={<BlockIcon />}
+      menuItem={menuItem}
+    />
+  )
+}
+
+export default ActionBlock

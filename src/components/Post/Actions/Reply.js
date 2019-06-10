@@ -1,84 +1,78 @@
-import React, { Component, Fragment } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import React, { Fragment, useState } from 'react'
+import { useMutation } from 'react-apollo-hooks'
+import { useSnackbar } from 'notistack'
 import ReplyIcon from '@material-ui/icons/Reply'
 import Popover from '@material-ui/core/Popover'
+import useUser from '../../../hooks/use-user'
 import BaseAction from './Base'
+import SnackbarLinkAction from '../../SnackbarLinkAction'
 import MicropubForm from '../../MicropubForm'
-import { addNotification } from '../../../actions'
-import { micropub } from '../../../modules/feathers-services'
+import { MICROPUB_CREATE } from '../../../queries'
 
-class ActionReply extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      popoverOpen: false,
-    }
-    this.handleReply = this.handleReply.bind(this)
-    this.handleReplySend = this.handleReplySend.bind(this)
-  }
+// TODO: Get reply syndication options and test
+const ActionReply = ({ url, syndication, menuItem }) => {
+  const { enqueueSnackbar } = useSnackbar()
+  const { user } = useUser()
+  const [popoverAnchor, setPopoverAnchor] = useState(null)
 
-  handleReply(e) {
-    this.setState({
-      popoverOpen: !this.state.popoverOpen,
-      popoverAnchor: e.target,
-    })
-  }
+  const createRepost = useMutation(MICROPUB_CREATE)
 
-  handleReplySend(mf2) {
-    micropub
-      .create({ post: mf2 })
-      .then(replyUrl => {
-        this.setState({ popoverOpen: false })
-        this.props.notification(`Successfully posted reply to ${replyUrl}`)
+  const handleSubmit = async mf2 => {
+    try {
+      const {
+        data: { micropubCreate: postUrl },
+      } = await createRepost({
+        variables: {
+          json: JSON.stringify(mf2),
+        },
       })
-      .catch(err => this.props.notification(`Error posting reply`, 'error'))
+      enqueueSnackbar('Posted reply', {
+        variant: 'success',
+        action: [<SnackbarLinkAction url={postUrl} />],
+      })
+    } catch (err) {
+      console.error('Error posting like', err)
+      enqueueSnackbar('Error posting like', { variant: 'error' })
+    }
+    setPopoverAnchor(null)
   }
 
-  render() {
-    const { url, menuItem } = this.props
-    return (
-      <Fragment>
-        <BaseAction
-          title="Reply"
-          onClick={this.handleReply}
-          icon={<ReplyIcon />}
-          menuItem={menuItem}
-        />
-        <Popover
-          open={this.state.popoverOpen}
-          anchorEl={this.state.popoverAnchor}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          onClose={() => this.setState({ popoverOpen: false })}
-          onBackdropClick={() => this.setState({ popoverOpen: false })}
-        >
-          <div
-            style={{
-              padding: 10,
-            }}
-          >
-            <MicropubForm
-              onSubmit={this.handleReplySend}
-              properties={{ 'in-reply-to': url }}
-            />
-          </div>
-        </Popover>
-      </Fragment>
-    )
+  let defaultProperties = { 'in-reply-to': url }
+  if (user && user.settings.noteSyndication.length) {
+    defaultProperties['mp-syndicate-to'] = user.settings.noteSyndication
   }
+
+  return (
+    <Fragment>
+      <BaseAction
+        title="Reply"
+        icon={<ReplyIcon />}
+        onClick={e => setPopoverAnchor(e.target)}
+        menuItem={menuItem}
+      />
+      <Popover
+        open={!!popoverAnchor}
+        anchorEl={popoverAnchor}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        onClose={() => setPopoverAnchor(null)}
+        onBackdropClick={() => setPopoverAnchor(null)}
+      >
+        <div
+          style={{
+            padding: 10,
+          }}
+        >
+          <MicropubForm
+            onSubmit={handleSubmit}
+            properties={defaultProperties}
+          />
+        </div>
+      </Popover>
+    </Fragment>
+  )
 }
 
-const mapStateToProps = state => ({
-  syndication: state.settings.get('likeSyndication') || [],
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ notification: addNotification }, dispatch)
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ActionReply)
+export default ActionReply

@@ -1,14 +1,7 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router-dom'
 import { Shortcuts } from 'react-shortcuts'
-import {
-  selectChannel,
-  toggleChannelsMenu,
-  focusComponent,
-  toggleShortcutHelp,
-} from '../../actions'
+import channelQuery from '../../queries/channels'
 
 class GlobalShortcutHandler extends Component {
   constructor(props) {
@@ -18,12 +11,14 @@ class GlobalShortcutHandler extends Component {
 
   handleShortcuts(action) {
     const {
-      channels,
+      data,
       selectChannel,
       history,
       focusComponent,
       toggleShortcutHelp,
     } = this.props
+
+    const { channels } = data
 
     if (action.indexOf('CHANNEL_') === 0) {
       // Switch channel
@@ -68,21 +63,4 @@ class GlobalShortcutHandler extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  channels: state.channels
-    .toJS()
-    .filter(channel => channel.uid !== 'notifications'),
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { selectChannel, toggleChannelsMenu, focusComponent, toggleShortcutHelp },
-    dispatch
-  )
-
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(GlobalShortcutHandler)
-)
+export default withRouter(channelQuery(GlobalShortcutHandler))

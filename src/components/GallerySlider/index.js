@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import Dialog from '@material-ui/core/Dialog'
 import Drawer from '@material-ui/core/Drawer'
@@ -210,9 +208,4 @@ Gallery.propTypes = {
   onLastPhoto: PropTypes.func,
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch)
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(withStyles(styles)(Gallery))
+export default withStyles(styles)(Gallery)

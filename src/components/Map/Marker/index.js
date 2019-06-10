@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Popover from '@material-ui/core/Popover'
@@ -6,80 +6,69 @@ import AuthorAvatar from '../../AuthorAvatar'
 import Post from '../../Post'
 import styles, { markerSize } from './style'
 
-class MapMarker extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      postOpen: false,
-      anchor: null,
-    }
-    this.handleClick = this.handleClick.bind(this)
-    this.renderPost = this.renderPost.bind(this)
-  }
+const MapMarker = ({ classes, post, postOpen = false, author, left, top }) => {
+  const [open, setOpen] = useState(postOpen)
+  const [anchor, setAnchor] = useState(null)
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.postOpen !== this.props.postOpen) {
-      if (this.props.postOpen && !this.state.postOpen) {
-        this.setState({ postOpen: true })
-      } else if (!this.props.postOpen && this.state.postOpen) {
-        this.setState({ postOpen: false })
-      }
-    }
-  }
+  // TODO: Check prop based open works too
 
-  handleClick(e) {
-    e.preventDefault()
-    this.setState({
-      postOpen: true,
-      anchor: e.target,
-    })
-  }
+  // componentDidUpdate(prevProps) {
+  //   if (prevProps.postOpen !== this.props.postOpen) {
+  //     if (this.props.postOpen && !this.state.postOpen) {
+  //       this.setState({ postOpen: true })
+  //     } else if (!this.props.postOpen && this.state.postOpen) {
+  //       this.setState({ postOpen: false })
+  //     }
+  //   }
+  // }
 
-  renderPost() {
-    if (!this.props.post) {
-      return null
-    }
-    return (
-      <Popover
-        disableAutoFocus
-        open={this.state.postOpen}
-        className={this.props.classes.popover}
-        anchorEl={this.state.anchor}
-        anchorOrigin={{
-          vertical: 'center',
-          horizontal: 'center',
+  // handleClick(e) {
+  //   e.preventDefault()
+  //   this.setState({
+  //     postOpen: true,
+  //     anchor: e.target,
+  //   })
+  // }
+
+  return (
+    <Fragment>
+      <div
+        className={classes.marker}
+        onClick={e => {
+          setOpen(true)
+          setAnchor(e.target)
+          e.preventDefault()
         }}
-        transformOrigin={{
-          vertical: 'center',
-          horizontal: 'center',
-        }}
-        onClose={() => this.setState({ postOpen: false })}
-        onBackdropClick={() => this.setState({ postOpen: false })}
+        style={{ left, top }}
       >
-        <Post
-          post={this.props.post}
-          style={{ boxShadow: 'none', margin: 0 }}
-          hideProperties={['checkin', 'location']}
-        />
-      </Popover>
-    )
-  }
-
-  render() {
-    const { classes, author, left, top } = this.props
-    return (
-      <Fragment>
-        <div
-          className={classes.marker}
-          onClick={this.handleClick}
-          style={{ left, top }}
+        <AuthorAvatar author={author} size={markerSize} />
+      </div>
+      {!!post && (
+        <Popover
+          disableAutoFocus
+          open={postOpen || open}
+          className={classes.popover}
+          anchorEl={anchor}
+          anchorOrigin={{
+            vertical: 'center',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'center',
+            horizontal: 'center',
+          }}
+          onClose={() => setOpen(false)}
+          onBackdropClick={() => setOpen(false)}
         >
-          <AuthorAvatar author={author} size={markerSize} />
-        </div>
-        {this.renderPost()}
-      </Fragment>
-    )
-  }
+          <Post
+            post={post}
+            style={{ boxShadow: 'none', margin: 0 }}
+            hideProperties={['checkin', 'location']}
+          />
+        </Popover>
+      )}
+    </Fragment>
+  )
 }
 
 MapMarker.defaultProps = {

@@ -1,5 +1,6 @@
 export default theme => ({
   card: {
+    maxWidth: '100%',
     marginTop: 12,
     marginBottom: 12,
     overflow: 'hidden',

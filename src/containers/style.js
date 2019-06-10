@@ -1,3 +1,5 @@
+const scrollbarWidth = 6
+
 export default theme => ({
   appWrapper: {
     width: '100%',
@@ -5,6 +7,15 @@ export default theme => ({
     flexDirection: 'column',
     flexWrap: 'nowrap',
     overflow: 'hidden',
+
+    '& *::-webkit-scrollbar': {
+      width: scrollbarWidth,
+    },
+
+    '& *::-webkit-scrollbar-thumb': {
+      backgroundColor: theme.palette.text.hint,
+      borderRadius: scrollbarWidth / 2,
+    },
   },
   root: {
     background: theme.palette.background.default,

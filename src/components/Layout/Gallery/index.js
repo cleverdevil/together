@@ -1,21 +1,20 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import useMarkRead from '../../../hooks/use-mark-read'
 import { withStyles } from '@material-ui/core/styles'
 import 'intersection-observer'
 import Observer from '@researchgate/react-intersection-observer'
-import GridList from '@material-ui/core/GridList'
-import GridListTile from '@material-ui/core/GridListTile'
-import GridListTileBar from '@material-ui/core/GridListTileBar'
-import Button from '@material-ui/core/Button'
+import {
+  GridList,
+  GridListTile,
+  GridListTileBar,
+  Button,
+} from '@material-ui/core/'
 import ReactList from 'react-list'
-import Shortcuts from '../Shortcuts'
+// import Shortcuts from '../Shortcuts'
 import AuthorAvatar from '../../AuthorAvatar'
 import GallerySlider from '../../GallerySlider'
-import { markPostRead } from '../../../actions'
 import authorToAvatarData from '../../../modules/author-to-avatar-data'
-import getChannelSetting from '../../../modules/get-channel-setting'
 import resizeImage from '../../../modules/get-image-proxy-url'
 import styles from './style'
 
@@ -23,31 +22,15 @@ const contentWidth = document.getElementById('root').clientWidth - 49
 const columnCount = Math.floor(contentWidth / 300)
 const cellHeight = Math.floor(contentWidth / columnCount)
 
-class Gallery extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      medias: props.posts ? this.getMediasFromPosts(props.posts) : [],
-      selectedMediaIndex: false,
-    }
-    this.markPostRead = this.markPostRead.bind(this)
-    this.handleIntersection = this.handleIntersection.bind(this)
-    this.handleGallerySliderChange = this.handleGallerySliderChange.bind(this)
-    this.renderRow = this.renderRow.bind(this)
-    this.renderLoadMore = this.renderLoadMore.bind(this)
-  }
+const Gallery = ({ classes, posts, channel, loadMore }) => {
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(false)
+  const markRead = useMarkRead()
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.posts && newProps.posts !== this.props.posts) {
-      const medias = this.getMediasFromPosts(newProps.posts)
+  // TODO: Get channel settings
+  const infiniteScrollEnabled = true
+  const autoReadEnabled = true
 
-      if (medias.length !== this.state.medias.length) {
-        this.setState({ medias: medias })
-      }
-    }
-  }
-
-  getMediasFromPosts(posts) {
+  const getMediasFromPosts = posts => {
     const medias = []
     posts.forEach(post => {
       if (
@@ -97,13 +80,9 @@ class Gallery extends Component {
     })
     return medias
   }
+  const medias = getMediasFromPosts(posts)
 
-  markPostRead(postId) {
-    const { selectedChannel, markPostRead } = this.props
-    markPostRead(selectedChannel, postId)
-  }
-
-  handleIntersection(entry) {
+  const handleIntersection = entry => {
     if (!entry || !entry.intersectionRatio) {
       return null
     }
@@ -112,33 +91,13 @@ class Gallery extends Component {
     const itemId = target.dataset.id
     const itemIsRead = target.dataset.isread === 'true'
 
-    const {
-      selectedChannel,
-      channelSettings,
-      channelsMenuOpen,
-      posts,
-      loadMore,
-      markPostRead,
-    } = this.props
-
-    const infiniteScrollEnabled = getChannelSetting(
-      selectedChannel,
-      'infiniteScroll',
-      channelSettings
-    )
-    const autoReadEnabled = getChannelSetting(
-      selectedChannel,
-      'autoRead',
-      channelSettings
-    )
-
     if (autoReadEnabled && !itemIsRead) {
-      markPostRead(selectedChannel, itemId)
+      markRead(channel.uid, itemId)
     }
 
     const isSecondLastItem = itemId === posts[posts.length - 2]._id
 
-    if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
+    if (infiniteScrollEnabled && isSecondLastItem) {
       if (loadMore) {
         loadMore()
         return null
@@ -149,26 +108,19 @@ class Gallery extends Component {
     return null
   }
 
-  handleGallerySliderChange(media) {
-    const { selectedChannel, channelSettings, posts } = this.props
+  const handleGallerySliderChange = media => {
     const post = posts.find(post => post._id === media.postId)
-    const autoReadEnabled = getChannelSetting(
-      selectedChannel,
-      'autoRead',
-      channelSettings
-    )
+    const autoReadEnabled = true
 
     if (autoReadEnabled) {
       if (!post._is_read) {
-        this.markPostRead(post._id)
+        markRead(channel.uid, post._id)
       }
     }
   }
 
-  renderRow(rowIndex, key) {
-    const { classes, posts } = this.props
+  const renderRow = (rowIndex, key) => {
     const startIndex = rowIndex * columnCount
-    const medias = this.state.medias.slice(startIndex, startIndex + columnCount)
     return (
       <GridList
         key={key}
@@ -176,73 +128,70 @@ class Gallery extends Component {
         cols={columnCount}
         cellHeight={cellHeight}
       >
-        {medias.map((media, rowItemIndex) => {
-          const index = startIndex + rowItemIndex
-          const post = posts.find(post => post._id === media.postId)
-          const avatarData = authorToAvatarData(post.author)
+        {medias
+          .slice(startIndex, startIndex + columnCount)
+          .map((media, rowItemIndex) => {
+            const index = startIndex + rowItemIndex
+            const post = posts.find(post => post._id === media.postId)
+            const avatarData = authorToAvatarData(post.author)
 
-          return (
-            <Observer
-              key={post._id + index}
-              root={null}
-              margin="0px"
-              threshold={0}
-              onChange={this.handleIntersection}
-            >
-              <GridListTile
-                cols={1}
-                onClick={e => {
-                  this.setState({ selectedMediaIndex: index })
-                  this.markPostRead(post._id)
-                }}
-                style={{ height: cellHeight, width: 100 / columnCount + '%' }}
-                data-id={post._id}
-                data-isread={post._is_read}
+            return (
+              <Observer
+                key={post._id + index}
+                root={null}
+                margin="0px"
+                threshold={0}
+                onChange={handleIntersection}
               >
-                {media.photo && (
-                  <img
-                    src={resizeImage(media.photo, {
-                      w: 300,
-                      h: 300,
-                      t: 'square',
-                    })}
-                    alt=""
+                <GridListTile
+                  cols={1}
+                  onClick={e => {
+                    setSelectedMediaIndex(index)
+                    markRead(channel.uid, post._id)
+                  }}
+                  style={{ height: cellHeight, width: 100 / columnCount + '%' }}
+                  data-id={post._id}
+                  data-isread={post._is_read}
+                >
+                  {media.photo && (
+                    <img
+                      src={resizeImage(media.photo, {
+                        w: 300,
+                        h: 300,
+                        t: 'square',
+                      })}
+                      alt=""
+                    />
+                  )}
+                  {media.video && (
+                    <video
+                      className={classes.video}
+                      src={media.video}
+                      poster={media.poster}
+                      controls
+                      loop
+                    />
+                  )}
+                  <GridListTileBar
+                    title={
+                      post.name || (post.content && post.content.text) || ''
+                    }
+                    subtitle={avatarData.alt}
+                    actionIcon={
+                      <div style={{ marginRight: 14 }}>
+                        <AuthorAvatar author={post.author} />
+                      </div>
+                    }
                   />
-                )}
-                {media.video && (
-                  <video
-                    className={classes.video}
-                    src={media.video}
-                    poster={media.poster}
-                    controls
-                    loop
-                  />
-                )}
-                <GridListTileBar
-                  title={post.name || (post.content && post.content.text) || ''}
-                  subtitle={avatarData.alt}
-                  actionIcon={
-                    <div style={{ marginRight: 14 }}>
-                      <AuthorAvatar author={post.author} />
-                    </div>
-                  }
-                />
-              </GridListTile>
-            </Observer>
-          )
-        })}
+                </GridListTile>
+              </Observer>
+            )
+          })}
       </GridList>
     )
   }
 
-  renderLoadMore() {
-    const { selectedChannel, channelSettings, loadMore, classes } = this.props
-    const infiniteScrollEnabled = getChannelSetting(
-      selectedChannel,
-      'infiniteScroll',
-      channelSettings
-    )
-
+  const renderLoadMore = () => {
     if (infiniteScrollEnabled) {
       return null
     }
@@ -256,65 +205,52 @@ class Gallery extends Component {
     return null
   }
 
-  render() {
-    const {
-      classes,
-      posts,
-      selectedChannel,
-      loadMore,
-      channelSettings,
-    } = this.props
-    const { medias, selectedMediaIndex } = this.state
-    return (
-      <Shortcuts
+  return (
+    <>
+      {/* <Shortcuts
         onNext={() => {
           if (selectedMediaIndex === false) {
-            this.setState({ selectedMediaIndex: 0 })
+            setSelectedMediaIndex(0)
           } else {
-            this.setState({ selectedMediaIndex: selectedMediaIndex + 1 })
+            setSelectedMediaIndex(selectedMediaIndex + 1)
           }
         }}
         onPrevious={() => {
           if (selectedMediaIndex > 0) {
-            this.setState({ selectedMediaIndex: selectedMediaIndex - 1 })
+            setSelectedMediaIndex(selectedMediaIndex - 1)
           }
         }}
         onMarkRead={() => {}}
         className={classes.shortcuts}
-      >
-        <div className={classes.galleryWrapper}>
-          <ReactList
-            itemRenderer={this.renderRow}
-            length={Math.ceil(medias.length / columnCount)}
-            type="simple"
-            minSize={3}
-          />
-          {this.renderLoadMore()}
-        </div>
+      > */}
+      <div className={classes.galleryWrapper}>
+        <ReactList
+          itemRenderer={renderRow}
+          length={Math.ceil(medias.length / columnCount)}
+          type="simple"
+          minSize={3}
+        />
+        {renderLoadMore()}
+      </div>
 
-        {selectedMediaIndex !== false && (
-          <GallerySlider
-            posts={posts}
-            medias={medias}
-            startIndex={selectedMediaIndex}
-            onChange={this.handleGallerySliderChange}
-            onClose={() => this.setState({ selectedMediaIndex: false })}
-            onLastPhoto={() => {
-              const infiniteScrollEnabled = getChannelSetting(
-                selectedChannel,
-                'infiniteScroll',
-                channelSettings
-              )
-              if (infiniteScrollEnabled) {
-                loadMore()
-              }
-            }}
-            open={true}
-          />
-        )}
-      </Shortcuts>
-    )
-  }
+      {selectedMediaIndex !== false && (
+        <GallerySlider
+          posts={posts}
+          medias={medias}
+          startIndex={selectedMediaIndex}
+          onChange={handleGallerySliderChange}
+          onClose={() => setSelectedMediaIndex(false)}
+          onLastPhoto={() => {
+            if (infiniteScrollEnabled) {
+              loadMore()
+            }
+          }}
+          open={true}
+        />
+      )}
+      {/* </Shortcuts> */}
+    </>
+  )
 }
 
 Gallery.defaultProps = {
@@ -325,16 +261,4 @@ Gallery.propTypes = {
   posts: PropTypes.array.isRequired,
 }
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ markPostRead }, dispatch)
-
-const mapStateToProps = state => ({
-  selectedChannel: state.app.get('selectedChannel'),
-  channelSettings: state.settings.get('channels'),
-  channelsMenuOpen: state.app.get('channelsMenuOpen'),
-})
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Gallery))
+export default withStyles(styles)(Gallery)

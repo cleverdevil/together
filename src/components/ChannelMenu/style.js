@@ -23,10 +23,12 @@ export default theme => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    textDecoration: 'none',
   },
   highlightedButton: {
     display: 'block',
     textAlign: 'left',
+    textDecoration: 'none',
     color: theme.palette.primary.contrastText,
     backgroundColor:
       theme.palette.type === 'dark'
@@ -44,7 +46,9 @@ export default theme => ({
     color: theme.palette.primary.main,
   },
   addForm: {
-    background: theme.palette.background.default,
+    borderTop: '1px solid ' + theme.palette.divider,
+    padding: theme.spacing.unit,
+    paddingBottom: 0,
   },
   unread: {
     position: 'absolute',

@@ -1,42 +1,52 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import { useMutation } from 'react-apollo-hooks'
+import { useSnackbar } from 'notistack'
 import RepostIcon from '@material-ui/icons/Repeat'
+import useUser from '../../../hooks/use-user'
 import BaseAction from './Base'
-import { addNotification } from '../../../actions'
-import { micropub } from '../../../modules/feathers-services'
+import SnackbarLinkAction from '../../SnackbarLinkAction'
+import { MICROPUB_CREATE } from '../../../queries'
 
-const ActionRepost = ({ url, syndication, notification, menuItem }) => (
-  <BaseAction
-    title="Repost"
-    onClick={e => {
-      const mf2 = {
-        type: ['h-entry'],
-        properties: {
-          'repost-of': [url],
-        },
-      }
-      if (syndication.length) {
-        mf2.properties['mp-syndicate-to'] = syndication
-      }
-      micropub
-        .create({ post: mf2 })
-        .then(res => notification(`Successfully reposted ${url}`))
-        .catch(err => notification(`Error reposting ${url}`, 'error'))
-    }}
-    icon={<RepostIcon />}
-    menuItem={menuItem}
-  />
-)
+const ActionRepost = ({ url, menuItem }) => {
+  const { enqueueSnackbar } = useSnackbar()
+  const { user } = useUser()
+  let mf2 = {
+    type: ['h-entry'],
+    properties: {
+      'repost-of': [url],
+    },
+  }
+  if (user && user.settings.repostSyndication.length) {
+    mf2.properties['mp-syndicate-to'] = user.settings.repostSyndication
+  }
+  const createRepost = useMutation(MICROPUB_CREATE, {
+    variables: {
+      json: JSON.stringify(mf2),
+    },
+  })
 
-const mapStateToProps = state => ({
-  syndication: state.settings.get('repostSyndication') || [],
-})
+  const onClick = async e => {
+    try {
+      const {
+        data: { micropubCreate: postUrl },
+      } = await createRepost()
+      enqueueSnackbar('Successfully reposted', {
+        variant: 'success',
+        action: [<SnackbarLinkAction url={postUrl} />],
+      })
+    } catch (err) {
+      console.error('Error reposting', err)
+      enqueueSnackbar('Error reposting', { variant: 'errpr' })
+    }
+  }
+  return (
+    <BaseAction
+      title="Repost"
+      onClick={onClick}
+      icon={<RepostIcon />}
+      menuItem={menuItem}
+    />
+  )
+}
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ notification: addNotification }, dispatch)
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ActionRepost)
+export default ActionRepost

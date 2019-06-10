@@ -1,232 +1,166 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import useReactRouter from 'use-react-router'
+import { useSnackbar } from 'notistack'
+import { useQuery, useMutation } from 'react-apollo-hooks'
+import { GET_CHANNELS, UPDATE_CHANNEL, REMOVE_CHANNEL } from '../../queries'
 import { withStyles } from '@material-ui/core/styles'
-import { withRouter } from 'react-router'
-import FormLabel from '@material-ui/core/FormLabel'
-import FormControl from '@material-ui/core/FormControl'
-import FormGroup from '@material-ui/core/FormGroup'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItemText from '@material-ui/core/ListItemText'
-import Switch from '@material-ui/core/Switch'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
+import {
+  FormControl,
+  FormGroup,
+  FormControlLabel,
+  Switch,
+  TextField,
+  Button,
+  CircularProgress,
+} from '@material-ui/core'
 import SettingsModal from '../SettingsModal'
-import { updateChannel, removeChannel } from '../../actions'
-import { follows as followsService } from '../../modules/feathers-services'
-import { getAll as getChannelSettings } from '../../modules/get-channel-setting'
+import Following from './Following'
+import Blocked from './Blocked'
+import Muted from './Muted'
 import styles from './style'
 
-class ChannelSettings extends Component {
-  constructor(props) {
-    super(props)
-    let uid = null
-    let name = 'Channel'
-    if (
-      props.channels.length &&
-      props.match &&
-      props.match.params &&
-      props.match.params.channelSlug
-    ) {
-      let selectedChannel = props.channels.find(
-        channel => channel.slug === props.match.params.channelSlug
+const ChannelSettings = ({ classes }) => {
+  const { enqueueSnackbar } = useSnackbar()
+  const {
+    history,
+    match: {
+      params: { channelSlug },
+    },
+  } = useReactRouter()
+  const {
+    data: { channels },
+    loading,
+    error,
+  } = useQuery(GET_CHANNELS)
+  const channelUid = decodeURIComponent(channelSlug)
+  const [channel, setChannel] = useState(
+    channels ? channels.find(c => c.uid === channelUid) : {}
+  )
+
+  const updateChannel = useMutation(UPDATE_CHANNEL)
+  const removeChannel = useMutation(REMOVE_CHANNEL, {
+    variables: { channel: channel.uid },
+    update: (proxy, _) => {
+      const data = proxy.readQuery({
+        query: GET_CHANNELS,
+      })
+      // Update our channel in the channels array
+      data.channels = data.channels.filter(
+        channel => channel.uid !== channelUid
       )
-      if (selectedChannel) {
-        uid = selectedChannel.uid
-        name = selectedChannel.name
-        this.getFollowing(selectedChannel.uid)
-      }
+      // Write our data back to the cache.
+      proxy.writeQuery({ query: GET_CHANNELS, data })
+    },
+  })
+
+  const handleClose = () => {
+    if (history) {
+      history.push('/channel/' + channelSlug)
     }
-    const settings = getChannelSettings(uid, props.channelSettings)
-    this.state = {
-      uid: uid,
-      name: name,
-      following: [],
-      ...settings,
-    }
-    this.handleClose = this.handleClose.bind(this)
-    this.handleNameChange = this.handleNameChange.bind(this)
-    this.handleUnsubscribe = this.handleUnsubscribe.bind(this)
-    this.handleDelete = this.handleDelete.bind(this)
-    this.getFollowing = this.getFollowing.bind(this)
-    this.renderFollowing = this.renderFollowing.bind(this)
   }
 
-  componentWillReceiveProps(newProps) {
-    if (
-      !this.state.uid &&
-      newProps.channels.length &&
-      newProps.match &&
-      newProps.match.params &&
-      newProps.match.params.channelSlug
-    ) {
-      let selectedChannel = newProps.channels.find(
-        channel => channel.slug === newProps.match.params.channelSlug
-      )
-      if (selectedChannel) {
-        const settings = getChannelSettings(
-          selectedChannel.uid,
-          newProps.channelSettings
-        )
-        this.setState({
-          uid: selectedChannel.uid,
-          name: selectedChannel.name,
-          ...settings,
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this channel?')) {
+      const { error } = await removeChannel()
+      if (error) {
+        console.error('[Error deleting channel]', error)
+        enqueueSnackbar('Error deleting channel', { variant: 'error' })
+      } else {
+        enqueueSnackbar('Channel deleted', { variant: 'success' })
+        history.push('/')
+      }
+    }
+  }
+
+  const handleUpdate = (key, value) => {
+    const optimisticChannel = Object.assign({}, channel, { [key]: value })
+    setChannel(optimisticChannel)
+    updateChannel({
+      variables: {
+        uid: channelUid,
+        [key]: value,
+      },
+      optimisticResponse: {
+        __typename: 'Mutation',
+        updateChannel: {
+          ...optimisticChannel,
+          __typename: 'Channel',
+        },
+      },
+      update: (proxy, _) => {
+        // Read the data from our cache for this query.
+        const data = proxy.readQuery({
+          query: GET_CHANNELS,
         })
-        this.getFollowing(selectedChannel.uid)
-      }
-    }
+        // Update our channel in the channels array
+        data.channels = data.channels.map(channel =>
+          channel.uid === channelUid ? optimisticChannel : channel
+        )
+        // Write our data back to the cache.
+        proxy.writeQuery({ query: GET_CHANNELS, data })
+      },
+    })
   }
 
-  handleClose() {
-    if (this.props.history) {
-      this.props.history.push('/channel/' + this.state.uid)
-    }
-  }
-
-  getFollowing(uid = this.state.uid) {
-    followsService
-      .get(uid)
-      .then(res => {
-        if (res.items) {
-          this.setState({ following: res.items })
-        }
-      })
-      .catch(err => console.log(err))
-  }
-
-  handleDelete() {
-    const { uid } = this.state
-    const { history, removeChannel } = this.props
-    if (
-      uid &&
-      window.confirm('Are you sure you want to delete this channel?')
-    ) {
-      removeChannel(uid)
-      this.setState({ uid: null })
-      history.push('/')
-    }
-  }
-
-  handleLocalChange = name => event => {
-    this.setState({ [name]: event.target.checked })
-    this.props.updateChannel(this.state.uid, name, event.target.checked)
-  }
-
-  handleNameChange(e) {
-    const name = e.target.value
-    const { uid } = this.state
-    const { updateChannel } = this.props
-    this.setState({ name })
-    // TODO: Only send this request when typing is finished.
-    updateChannel(uid, 'name', name)
-  }
-
-  handleUnsubscribe(url) {
-    followsService
-      .remove(url, {
-        query: { channel: this.state.uid },
-      })
-      .then(unfollowed => {
-        this.setState(state => ({
-          following: state.following.filter(
-            item =>
-              !(item.type === unfollowed.type && item.url === unfollowed.url)
-          ),
-        }))
-      })
-      .catch(err => console.log(err))
-  }
-
-  renderFollowing() {
-    if (!this.state.following.length) {
-      return null
-    }
-    return (
-      <div>
-        <FormControl
-          component="fieldset"
-          className={this.props.classes.fieldset}
-        >
-          <FormLabel component="legend">Following</FormLabel>
-          <FormGroup>
-            <List className={this.props.classes.following}>
-              {this.state.following.map(item => (
-                <ListItem key={`list-following-${item.url}`}>
-                  <ListItemText
-                    className={this.props.classes.followingUrl}
-                    primary={`${item.url} (${item.type})`}
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      aria-label={`Unfollow ${item.url}`}
-                      onClick={() => this.handleUnsubscribe(item.url)}
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          </FormGroup>
-        </FormControl>
-      </div>
-    )
-  }
-
-  render() {
-    return (
-      <SettingsModal
-        title={`${this.state.name} Settings`}
-        onClose={this.handleClose}
-      >
+  return (
+    <SettingsModal
+      title={loading ? 'Loading...' : `${channel.name} Settings`}
+      onClose={handleClose}
+    >
+      {loading ? (
+        <CircularProgress style={{ margin: '1rem auto' }} />
+      ) : (
         <div>
-          <FormControl
-            component="fieldset"
-            className={this.props.classes.fieldset}
-          >
+          <FormControl component="fieldset" className={classes.fieldset}>
             <FormGroup>
               <TextField
                 label="Name"
-                value={this.state.name}
-                onChange={this.handleNameChange}
+                value={channel.name}
+                onChange={e => handleUpdate('name', e.target.value)}
                 margin="normal"
                 type="text"
               />
+
               <FormControlLabel
+                label="Infinite Scroll"
                 control={
                   <Switch
-                    checked={this.state.infiniteScroll}
+                    checked={channel._t_infiniteScroll}
                     value="infiniteScrollChecked"
-                    onChange={this.handleLocalChange('infiniteScroll')}
+                    onChange={e =>
+                      handleUpdate(
+                        '_t_infiniteScroll',
+                        !channel._t_infiniteScroll
+                      )
+                    }
                   />
                 }
-                label="Infinite Scroll"
               />
+
               <FormControlLabel
                 control={
                   <Switch
-                    checked={this.state.autoRead}
+                    checked={channel._t_autoRead}
                     value="autoReadChecked"
-                    onChange={this.handleLocalChange('autoRead')}
+                    onChange={e =>
+                      handleUpdate('_t_autoRead', !channel._t_autoRead)
+                    }
                   />
                 }
                 label="Auto Mark As Read"
               />
-              <Button onClick={this.handleDelete}>Delete Channel</Button>
+
+              <Button onClick={handleDelete}>Delete Channel</Button>
             </FormGroup>
           </FormControl>
         </div>
-        {this.renderFollowing()}
-      </SettingsModal>
-    )
-  }
+      )}
+      <Following channel={channelUid} />
+      <Blocked channel={channelUid} />
+      <Muted channel={channelUid} />
+    </SettingsModal>
+  )
 }
 
 ChannelSettings.defaultProps = {
@@ -237,20 +171,4 @@ ChannelSettings.propTypes = {
   channels: PropTypes.array.isRequired,
 }
 
-const mapStateToProps = state => ({
-  channels: state.channels.toJS(),
-  channelSettings: state.settings.get('channels'),
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { updateChannel: updateChannel, removeChannel: removeChannel },
-    dispatch
-  )
-
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(withStyles(styles)(ChannelSettings))
-)
+export default withStyles(styles)(ChannelSettings)

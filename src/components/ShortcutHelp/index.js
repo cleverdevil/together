@@ -1,8 +1,5 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import SettingsModal from '../SettingsModal'
-import { toggleShortcutHelp } from '../../actions'
 import keymap from '../../modules/keymap'
 import ShortcutTable from './ShortcutTable'
 
@@ -90,6 +87,8 @@ const singlePostKeys = [
   },
 ]
 
+// TODO: Make this openable and closeable
+
 const ShortcutHelp = ({ open, toggleShortcutHelp }) => {
   return (
     <SettingsModal
@@ -108,14 +107,4 @@ const ShortcutHelp = ({ open, toggleShortcutHelp }) => {
   )
 }
 
-const mapStateToProps = state => ({
-  open: state.app.get('shortcutHelpOpen'),
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ toggleShortcutHelp }, dispatch)
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ShortcutHelp)
+export default ShortcutHelp

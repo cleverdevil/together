@@ -1,120 +1,102 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import { useMutation } from 'react-apollo-hooks'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import { addNotification, updatePost } from '../../../actions'
+import { useSnackbar } from 'notistack'
+import { REFETCH_POST } from '../../../queries'
 
-class TruncatedContentLoader extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      loading: false,
-      isTruncated: this.hasTruncatedContent(props.post),
-    }
-    this.handleLoad = this.handleLoad.bind(this)
-  }
+const hasTruncatedContent = post => {
+  const html =
+    post && post.content ? post.content.html || post.content.text : null
+  const url = post && post.url ? post.url : null
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.post) {
-      this.setState({ isTruncated: this.hasTruncatedContent(newProps.post) })
-    }
-  }
-
-  hasTruncatedContent(post) {
-    const html =
-      post && post.content ? post.content.html || post.content.text : null
-    const url = post && post.url ? post.url : null
-
-    if (!html || !url) {
-      return false
-    }
-
-    const el = document.createElement('div')
-    el.innerHTML = html
-    if (el.innerText.endsWith('...')) {
-      // The content ends with an ellipsis, it is probably truncated
-      return true
-    }
-    if (url) {
-      const selfLink = el.querySelector(`a[href^="${url}"]`)
-      if (selfLink) {
-        // The content links to itself. It might be truncated
-        const linkText = selfLink.innerText.toLowerCase()
-        const truncateWords = ['continue', 'read', 'more'] // TODO: This probably needs more words / languages
-        for (const word of truncateWords) {
-          if (linkText.includes(word)) {
-            // The text contains one of the words above so probably is truncated
-            return true
-          }
-        }
-      }
-    }
+  if (!html || !url) {
     return false
   }
 
-  async handleLoad(e) {
+  // If twitter url then almost certainly not truncated
+  if (new URL(url).hostname === 'twitter.com') {
+    return false
+  }
+
+  const el = document.createElement('div')
+  el.innerHTML = html
+  if (el.innerText.endsWith('...')) {
+    // The content ends with an ellipsis, it is probably truncated
+    return true
+  }
+  if (url) {
+    const selfLink = el.querySelector(`a[href^="${url}"]`)
+    if (selfLink) {
+      // The content links to itself. It might be truncated
+      const linkText = selfLink.innerText.toLowerCase()
+      const truncateWords = ['continue', 'read', 'more']
+      for (const word of truncateWords) {
+        if (linkText.includes(word)) {
+          // The text contains one of the words above so probably is truncated
+          return true
+        }
+      }
+    }
+  }
+  return false
+}
+
+const TruncatedContentLoader = ({ post }) => {
+  const [loading, setLoading] = useState(false)
+  const [isTruncated, setIsTruncated] = useState(hasTruncatedContent(post))
+  const { enqueueSnackbar } = useSnackbar()
+  const refetchPost = useMutation(REFETCH_POST, {
+    variables: { post: post._id, url: post.url },
+  })
+
+  useEffect(() => {
+    setIsTruncated(hasTruncatedContent(post))
+  }, [post.url])
+
+  const handleLoad = async e => {
     e.preventDefault()
-    this.setState({ loading: true })
-    const { post, notification, updatePost } = this.props
-    const url = post.url
-    const apiUrl =
-      process.env.REACT_APP_API_SERVER + '/api/parse/' + encodeURIComponent(url)
-    const res = await fetch(apiUrl)
-    const data = await res.json()
-    this.setState({ isTruncated: false, loading: false })
-    if (data.error) {
-      notification('Error parsing full content', 'error')
-      console.log('Error parsing full content', data.error)
-    } else if (data.content) {
-      updatePost(post._id, 'content', { html: data.content })
-    } else {
-      notification('Full content not found', 'error')
+    setLoading(true)
+    const {
+      data: { refetchPost: update },
+      error,
+    } = await refetchPost()
+    setLoading(false)
+    setIsTruncated(false)
+    if (error) {
+      enqueueSnackbar('Error loading post content', { variant: 'error' })
+    } else if (!update || !update.content) {
+      enqueueSnackbar('Could not parse post content', { variant: 'warning' })
     }
   }
 
-  render() {
-    const { isTruncated, loading } = this.state
-    if (isTruncated) {
-      return (
-        <Button
-          size="small"
-          variant="text"
-          style={{ marginTop: 30 }}
-          onClick={this.handleLoad}
-          disabled={loading}
-          fullWidth
-        >
-          Load Full Post
-          {loading && (
-            <CircularProgress
-              size={20}
-              color="inherit"
-              style={{ marginLeft: 10 }}
-            />
-          )}
-        </Button>
-      )
-    }
-    return null
+  if (isTruncated) {
+    return (
+      <Button
+        size="small"
+        variant="text"
+        style={{ marginTop: 30 }}
+        onClick={handleLoad}
+        disabled={loading}
+        fullWidth
+      >
+        Load Full Post
+        {loading && (
+          <CircularProgress
+            size={20}
+            color="inherit"
+            style={{ marginLeft: 10 }}
+          />
+        )}
+      </Button>
+    )
   }
+  return null
 }
 
 TruncatedContentLoader.propTypes = {
   post: PropTypes.object.isRequired,
 }
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      updatePost,
-      notification: addNotification,
-    },
-    dispatch
-  )
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(TruncatedContentLoader)
+export default TruncatedContentLoader

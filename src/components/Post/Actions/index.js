@@ -1,10 +1,9 @@
-import React, { Fragment, Component } from 'react'
-import { connect } from 'react-redux'
+import React, { Fragment, useState } from 'react'
+import useReactRouter from 'use-react-router'
 import { withStyles } from '@material-ui/core/styles'
-import CardActions from '@material-ui/core/CardActions'
-import IconButton from '@material-ui/core/IconButton'
-import Menu from '@material-ui/core/Menu'
+import { CardActions, IconButton, Menu } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
+import useUser from '../../../hooks/use-user'
 import ActionLike from './Like'
 import ActionRepost from './Repost'
 import ActionReply from './Reply'
@@ -16,95 +15,65 @@ import ActionMute from './Mute'
 import ActionBlock from './Block'
 import style from './style'
 
-class TogetherCardActions extends Component {
-  state = {
-    anchorEl: null,
-  }
+const TogetherCardActions = ({ post, shownActions, classes }) => {
+  const { user } = useUser()
+  const [anchorEl, setAnchorEl] = useState(null)
+  const { match } = useReactRouter()
+  const channel = decodeURIComponent(match.params.channelSlug)
+  const hasMicropub = user && user.hasMicropub
 
-  handleClick = event => {
-    this.setState({ anchorEl: event.currentTarget })
-  }
+  return (
+    <Fragment>
+      <CardActions className={classes.actions}>
+        {hasMicropub && post.url && shownActions.includes('like') && (
+          <ActionLike url={post.url} />
+        )}
+        {hasMicropub && post.url && shownActions.includes('repost') && (
+          <ActionRepost url={post.url} />
+        )}
+        {hasMicropub && post.url && shownActions.includes('reply') && (
+          <ActionReply url={post.url} />
+        )}
+        {shownActions.includes('markRead') && (
+          <ActionMarkRead
+            _id={post._id}
+            channel={channel}
+            isRead={post._is_read}
+          />
+        )}
+        {post.url && shownActions.includes('view') && (
+          <ActionView url={post.url} />
+        )}
 
-  handleClose = () => {
-    this.setState({ anchorEl: null })
-  }
-
-  render() {
-    const { anchorEl } = this.state
-    const {
-      post,
-      channel,
-      shownActions,
-      micropubEndpoint,
-      classes,
-    } = this.props
-    return (
-      <Fragment>
-        <CardActions className={classes.actions}>
-          {micropubEndpoint && post.url && shownActions.includes('like') && (
-            <ActionLike url={post.url} />
+        <IconButton
+          className={classes.moreButton}
+          aria-label="More Actions"
+          aria-haspopup="true"
+          onClick={e => setAnchorEl(e.currentTarget)}
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={e => setAnchorEl(null)}
+        >
+          {shownActions.includes('consoleLog') && (
+            <ActionConsoleLog post={post} menuItem />
           )}
-          {micropubEndpoint && post.url && shownActions.includes('repost') && (
-            <ActionRepost url={post.url} />
+          {post._id && shownActions.includes('remove') && (
+            <ActionRemove _id={post._id} channel={channel} menuItem />
           )}
-          {micropubEndpoint && post.url && shownActions.includes('reply') && (
-            <ActionReply url={post.url} />
+          {post.author && post.author.url && (
+            <ActionMute url={post.author.url} channel={channel} menuItem />
           )}
-          {shownActions.includes('markRead') && (
-            <ActionMarkRead
-              _id={post._id}
-              channel={channel}
-              isRead={post._is_read}
-            />
+          {post.author && post.author.url && (
+            <ActionBlock url={post.author.url} channel={channel} menuItem />
           )}
-          {post.url && shownActions.includes('view') && (
-            <ActionView url={post.url} />
-          )}
-
-          <IconButton
-            className={classes.moreButton}
-            aria-label="More Actions"
-            aria-haspopup="true"
-            onClick={this.handleClick}
-          >
-            <MoreVertIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={this.handleClose}
-          >
-            {shownActions.includes('consoleLog') && (
-              <ActionConsoleLog post={post} menuItem />
-            )}
-            {post._id && shownActions.includes('remove') && (
-              <ActionRemove _id={post._id} channel={channel} menuItem />
-            )}
-            {post.author && post.author.url && (
-              <ActionMute
-                _id={post._id}
-                url={post.author.url}
-                channel={channel}
-                menuItem
-              />
-            )}
-            {post.author && post.author.url && (
-              <ActionBlock
-                _id={post._id}
-                url={post.author.url}
-                channel={channel}
-                menuItem
-              />
-            )}
-          </Menu>
-        </CardActions>
-      </Fragment>
-    )
-  }
+        </Menu>
+      </CardActions>
+    </Fragment>
+  )
 }
 
-const mapStateToProps = state => ({
-  micropubEndpoint: state.settings.get('micropubEndpoint'),
-})
-
-export default connect(mapStateToProps)(withStyles(style)(TogetherCardActions))
+export default withStyles(style)(TogetherCardActions)

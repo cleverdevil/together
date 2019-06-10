@@ -1,65 +1,52 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
+import { withStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import CardActions from '@material-ui/core/CardActions'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  TextField,
+} from '@material-ui/core'
+import styles from '../style'
 
-class Search extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      search: '',
-    }
-  }
+const Search = ({ handleCancel, handleSearch, classes }) => {
+  const [search, setSearch] = useState('')
 
-  render() {
-    const { handleCancel, handleSearch } = this.props
-    const { search } = this.state
-    return (
-      <Card
-        style={{
-          marginBottom: 10,
-          width: 320,
-          maxWidth: '100%',
-        }}
-      >
-        <form
-          onSubmit={e => {
-            e.preventDefault()
-            handleSearch(search)
+  return (
+    <form
+      onSubmit={e => {
+        e.preventDefault()
+        handleSearch(search)
+      }}
+    >
+      <CardContent>
+        <TextField
+          required
+          fullWidth
+          autoFocus={true}
+          type="search"
+          label="Who / What do you want to add?"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </CardContent>
+      <CardActions>
+        <Button size="small" color="secondary" type="submit">
+          Search
+        </Button>
+        <Button
+          size="small"
+          onClick={() => {
+            setSearch('')
+            handleCancel()
           }}
         >
-          <CardContent>
-            <TextField
-              required
-              fullWidth
-              autoFocus={true}
-              type="search"
-              label="Who / What do you want to add?"
-              value={search}
-              onChange={e => this.setState({ search: e.target.value })}
-            />
-          </CardContent>
-          <CardActions>
-            <Button size="small" color="secondary" type="submit">
-              Search
-            </Button>
-            <Button
-              size="small"
-              onClick={() => {
-                this.setState({ search: '' })
-                handleCancel()
-              }}
-            >
-              Cancel
-            </Button>
-          </CardActions>
-        </form>
-      </Card>
-    )
-  }
+          Cancel
+        </Button>
+      </CardActions>
+    </form>
+  )
 }
 
 Search.propTypes = {
@@ -67,4 +54,4 @@ Search.propTypes = {
   handleCancel: PropTypes.func.isRequired,
 }
 
-export default Search
+export default withStyles(styles)(Search)

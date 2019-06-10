@@ -1,29 +1,22 @@
-import React, { Component } from 'react'
+import React, { Fragment, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import useMarkRead from '../../../hooks/use-mark-read'
 import { withStyles } from '@material-ui/core/styles'
 import 'intersection-observer'
 import Observer from '@researchgate/react-intersection-observer'
 import Button from '@material-ui/core/Button'
 import ReactList from 'react-list'
-import Shortcuts from '../Shortcuts'
+// import Shortcuts from '../Shortcuts'
 import Post from '../../Post'
-import { markPostRead } from '../../../actions'
-import getChannelSetting from '../../../modules/get-channel-setting'
 import styles from './style'
 
-class Timeline extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
-    this.ref = React.createRef()
-    this.handleIntersection = this.handleIntersection.bind(this)
-    this.renderItem = this.renderItem.bind(this)
-    this.renderLoadMore = this.renderLoadMore.bind(this)
-  }
+const Timeline = ({ classes, posts, channel, loadMore }) => {
+  const ref = useRef()
+  const markRead = useMarkRead()
 
-  handleIntersection(entry) {
+  // TODO: No longer respects infinite scroll or auto read settings
+
+  const handleIntersection = async entry => {
     if (!entry || !entry.intersectionRatio) {
       return null
     }
@@ -32,34 +25,14 @@ class Timeline extends Component {
     const itemId = target.dataset.id
     const itemIsRead = target.dataset.isread === 'true'
 
-    const {
-      selectedChannel,
-      channelSettings,
-      channelsMenuOpen,
-      posts,
-      markPostRead,
-      loadMore,
-    } = this.props
-
-    const infiniteScrollEnabled = getChannelSetting(
-      selectedChannel,
-      'infiniteScroll',
-      channelSettings
-    )
-    const autoReadEnabled = getChannelSetting(
-      selectedChannel,
-      'autoRead',
-      channelSettings
-    )
-
-    if (autoReadEnabled && !itemIsRead) {
-      markPostRead(selectedChannel, itemId)
+    if (channel && !itemIsRead) {
+      markRead(channel.uid, itemId)
     }
 
     const isSecondLastItem =
       posts.length > 2 && itemId === posts[posts.length - 2]._id
 
-    if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
+    if (channel && isSecondLastItem) {
       if (loadMore) {
         loadMore()
         return null
@@ -70,81 +43,49 @@ class Timeline extends Component {
     return null
   }
 
-  renderItem(index, key) {
-    return (
-      <Observer
-        key={key}
-        root={null}
-        margin="0px"
-        threshold={0}
-        onChange={this.handleIntersection}
-      >
-        <Post post={this.props.posts[index]} />
-      </Observer>
-    )
-  }
+  return (
+    <Fragment>
+      {/* <Shortcuts
+          onNext={() => ref.current.scrollBy(0, 50)}
+          onPrevious={() => ref.current.scrollBy(0, -50)}
+          onMarkRead={() => {}}
+          className={classes.shortcuts}
+      > */}
+      <div className={classes.timeline} ref={ref}>
+        <ReactList
+          itemRenderer={(index, key) => (
+            <Observer
+              key={key}
+              root={null}
+              margin="1px"
+              threshold={0}
+              onChange={handleIntersection}
+            >
+              <Post post={posts[index]} />
+            </Observer>
+          )}
+          length={posts.length}
+          type="simple"
+          minSize={3}
+        />
 
-  renderLoadMore() {
-    const { selectedChannel, channelSettings, loadMore, classes } = this.props
-    const infiniteScrollEnabled = getChannelSetting(
-      selectedChannel,
-      'infiniteScroll',
-      channelSettings
-    )
-
-    if (infiniteScrollEnabled) {
-      return null
-    } else if (loadMore) {
-      return (
-        <Button className={classes.loadMore} onClick={loadMore}>
-          Load More
-        </Button>
-      )
-    }
-    return null
-  }
-
-  render() {
-    const { classes, posts } = this.props
-    return (
-      <Shortcuts
-        onNext={() => this.ref.current.scrollBy(0, 50)}
-        onPrevious={() => this.ref.current.scrollBy(0, -50)}
-        onMarkRead={() => {}}
-        className={classes.shortcuts}
-      >
-        <div className={classes.timeline} ref={this.ref}>
-          <ReactList
-            itemRenderer={this.renderItem}
-            length={posts.length}
-            type="simple"
-            minSize={3}
-          />
-          {this.renderLoadMore()}
-        </div>
-      </Shortcuts>
-    )
-  }
+        {channel && loadMore && (
+          <Button className={classes.loadMore} onClick={loadMore}>
+            Load More
+          </Button>
+        )}
+      </div>
+      {/* </Shortcuts> */}
+    </Fragment>
+  )
 }
 
 Timeline.defaultProps = {
-  items: [],
+  posts: [],
 }
 
 Timeline.propTypes = {
-  items: PropTypes.array.isRequired,
+  posts: PropTypes.array.isRequired,
 }
 
-const mapStateToProps = state => ({
-  selectedChannel: state.app.get('selectedChannel'),
-  channelSettings: state.settings.get('channels'),
-  channelsMenuOpen: state.app.get('channelsMenuOpen'),
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ markPostRead }, dispatch)
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Timeline))
+export default withStyles(styles)(Timeline)

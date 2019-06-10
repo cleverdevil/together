@@ -1,8 +1,7 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
+import useMarkRead from '../../../hooks/use-mark-read'
 import 'intersection-observer'
 import Observer from '@researchgate/react-intersection-observer'
 import List from '@material-ui/core/List'
@@ -10,28 +9,25 @@ import Button from '@material-ui/core/Button'
 import Toolbar from '@material-ui/core/Toolbar'
 import AppBar from '@material-ui/core/AppBar'
 import ReactList from 'react-list'
-import Shortcuts from '../Shortcuts'
+// import Shortcuts from '../Shortcuts'
 import Preview from './Preview'
 import Post from '../../Post'
-import { markPostRead } from '../../../actions'
-import getChannelSetting from '../../../modules/get-channel-setting'
 import styles from './style'
 
-class ClassicView extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selectedPostId: null,
-    }
-    this.articleRef = React.createRef()
-    this.listRef = React.createRef()
-    this.handleIntersection = this.handleIntersection.bind(this)
-    this.handlePostSelect = this.handlePostSelect.bind(this)
-    this.renderItem = this.renderItem.bind(this)
-    this.renderLoadMore = this.renderLoadMore.bind(this)
-  }
+const ClassicView = ({ classes, posts, channel, loadMore }) => {
+  const [selectedPostId, setSelectedPostId] = useState(null)
+  const articleRef = useRef()
+  const listRef = useRef()
+  const markRead = useMarkRead()
 
-  handleIntersection(entry) {
+  const infiniteScrollEnabled = true
+  const postIndex = selectedPostId
+    ? posts.findIndex(post => post._id === selectedPostId)
+    : -1
+  const hasNextPost = posts[postIndex + 1] ? true : false
+  const hasPreviousPost = postIndex > 0 && posts[postIndex - 1] ? true : false
+
+  const handleIntersection = entry => {
     if (!entry || !entry.intersectionRatio) {
       return null
     }
@@ -39,204 +35,128 @@ class ClassicView extends Component {
     const target = entry.target
     const itemId = target.dataset.id
 
-    const {
-      selectedChannel,
-      channelSettings,
-      channelsMenuOpen,
-      posts,
-      loadMore,
-    } = this.props
-
-    const infiniteScrollEnabled = getChannelSetting(
-      selectedChannel,
-      'infiniteScroll',
-      channelSettings
-    )
-
+    // TODO: Handle infinite scroll options
     const isSecondLastItem = itemId === posts[posts.length - 2]._id
 
-    if (infiniteScrollEnabled && !channelsMenuOpen && isSecondLastItem) {
-      if (loadMore) {
-        loadMore()
-        return null
-      }
-      return true
-    }
-
-    return null
-  }
-
-  handlePostSelect(postId) {
-    const { posts, markPostRead, selectedChannel } = this.props
-    const index = posts.findIndex(post => post._id === postId)
-    if (index > -1) {
-      const post = posts[index]
-      this.setState({
-        selectedPostId: post._id,
-      })
-      if (this.articleRef.current) {
-        this.articleRef.current.scrollTop = 0
-      }
-      // Mark the post as read
-      if (!post._is_read) {
-        markPostRead(selectedChannel, post._id)
-      }
-      // Load the next posts if reading the final post
-      if (index === posts.length - 1 && this.props.loadMore) {
-        this.props.loadMore()
-      }
-      // Scroll the selected post into view
-      this.listRef.current.scrollAround(index)
+    if (
+      posts &&
+      posts.length &&
+      infiniteScrollEnabled &&
+      isSecondLastItem &&
+      loadMore
+    ) {
+      loadMore()
     }
   }
 
-  handleNextPost = () => {
-    const { posts } = this.props
-    const { selectedPostId } = this.state
-    const postIndex = selectedPostId
-      ? posts.findIndex(post => post._id === selectedPostId)
-      : -1
-    let nextPostId = posts[postIndex + 1] ? posts[postIndex + 1]._id : null
-    if (!nextPostId && !selectedPostId) {
-      nextPostId = posts[0]._id
+  const handlePostSelect = post => {
+    const index = posts.findIndex(p => p._id === post._id)
+    setSelectedPostId(post._id)
+    if (articleRef.current) {
+      articleRef.current.scrollTop = 0
     }
-    if (nextPostId) {
-      this.handlePostSelect(nextPostId)
+    // Mark the post as read
+    markRead(channel.uid, post._id)
+    // Load the next posts if reading the final post
+    if (index === posts.length - 1 && loadMore) {
+      loadMore()
+    }
+    // Scroll the selected post into view
+    listRef.current.scrollAround(index)
+  }
+
+  const handleNextPost = () => {
+    const nextIndex = selectedPostId
+      ? posts.findIndex(post => post._id === selectedPostId) + 1
+      : false
+    if (nextIndex && posts[nextIndex]) {
+      setSelectedPostId(posts[nextIndex]._id)
     }
   }
 
-  handlePreviousPost = () => {
-    const { posts } = this.props
-    const { selectedPostId } = this.state
-    const postIndex = selectedPostId
-      ? posts.findIndex(post => post._id === selectedPostId)
-      : -1
-    const previousPostId = postIndex > 0 ? posts[postIndex - 1]._id : null
-    if (previousPostId) {
-      this.handlePostSelect(previousPostId)
+  const handlePreviousPost = () => {
+    const previousIndex = selectedPostId
+      ? posts.findIndex(post => post._id === selectedPostId) - 1
+      : false
+    if (previousIndex !== false && previousIndex > -1) {
+      setSelectedPostId(posts[previousIndex]._id)
     }
   }
 
-  renderItem(index, key) {
-    const { posts } = this.props
-    const { selectedPostId } = this.state
-    const post = posts[index]
-    return (
-      <Observer
-        key={key}
-        root={'#classic-view-previews'}
-        margin="0px"
-        threshold={0}
-        onChange={this.handleIntersection}
-      >
-        <Preview
-          post={post}
-          onClick={() => this.handlePostSelect(post._id)}
-          highlighted={selectedPostId === post._id}
-        />
-      </Observer>
-    )
-  }
-
-  renderLoadMore() {
-    const infiniteScrollEnabled = getChannelSetting(
-      this.props.selectedChannel,
-      'infiniteScroll',
-      this.props.channelSettings
-    )
-
-    if (infiniteScrollEnabled) {
-      return null
-    }
-    if (this.props.loadMore) {
-      return (
-        <Button
-          className={this.props.classes.loadMore}
-          onClick={this.props.loadMore}
-        >
-          Load More
-        </Button>
-      )
-    }
-    return null
-  }
-
-  render() {
-    const { classes, posts } = this.props
-    const { selectedPostId } = this.state
-    const postIndex = selectedPostId
-      ? posts.findIndex(post => post._id === selectedPostId)
-      : -1
-    const post = postIndex > -1 && posts[postIndex] ? posts[postIndex] : null
-    const nextPostId = posts[postIndex + 1] ? posts[postIndex + 1]._id : null
-    const previousPostId =
-      postIndex > 0 && posts[postIndex - 1] ? posts[postIndex - 1]._id : null
-    return (
-      <Shortcuts
+  return (
+    <div className={classes.wrapper}>
+      {/* <Shortcuts
         className={classes.wrapper}
-        onNext={this.handleNextPost}
-        onPrevious={this.handlePreviousPost}
+        onNext={handleNextPost}
+        onPrevious={handlePreviousPost}
         onMarkRead={() => {}}
-      >
-        <List className={classes.previewColumn} id="classic-view-previews">
-          <ReactList
-            itemRenderer={this.renderItem}
-            length={posts.length}
-            type="simple"
-            minSize={3}
-            ref={this.listRef}
-          />
-          {this.renderLoadMore()}
-        </List>
-        {selectedPostId && (
-          <div ref={this.articleRef} className={classes.postColumn}>
-            <Post
-              focus
-              post={post}
-              expandableContent={false}
-              style={{
-                margin: 0,
-                minHeight: 'calc(100% - 48px)',
-                maxWidth: 700,
-                boxShadow: 'none',
-              }}
-              shortcutOnNext={this.handleNextPost}
-              scrollElement={this.articleRef.current}
-            />
-            <AppBar
-              position="sticky"
-              color="default"
-              style={{ bottom: 0, maxWidth: 700, boxShadow: 'none' }}
-            >
-              <Toolbar variant="dense">
-                <Button
-                  onClick={this.handlePreviousPost}
-                  disabled={previousPostId === null}
-                >
-                  Previous
-                </Button>
-                <Button
-                  onClick={this.handleNextPost}
-                  disabled={nextPostId === null}
-                >
-                  Next
-                </Button>
-                <Button
-                  onClick={() =>
-                    this.setState({
-                      selectedPostId: null,
-                    })
-                  }
-                >
-                  Close
-                </Button>
-              </Toolbar>
-            </AppBar>
-          </div>
+      > */}
+      <List className={classes.previewColumn} id="classic-view-previews">
+        <ReactList
+          itemRenderer={(index, key) => {
+            const post = posts[index]
+            return (
+              <Observer
+                key={key}
+                root={'#classic-view-previews'}
+                margin="0px"
+                threshold={0}
+                onChange={handleIntersection}
+              >
+                <Preview
+                  post={post}
+                  onClick={() => handlePostSelect(post)}
+                  highlighted={selectedPostId === post._id}
+                />
+              </Observer>
+            )
+          }}
+          length={posts.length}
+          type="simple"
+          minSize={3}
+          ref={listRef}
+        />
+        {!infiniteScrollEnabled && loadMore && (
+          <Button className={classes.loadMore} onClick={loadMore}>
+            Load More
+          </Button>
         )}
-      </Shortcuts>
-    )
-  }
+      </List>
+      {!!selectedPostId && (
+        <div ref={articleRef} className={classes.postColumn}>
+          <Post
+            focus
+            post={posts.find(post => post._id === selectedPostId)}
+            expandableContent={false}
+            style={{
+              margin: 0,
+              minHeight: 'calc(100% - 48px)',
+              maxWidth: 700,
+              boxShadow: 'none',
+            }}
+            shortcutOnNext={handleNextPost}
+            scrollElement={articleRef.current}
+          />
+          <AppBar
+            position="sticky"
+            color="default"
+            style={{ bottom: 0, maxWidth: 700, boxShadow: 'none' }}
+          >
+            <Toolbar variant="dense">
+              <Button onClick={handlePreviousPost} disabled={!hasPreviousPost}>
+                Previous
+              </Button>
+              <Button onClick={handleNextPost} disabled={!hasNextPost}>
+                Next
+              </Button>
+              <Button onClick={() => setSelectedPostId(null)}>Close</Button>
+            </Toolbar>
+          </AppBar>
+        </div>
+      )}
+      {/* </Shortcuts> */}
+    </div>
+  )
 }
 
 ClassicView.defaultProps = {
@@ -247,16 +167,4 @@ ClassicView.propTypes = {
   posts: PropTypes.array.isRequired,
 }
 
-const mapStateToProps = state => ({
-  selectedChannel: state.app.get('selectedChannel'),
-  channelSettings: state.settings.get('channels'),
-  channelsMenuOpen: state.app.get('channelsMenuOpen'),
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ markPostRead }, dispatch)
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(ClassicView))
+export default withStyles(styles)(ClassicView)

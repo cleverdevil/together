@@ -1,11 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardMedia from '@material-ui/core/CardMedia'
-import Shortcuts from './Shortcuts'
+// import Shortcuts from './Shortcuts'
 import AuthorAvatar from '../AuthorAvatar'
 import TogetherCardContent from './Content'
 import TogetherCardPhotos from './Photos'
@@ -23,7 +22,6 @@ const TogetherCard = ({
   hideProperties,
   style,
   classes,
-  selectedChannel,
   scrollElement,
   shortcutOnNext,
   focus,
@@ -42,7 +40,7 @@ const TogetherCard = ({
     if (item.url) {
       shownActions.push('view')
     }
-    if (item.url && !item['like-of'] && !item['repost-of']) {
+    if (item.url && !item['likeOf'] && !item['repostOf']) {
       shownActions.push('like', 'repost', 'reply')
     }
   }
@@ -73,103 +71,109 @@ const TogetherCard = ({
       data-isread={item._is_read}
       data-id={item._id}
     >
-      <Shortcuts
+      {/* <Shortcuts
         post={item}
         scrollElement={scrollElement}
         onNext={shortcutOnNext}
         focus={focus}
-      >
-        {item.featured && <TogetherCardPhotos photos={item.featured} />}
-        <CardHeader
-          title={authorNameLink}
-          subheader={date}
-          avatar={<AuthorAvatar author={item.author || '?'} />}
+      > */}
+      {item.featured && <TogetherCardPhotos photos={item.featured} />}
+      <CardHeader
+        title={authorNameLink}
+        subheader={date}
+        avatar={<AuthorAvatar author={item.author || '?'} />}
+      />
+
+      {property('inReplyTo', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="reply"
+          url={url}
+          reference={
+            item.refs ? item.refs.find(item => item.url === url) : null
+          }
         />
+      ))}
 
-        {property('in-reply-to', ({ value: url }) => (
-          <TogetherCardReplyContext
-            type="reply"
-            url={url}
-            reference={item.refs ? item.refs[url] : null}
-          />
-        ))}
-
-        {property('repost-of', ({ value: url }) => (
-          <TogetherCardReplyContext
-            type="repost"
-            url={url}
-            reference={item.refs ? item.refs[url] : null}
-          />
-        ))}
-
-        {property('like-of', ({ value: url }) => (
-          <TogetherCardReplyContext
-            type="like"
-            url={url}
-            reference={item.refs ? item.refs[url] : null}
-          />
-        ))}
-
-        {property('bookmark-of', ({ value: url }) => (
-          <TogetherCardReplyContext
-            type="bookmark"
-            url={url}
-            reference={item.refs ? item.refs[url] : null}
-          />
-        ))}
-
-        {property('quotation-of', ({ value: url }) => (
-          <TogetherCardReplyContext
-            type="quotation"
-            url={url}
-            reference={item.refs ? item.refs[url] : null}
-          />
-        ))}
-
-        {property('video', ({ value: video }) =>
-          typeof video == 'string' ? (
-            <CardMedia
-              component="video"
-              src={video}
-              controls={true}
-              poster={
-                item.photo && item.photo.length === 1 ? item.photo[0] : null
-              }
-            />
-          ) : null
-        )}
-
-        {property('audio', ({ value: audio }) =>
-          typeof audio == 'string' ? (
-            <CardMedia component="audio" src={audio} controls={true} />
-          ) : null
-        )}
-
-        {/* TODO: This hides the single photo if there is a single video but I am not sure that is correct */}
-
-        {item.photo &&
-          !hideProperties.includes('photo') &&
-          (!item.video || item.video.length !== 1) && (
-            <TogetherCardPhotos photos={item.photo} />
-          )}
-
-        {!item['repost-of'] && (
-          <TogetherCardContent expandable={expandableContent} post={item} />
-        )}
-
-        {property('checkin', ({ value: location }) => (
-          <TogetherCardLocation location={location} author={item.author} />
-        ))}
-        {property('location', ({ value: location }) => (
-          <TogetherCardLocation location={location} author={item.author} />
-        ))}
-
-        <TogetherCardActions
-          post={item}
-          channel={selectedChannel}
-          shownActions={shownActions}
+      {property('repostOf', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="repost"
+          url={url}
+          reference={
+            item.refs ? item.refs.find(item => item.url === url) : null
+          }
         />
-      </Shortcuts>
+      ))}
+
+      {property('likeOf', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="like"
+          url={url}
+          reference={
+            item.refs ? item.refs.find(item => item.url === url) : null
+          }
+        />
+      ))}
+
+      {property('bookmarkOf', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="bookmark"
+          url={url}
+          reference={
+            item.refs ? item.refs.find(item => item.url === url) : null
+          }
+        />
+      ))}
+
+      {property('quotationOf', ({ value: url }) => (
+        <TogetherCardReplyContext
+          type="quotation"
+          url={url}
+          reference={
+            item.refs ? item.refs.find(item => item.url === url) : null
+          }
+        />
+      ))}
+
+      {property('video', ({ value: video }) =>
+        typeof video == 'string' ? (
+          <CardMedia
+            component="video"
+            src={video}
+            controls={true}
+            poster={
+              item.photo && item.photo.length === 1 ? item.photo[0] : null
+            }
+          />
+        ) : null
+      )}
+
+      {property('audio', ({ value: audio }) =>
+        typeof audio == 'string' ? (
+          <CardMedia component="audio" src={audio} controls={true} />
+        ) : null
+      )}
+
+      {/* TODO: This hides the single photo if there is a single video but I am not sure that is correct */}
+
+      {item.photo &&
+        !hideProperties.includes('photo') &&
+        (!item.video || item.video.length !== 1) && (
+          <TogetherCardPhotos photos={item.photo} />
+        )}
+
+      {!item['repostOf'] && (
+        <TogetherCardContent expandable={expandableContent} post={item} />
+      )}
+
+      {property('checkin', ({ value: location }) => (
+        <TogetherCardLocation location={location} author={item.author} />
+      ))}
+      {property('location', ({ value: location }) => (
+        <TogetherCardLocation location={location} author={item.author} />
+      ))}
+
+      <TogetherCardActions post={item} shownActions={shownActions} />
+      {/* </Shortcuts> */}
     </Card>
   )
 }
@@ -191,8 +195,4 @@ TogetherCard.propTypes = {
   shortcutOnNext: PropTypes.func,
 }
 
-const mapStateToProps = (state, props) => ({
-  selectedChannel: props.channel || state.app.get('selectedChannel'),
-})
-
-export default connect(mapStateToProps)(withStyles(styles)(TogetherCard))
+export default withStyles(styles)(TogetherCard)

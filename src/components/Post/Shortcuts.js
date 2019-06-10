@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 import { Shortcuts } from 'react-shortcuts'
-import { focusComponent } from '../../actions'
 
 const styles = theme => {
   const color =
@@ -98,25 +95,22 @@ PostShortcuts.defaultProps = {
 }
 
 PostShortcuts.propTypes = {
-  post: PropTypes.object.isRequired,
-  focus: PropTypes.bool.isRequired,
-  postsAreFocused: PropTypes.bool.isRequired,
-  onNext: PropTypes.func.isRequired,
+  // post: PropTypes.object.isRequired,
+  // focus: PropTypes.bool.isRequired,
+  // postsAreFocused: PropTypes.bool.isRequired,
+  // onNext: PropTypes.func.isRequired,
 }
 
-const mapStateToProps = state => ({
-  postsAreFocused: state.app.get('focusedComponent') === 'post',
-})
+// const mapStateToProps = state => ({
+//   postsAreFocused: state.app.get('focusedComponent') === 'post',
+// })
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      focusComponent,
-    },
-    dispatch
-  )
+// const mapDispatchToProps = dispatch =>
+//   bindActionCreators(
+//     {
+//       focusComponent,
+//     },
+//     dispatch
+//   )
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(PostShortcuts))
+export default withStyles(styles)(PostShortcuts)

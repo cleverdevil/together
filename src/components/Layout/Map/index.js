@@ -1,84 +1,60 @@
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
 import Map from 'pigeon-maps'
 import Overlay from 'pigeon-overlay'
 import WebMercatorViewport from 'viewport-mercator-project'
-import Shortcuts from '../Shortcuts'
+import useLocalState from '../../../hooks/use-local-state'
+// import Shortcuts from '../Shortcuts'
 import MapMarker from '../../Map/Marker'
 
-class CheckinMap extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      viewport: new WebMercatorViewport({
-        latitude: 33.589062,
-        longitude: -21.357864,
-        zoom: 3,
-        width:
-          document.body.clientWidth >= 960
-            ? document.body.clientWidth - 200
-            : document.body.clientWidth, // Sidebar is 200px wide when shown
-        height: document.body.clientHeight - 64, // The toolbar is 64px tall,
-      }),
-      markers: [],
-      focusedPost: null,
-    }
-    this.focusPost = this.focusPost.bind(this)
-    this.setMarkers = this.setMarkers.bind(this)
-    this.zoomToPosts = this.zoomToPosts.bind(this)
-  }
-
-  isNumeric(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n)
-  }
-
-  setMarkers(posts) {
-    posts = posts.map(post => {
-      let lat = false
-      let lng = false
-      if (post.marker) {
-        return post
-      }
-      if (
-        post.location &&
-        this.isNumeric(post.location.latitude) &&
-        this.isNumeric(post.location.longitude)
-      ) {
-        lat = parseFloat(post.location.latitude)
-        lng = parseFloat(post.location.longitude)
-      } else if (
-        post.checkin &&
-        this.isNumeric(post.checkin.latitude) &&
-        this.isNumeric(post.checkin.longitude)
-      ) {
-        lat = parseFloat(post.checkin.latitude)
-        lng = parseFloat(post.checkin.longitude)
-      }
-      if (lat === false || lng === false) {
-        return null
-      } else {
-        post.marker = {
-          lat: lat,
-          lng: lng,
-        }
-        return post
-      }
+// TODO: Keyboard controls
+// TODO: Mark read on open
+const CheckinMap = ({ posts, channel }) => {
+  // TODO: No markers shown
+  const [localState] = useLocalState()
+  const [viewport, setViewport] = useState(
+    new WebMercatorViewport({
+      latitude: 33.589062,
+      longitude: -21.357864,
+      zoom: 3,
+      width:
+        document.body.clientWidth >= 960
+          ? document.body.clientWidth - 200
+          : document.body.clientWidth, // Sidebar is 200px wide when shown
+      height: document.body.clientHeight - 64, // The toolbar is 64px tall,
     })
-    posts = posts.filter(post => post)
-    this.setState({ markers: posts })
-    this.zoomToPosts(posts)
+  )
+
+  const [focusedPost, setFocusedPost] = useState(null)
+
+  const getAnchor = post => {
+    if (post.location && post.location.latitude && post.location.longitude) {
+      return [
+        parseFloat(post.location.latitude),
+        parseFloat(post.location.longitude),
+      ]
+    } else if (
+      post.checkin &&
+      post.checkin.latitude &&
+      post.checkin.longitude
+    ) {
+      return [
+        parseFloat(post.checkin.latitude),
+        parseFloat(post.checkin.longitude),
+      ]
+    }
+    return [0, 0]
   }
 
-  zoomToPosts(posts) {
-    const markers = posts.map(post => post.marker)
+  const zoomToPosts = () => {
+    const markers = posts.map(getAnchor)
     if (markers.length) {
-      let maxLat = markers[0].lat
-      let maxLng = markers[0].lng
-      let minLat = markers[0].lat
-      let minLng = markers[0].lng
+      let maxLat = markers[0][0]
+      let maxLng = markers[0][1]
+      let minLat = markers[0][0]
+      let minLng = markers[0][1]
       markers.forEach(marker => {
-        const { lat, lng } = marker
+        const [lat, lng] = marker
         if (lat > maxLat) {
           maxLat = lat
         }
@@ -94,60 +70,48 @@ class CheckinMap extends Component {
       })
       if (maxLat !== minLat && maxLng !== minLng) {
         const bounds = [[maxLng, maxLat], [minLng, minLat]]
-        const boundedViewport = this.state.viewport.fitBounds(bounds)
-        this.setState({
-          viewport: new WebMercatorViewport(boundedViewport),
-        })
+        const boundedViewport = viewport.fitBounds(bounds)
+        setViewport(new WebMercatorViewport(boundedViewport))
       } else if (markers.length === 1) {
-        const viewport = Object.assign({}, this.state.viewport, {
-          latitude: markers[0].lat,
-          longitude: markers[0].lng,
-          // zoom: this.state.viewport.zoom > 8 ? this.state.viewport.zoom : 11,
+        const viewport = Object.assign({}, viewport, {
+          latitude: markers[0][0],
+          longitude: markers[0][1],
+          // zoom: viewport.zoom > 8 ? viewport.zoom : 11,
           zoom: 12,
         })
-        this.setState({ viewport: new WebMercatorViewport(viewport) })
+        setViewport(new WebMercatorViewport(viewport))
       }
     }
   }
+  useEffect(zoomToPosts, [posts])
 
-  componentDidMount() {
-    this.setMarkers(this.props.posts)
+  const focusPost = postId => {
+    // const index = markers.findIndex(marker => marker._id === postId)
+    // if (index > -1) {
+    //   setState({ focusedPost: postId })
+    //   zoomToPosts([markers[index]])
+    // } else {
+    //   setState({ focusedPost: null })
+    // }
   }
 
-  componentWillReceiveProps(newProps) {
-    if (newProps.posts.length !== this.state.markers.length) {
-      this.setMarkers(newProps.posts)
-    }
+  const theme = localState.theme
+  const mapProps = {
+    center: [viewport.latitude, viewport.longitude],
+    zoom: viewport.zoom,
+    style: {
+      width: '100%',
+      height: '100%',
+    },
+    provider: (x, y, z) =>
+      theme === 'dark'
+        ? `https://cartodb-basemaps-c.global.ssl.fastly.net/dark_all/${z}/${x}/${y}@2x.png`
+        : `https://a.tile.openstreetmap.se/hydda/full/${z}/${x}/${y}.png`,
   }
 
-  focusPost(postId) {
-    const { markers } = this.state
-    const index = markers.findIndex(marker => marker._id === postId)
-    if (index > -1) {
-      this.setState({ focusedPost: postId })
-      this.zoomToPosts([markers[index]])
-    } else {
-      this.setState({ focusedPost: null })
-    }
-  }
-
-  render() {
-    const { viewport, markers, focusedPost } = this.state
-    const { theme } = this.props
-    const mapProps = {
-      center: [viewport.latitude, viewport.longitude],
-      zoom: viewport.zoom,
-      style: {
-        width: '100%',
-        height: '100%',
-      },
-      provider: (x, y, z) =>
-        theme === 'dark'
-          ? `https://cartodb-basemaps-c.global.ssl.fastly.net/dark_all/${z}/${x}/${y}@2x.png`
-          : `https://a.tile.openstreetmap.se/hydda/full/${z}/${x}/${y}.png`,
-    }
-    return (
-      <Shortcuts
+  return (
+    <>
+      {/* <Shortcuts
         style={{ display: 'block', overflow: 'hidden' }}
         onNext={() => {
           if (focusedPost !== null) {
@@ -172,26 +136,21 @@ class CheckinMap extends Component {
           }
         }}
         onMarkRead={() => {}}
-      >
-        <Map {...mapProps}>
-          {markers.map((post, i) => {
-            return (
-              <Overlay
-                anchor={[post.marker.lat, post.marker.lng]}
-                key={`marker-${i}`}
-              >
-                <MapMarker
-                  author={post.author}
-                  post={post}
-                  postOpen={post._id === focusedPost}
-                />
-              </Overlay>
-            )
-          })}
-        </Map>
-      </Shortcuts>
-    )
-  }
+      > */}
+      <Map {...mapProps}>
+        {posts.map((post, i) => (
+          <Overlay anchor={getAnchor(post)} key={`marker-${i}`}>
+            <MapMarker
+              author={post.author}
+              post={post}
+              postOpen={post._id === focusedPost}
+            />
+          </Overlay>
+        ))}
+      </Map>
+      {/* </Shortcuts> */}
+    </>
+  )
 }
 
 CheckinMap.defaultProps = {
@@ -202,8 +161,4 @@ CheckinMap.propTypes = {
   posts: PropTypes.array.isRequired,
 }
 
-const mapStateToProps = state => ({
-  theme: state.app.get('theme'),
-})
-
-export default connect(mapStateToProps)(CheckinMap)
+export default CheckinMap

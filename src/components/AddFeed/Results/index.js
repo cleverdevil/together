@@ -1,31 +1,63 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useQuery, useMutation } from 'react-apollo-hooks'
 import { withStyles } from '@material-ui/core/styles'
-import Avatar from '@material-ui/core/Avatar'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Button from '@material-ui/core/Button'
-import styles from '../../Post/Photos/style'
+import {
+  Avatar,
+  CardActions,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  CircularProgress,
+} from '@material-ui/core'
+import Preview from '../Preview'
+import { SEARCH } from '../../../queries'
+import styles from '../style'
 
-const Results = ({ results, handleResultSelect, handleCancel, classes }) => {
-  if (results.length === 0) {
+const Results = ({ handleCancel, classes, query }) => {
+  const [preview, setPreview] = useState(null)
+  const {
+    loading,
+    data: { search: results },
+    error,
+  } = useQuery(SEARCH, { variables: { query } })
+
+  const defaultActions = [
+    <Button size="small" onClick={handleCancel}>
+      Cancel
+    </Button>,
+  ]
+  const [actions, setActions] = useState(defaultActions)
+
+  if (actions === null) {
+    setActions(defaultActions)
+  }
+
+  if (loading) {
     return (
-      <Card className={classes.results}>
-        <ListItem>
-          <ListItemText primary="No results" secondary="Please try again" />
-        </ListItem>
-      </Card>
+      <ListItem>
+        <ListItemText primary="Searching..." />
+        <CircularProgress />
+      </ListItem>
     )
-  } else {
+  }
+
+  if (error || results.length === 0) {
     return (
-      <Card className={classes.results}>
-        <List>
-          {results.map((result, i) => (
+      <ListItem>
+        <ListItemText primary="No results" secondary="Please try again" />
+      </ListItem>
+    )
+  }
+
+  return (
+    <>
+      <List>
+        {results.map((result, i) => (
+          <>
             <ListItem
               button
-              onClick={() => handleResultSelect(result)}
+              onClick={() => setPreview(result.url)}
               key={`search-result-${i}`}
             >
               <Avatar alt="" src={result.photo}>
@@ -41,16 +73,21 @@ const Results = ({ results, handleResultSelect, handleCancel, classes }) => {
                 secondary={result.url}
               />
             </ListItem>
-          ))}
-        </List>
-        <CardActions className={classes.fixedCardActions}>
-          <Button size="small" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </CardActions>
-      </Card>
-    )
-  }
+            {preview === result.url && (
+              <Preview
+                url={result.url}
+                setActions={setActions}
+                handleClose={e => {
+                  setPreview(null)
+                }}
+              />
+            )}
+          </>
+        ))}
+      </List>
+      <CardActions className={classes.actions}>{actions}</CardActions>
+    </>
+  )
 }
 
 export default withStyles(styles)(Results)

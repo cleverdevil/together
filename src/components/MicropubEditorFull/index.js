@@ -1,72 +1,42 @@
-import React, { Component } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
+import useMicropubCreate from '../../hooks/use-micropub-create'
 import MicropubForm from '../MicropubForm'
-import { micropub } from '../../modules/feathers-services'
-import { addNotification } from '../../actions'
+import SnackbarLinkAction from '../SnackbarLinkAction'
 import styles from './style'
+import { useSnackbar } from 'notistack'
 
-class FullMicropubEditor extends Component {
-  constructor(props) {
-    super(props)
+const FullMicropubEditor = ({ classes, location: { state } }) => {
+  const create = useMicropubCreate()
+  const { enqueueSnackbar } = useSnackbar()
 
-    const state = {}
-
-    if (
-      props.location &&
-      props.location.state &&
-      props.location.state.properties
-    ) {
-      state.properties = props.location.state.properties
-    }
-
-    this.state = state
-
-    this.handleSubmit = this.handleSubmit.bind(this)
-  }
-
-  handleSubmit(mf2) {
-    micropub
-      .create({ post: mf2 })
-      .then(url => {
-        this.props.addNotification(`Successfully posted to ${url}`)
-        this.props.history.goBack()
+  const handleSubmit = async mf2 => {
+    try {
+      const postUrl = await create(mf2)
+      enqueueSnackbar('Successfully posted', {
+        type: 'success',
+        action: [<SnackbarLinkAction url={postUrl} />],
       })
-      .catch(err => this.props.addNotification(`Error posting`, 'error'))
+    } catch (err) {
+      console.error('Error creating post', err)
+      enqueueSnackbar('Error creating post', { type: 'error' })
+    }
   }
 
-  render() {
-    const { classes } = this.props
-    const { properties } = this.state
-    const shownProperties = [
-      'name',
-      'content',
-      ...Object.keys(properties || {}),
-    ]
-    return (
-      <div className={classes.wrapper}>
-        <div className={classes.container}>
-          <MicropubForm
-            expanded={true}
-            properties={properties}
-            shownProperties={shownProperties}
-            onSubmit={this.handleSubmit}
-          />
-        </div>
+  const properties = state && state.properties ? state.properties : {}
+  const shownProperties = ['name', 'content', ...Object.keys(properties)]
+  return (
+    <div className={classes.wrapper}>
+      <div className={classes.container}>
+        <MicropubForm
+          expanded={true}
+          properties={properties || {}}
+          shownProperties={shownProperties}
+          onSubmit={handleSubmit}
+        />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
-FullMicropubEditor.defaultProps = {}
-
-FullMicropubEditor.propTypes = {}
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ addNotification }, dispatch)
-
-export default connect(
-  null,
-  mapDispatchToProps
-)(withStyles(styles)(FullMicropubEditor))
+export default withStyles(styles)(FullMicropubEditor)
