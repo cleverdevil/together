@@ -1,10 +1,9 @@
 const Micropub = require('micropub-helper')
-const config = require('../config')
 
 module.exports = hook =>
   new Promise((resolve, reject) => {
     const micropub = new Micropub({
-      clientId: config.get('url'),
+      clientId: process.env.URL,
       me: hook.params.user.me,
       token: hook.params.user.accessToken,
       authEndpoint: hook.params.user.settings.authEndpoint,
