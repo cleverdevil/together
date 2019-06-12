@@ -70,7 +70,7 @@ const client = new ApolloClient({
 
 const initialAppState = () => ({
   channelsMenuOpen: false,
-  focusedComponent: null,
+  focusedComponent: 'channels',
   shortcutHelpOpen: false,
   token: localStorage.getItem('token'),
   theme: localStorage.getItem('together-theme') || getTheme() || 'light',

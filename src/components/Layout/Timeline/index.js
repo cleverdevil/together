@@ -6,7 +6,7 @@ import 'intersection-observer'
 import Observer from '@researchgate/react-intersection-observer'
 import Button from '@material-ui/core/Button'
 import ReactList from 'react-list'
-// import Shortcuts from '../Shortcuts'
+import Shortcuts from '../Shortcuts'
 import Post from '../../Post'
 import styles from './style'
 
@@ -42,39 +42,44 @@ const Timeline = ({ classes, posts, channel, loadMore }) => {
   }
 
   return (
-    <Fragment>
-      {/* <Shortcuts
-          onNext={() => ref.current.scrollBy(0, 50)}
-          onPrevious={() => ref.current.scrollBy(0, -50)}
-          onMarkRead={() => {}}
-          className={classes.shortcuts}
-      > */}
-      <div className={classes.timeline} ref={ref}>
-        <ReactList
-          itemRenderer={(index, key) => (
-            <Observer
-              key={key}
-              root={null}
-              margin="1px"
-              threshold={0}
-              onChange={handleIntersection}
-            >
-              <Post post={posts[index]} />
-            </Observer>
-          )}
-          length={posts.length}
-          type="simple"
-          minSize={3}
-        />
-
-        {channel && loadMore && (
-          <Button className={classes.loadMore} onClick={loadMore}>
-            Load More
-          </Button>
+    <Shortcuts
+      onNext={() => {
+        if (ref.current && ref.current.scrollParent) {
+          ref.current.scrollParent.scrollBy(0, 50)
+        }
+      }}
+      onPrevious={() => {
+        if (ref.current && ref.current.scrollParent) {
+          ref.current.scrollParent.scrollBy(0, -50)
+        }
+      }}
+      onMarkRead={() => {}}
+      className={classes.timeline}
+    >
+      <ReactList
+        ref={ref}
+        itemRenderer={(index, key) => (
+          <Observer
+            key={key}
+            root={null}
+            margin="1px"
+            threshold={0}
+            onChange={handleIntersection}
+          >
+            <Post post={posts[index]} />
+          </Observer>
         )}
-      </div>
-      {/* </Shortcuts> */}
-    </Fragment>
+        length={posts.length}
+        type="simple"
+        minSize={3}
+      />
+
+      {channel && loadMore && (
+        <Button className={classes.loadMore} onClick={loadMore}>
+          Load More
+        </Button>
+      )}
+    </Shortcuts>
   )
 }
 

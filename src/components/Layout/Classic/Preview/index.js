@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
@@ -7,21 +7,9 @@ import AuthorAvatar from '../../../AuthorAvatar'
 import moment from 'moment'
 import styles from './style'
 
-class ClassicPreview extends Component {
-  constructor(props) {
-    super(props)
-    this.handleClick = this.handleClick.bind(this)
-    this.getPreviewText = this.getPreviewText.bind(this)
-  }
-
-  handleClick() {
-    if (this.props.onClick) {
-      this.props.onClick()
-    }
-  }
-
-  getPreviewText(maxLength = 80) {
-    const item = this.props.post
+const ClassicPreview = ({ classes, post, onClick, highlighted }) => {
+  const getPreviewText = (maxLength = 80) => {
+    const item = post
     let text = ''
 
     if (item.name) {
@@ -45,52 +33,50 @@ class ClassicPreview extends Component {
     return text
   }
 
-  render() {
-    const { post, highlighted, classes } = this.props
-
-    // Parse published date
-    let date = 'unknown'
-    if (post.published) {
-      date = moment(post.published).fromNow()
-    }
-
-    let classNames = [classes.item]
-
-    if (post._is_read) {
-      classNames.push(classes.read)
-    }
-    if (highlighted) {
-      classNames.push(classes.highlighted)
-    }
-
-    return (
-      <ListItem
-        dense
-        button
-        onClick={this.handleClick}
-        className={classNames.join(' ')}
-        data-id={post._id}
-        data-isread={post._is_read}
-      >
-        <AuthorAvatar author={post.author} />
-        <ListItemText
-          primary={this.getPreviewText()}
-          secondary={date}
-          className={classes.text}
-        />
-      </ListItem>
-    )
+  // Parse published date
+  let date = 'unknown'
+  if (post.published) {
+    date = moment(post.published).fromNow()
   }
+
+  let classNames = [classes.item]
+
+  if (post._is_read) {
+    classNames.push(classes.read)
+  }
+  if (highlighted) {
+    classNames.push(classes.highlighted)
+  }
+
+  return (
+    <ListItem
+      dense
+      button
+      onClick={onClick}
+      className={classNames.join(' ')}
+      data-id={post._id}
+      data-isread={post._is_read}
+    >
+      <AuthorAvatar author={post.author} />
+      <ListItemText
+        primary={getPreviewText()}
+        secondary={date}
+        className={classes.text}
+      />
+    </ListItem>
+  )
 }
 
 ClassicPreview.defaultProps = {
   post: {},
   highlighted: false,
+  onClick: () => {},
 }
 
 ClassicPreview.propTypes = {
   post: PropTypes.object.isRequired,
   highlighted: PropTypes.bool.isRequired,
+  onClick: PropTypes.func,
 }
 
 export default withStyles(styles)(ClassicPreview)

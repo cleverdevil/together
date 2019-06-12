@@ -11,6 +11,7 @@ export default theme => ({
   },
   previewColumn: {
     width: '100%',
+    height: '100%',
     overflow: 'auto',
     overscrollBehaviorY: 'contain',
     borderRight: '1px solid ' + theme.palette.divider,

@@ -1,7 +1,11 @@
-import React, { Component } from 'react'
+import React, { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { Shortcuts } from 'react-shortcuts'
+import useLocalState from '../../hooks/use-local-state'
+import useMarkRead from '../../hooks/use-mark-read'
+import useMarkUnread from '../../hooks/use-mark-unread'
+import useCurrentChannel from '../../hooks/use-current-channel'
 
 const styles = theme => {
   const color =
@@ -12,31 +16,40 @@ const styles = theme => {
     main: {
       display: 'block',
       outline: 'none',
-    },
-    focused: {
-      boxShadow: `inset -2px -2px 0 ${color}, inset 2px 2px 0 ${color}`,
+      '&:focus, &.is-focused': {
+        boxShadow: `inset 0 0 4px ${color}`,
+      },
     },
   }
 }
 
-class PostShortcuts extends Component {
-  constructor(props) {
-    super(props)
-    this.handleShortcuts = this.handleShortcuts.bind(this)
-    this.ref = React.createRef()
-  }
+const PostShortcuts = ({
+  children,
+  classes,
+  focus,
+  onNext,
+  scrollElement,
+  post,
+  ...props
+}) => {
+  const ref = useRef()
+  const [localState, setLocalState] = useLocalState()
+  const markRead = useMarkRead()
+  const markUnread = useMarkUnread()
+  const channel = useCurrentChannel()
 
-  componentDidUpdate() {
-    const { focus, postsAreFocused } = this.props
-    const el = this.ref.current._domNode
-    if (focus && postsAreFocused && el !== document.activeElement) {
+  useEffect(() => {
+    const el = ref.current._domNode
+    if (
+      focus &&
+      localState.focusedComponent === 'post' &&
+      el !== document.activeElement
+    ) {
       el.focus()
     }
-  }
+  }, [focus, localState.focusedComponent])
 
-  handleShortcuts(action) {
-    const { onNext, focusComponent, scrollElement, post } = this.props
-
+  const handleShortcuts = action => {
     switch (action) {
       case 'SCROLL_DOWN':
         if (scrollElement) {
@@ -49,7 +62,7 @@ class PostShortcuts extends Component {
         }
         break
       case 'TO_TIMELINE':
-        focusComponent('timeline')
+        setLocalState({ focusedComponent: 'timeline' })
         break
       case 'NEXT':
         onNext()
@@ -60,7 +73,13 @@ class PostShortcuts extends Component {
         }
         break
       case 'TOGGLE_READ':
-        console.log('Mark me as read please')
+        if (channel && channel.uid) {
+          if (post._is_read) {
+            markUnread(channel.uid, post._id)
+          } else {
+            markRead(channel.uid, post._id)
+          }
+        }
         break
       default:
         // Nothing to handle
@@ -68,25 +87,22 @@ class PostShortcuts extends Component {
     }
   }
 
-  render() {
-    const { children, classes, focus, postsAreFocused, ...props } = this.props
-    const classNames = [classes.main]
-    if (postsAreFocused && focus) {
-      classNames.push(classes.focused)
-    }
-
-    return (
-      <Shortcuts
-        {...props}
-        name="POST"
-        handler={this.handleShortcuts}
-        ref={this.ref}
-        className={classNames.join(' ')}
-      >
-        {children}
-      </Shortcuts>
-    )
+  const classNames = [classes.main]
+  if (localState.focusedComponent === 'post' && focus) {
+    classNames.push('is-focused')
   }
+
+  return (
+    <Shortcuts
+      {...props}
+      name="POST"
+      handler={handleShortcuts}
+      ref={ref}
+      className={classNames.join(' ')}
+    >
+      {children}
+    </Shortcuts>
+  )
 }
 
 PostShortcuts.defaultProps = {
@@ -95,22 +111,9 @@ PostShortcuts.defaultProps = {
 }
 
 PostShortcuts.propTypes = {
-  // post: PropTypes.object.isRequired,
-  // focus: PropTypes.bool.isRequired,
-  // postsAreFocused: PropTypes.bool.isRequired,
-  // onNext: PropTypes.func.isRequired,
+  post: PropTypes.object.isRequired,
+  focus: PropTypes.bool.isRequired,
+  onNext: PropTypes.func.isRequired,
 }
-
-// const mapStateToProps = state => ({
-//   postsAreFocused: state.app.get('focusedComponent') === 'post',
-// })
-
-// const mapDispatchToProps = dispatch =>
-//   bindActionCreators(
-//     {
-//       focusComponent,
-//     },
-//     dispatch
-//   )
 
 export default withStyles(styles)(PostShortcuts)

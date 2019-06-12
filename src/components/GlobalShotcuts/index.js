@@ -1,35 +1,23 @@
-import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
+import React from 'react'
 import { Shortcuts } from 'react-shortcuts'
-import channelQuery from '../../queries/channels'
+import useReactRouter from 'use-react-router'
+import useLocalState from '../../hooks/use-local-state'
+import useChannels from '../../hooks/use-channels'
 
-class GlobalShortcutHandler extends Component {
-  constructor(props) {
-    super(props)
-    this.handleShortcuts = this.handleShortcuts.bind(this)
-  }
+const GlobalShortcutHandler = ({ children, className }) => {
+  const { history } = useReactRouter()
+  const { channels } = useChannels()
+  const [localState, setLocalState] = useLocalState()
 
-  handleShortcuts(action) {
-    const {
-      data,
-      selectChannel,
-      history,
-      focusComponent,
-      toggleShortcutHelp,
-    } = this.props
-
-    const { channels } = data
-
-    if (action.indexOf('CHANNEL_') === 0) {
+  const handleShortcuts = action => {
+    if (action.startsWith('CHANNEL_')) {
       // Switch channel
       const channelIndex = parseInt(action.replace('CHANNEL_', '')) - 1
       if (channels && channels[channelIndex] && channels[channelIndex].uid) {
         // Switch to the selected channel
         const uid = channels[channelIndex].uid
         history.push(`/channel/${uid}`)
-        selectChannel(uid)
-        focusComponent(null)
-        focusComponent('timeline')
+        setLocalState({ focusedComponent: 'timeline' })
       }
     } else {
       // Other actions
@@ -38,11 +26,10 @@ class GlobalShortcutHandler extends Component {
           history.push('/editor')
           break
         case 'FOCUS_CHANNEL_LIST':
-          focusComponent(null)
-          focusComponent('channels')
+          setLocalState({ focusedComponent: 'channels' })
           break
         case 'HELP':
-          toggleShortcutHelp()
+          setLocalState({ shortcutHelpOpen: !!!localState.shortcutHelpOpen })
           break
         case 'KONAMI':
           alert('Look at you. You are very clever')
@@ -54,13 +41,16 @@ class GlobalShortcutHandler extends Component {
     }
   }
 
-  render() {
-    return (
-      <Shortcuts name="GLOBAL" handler={this.handleShortcuts} global>
-        {this.props.children}
-      </Shortcuts>
-    )
-  }
+  return (
+    <Shortcuts
+      className={className}
+      name="GLOBAL"
+      handler={handleShortcuts}
+      global
+    >
+      {children}
+    </Shortcuts>
+  )
 }
 
-export default withRouter(channelQuery(GlobalShortcutHandler))
+export default GlobalShortcutHandler

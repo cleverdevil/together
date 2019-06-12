@@ -1,6 +1,7 @@
 import React from 'react'
 import SettingsModal from '../SettingsModal'
 import keymap from '../../modules/keymap'
+import useLocalState from '../../hooks/use-local-state'
 import ShortcutTable from './ShortcutTable'
 
 const globalKeys = [
@@ -87,15 +88,15 @@ const singlePostKeys = [
   },
 ]
 
-// TODO: Make this openable and closeable
-
-const ShortcutHelp = ({ open, toggleShortcutHelp }) => {
+const ShortcutHelp = () => {
+  const [localState, setLocalState] = useLocalState()
+  const open = !!localState.shortcutHelpOpen
   return (
     <SettingsModal
       title="Keyboard Controls"
       maxWidth="lg"
       open={open}
-      onClose={() => (open ? toggleShortcutHelp() : null)}
+      onClose={() => setLocalState({ shortcutHelpOpen: false })}
       singleColumn
       disableAutoFocus
     >

@@ -12,14 +12,13 @@ const ChannelMenuItem = ({ classes, channel, isFocused }) => {
   const selectedChannel = match.params.channelSlug
     ? decodeURIComponent(match.params.channelSlug)
     : null
-  const [focusedChannel, setFocusedChannel] = useState(selectedChannel)
   const [localState, setLocalState] = useLocalState()
 
   let textClassName = classes.button
   if (channel.uid === selectedChannel) {
     textClassName = classes.highlightedButton
   }
-  if (isFocused && channel.uid === focusedChannel) {
+  if (isFocused) {
     textClassName += ' ' + classes.focused
   }
   let unreadCount = null
@@ -33,7 +32,6 @@ const ChannelMenuItem = ({ classes, channel, isFocused }) => {
       className={textClassName}
       onClick={e => {
         setLocalState({ channelsMenuOpen: false })
-        console.log('Clicked item')
         return true
       }}
     >

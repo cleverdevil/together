@@ -52,7 +52,7 @@
     "react-list": "^0.8.10",
     "react-redux": "^5.1.1",
     "react-router-dom": "^5.0.0",
-    "react-shortcuts": "^1.6.2",
+    "react-shortcuts": "^2.0.1",
     "react-sortable-hoc": "^1.9.1",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { Shortcuts } from 'react-shortcuts'
 import { List, ListItem, ListItemText } from '@material-ui/core'
@@ -8,29 +8,14 @@ import ChannelMenuItem from './ChannelMenuItem'
 import NewChannelForm from './NewChannelForm'
 import styles from './style'
 import { useQuery, useMutation } from 'react-apollo-hooks'
+import useLocalState from '../../hooks/use-local-state'
 import { GET_CHANNELS, REORDER_CHANNELS } from '../../queries'
-
-// constructor(props) {
-//   this.state = {
-//     focusedChannel: props.selectedChannel ? props.selectedChannel : null,
-//   }
-//   this.handleShortcuts = this.handleShortcuts.bind(this)
-//   this.onDragEnd = this.onDragEnd.bind(this)
-// }
-
-// componentWillReceiveProps(newProps) {
-//   const el = this.ref.current._domNode
-//   if (newProps.isFocused && el !== document.activeElement) {
-//     el.focus()
-//     this.setState({ focusedChannel: newProps.selectedChannel })
-//   }
-// }
 
 const SortableList = SortableContainer(({ children }) => (
   <List>{children}</List>
 ))
 
-const ChannelMenu = ({ classes, isFocused }) => {
+const ChannelMenu = ({ classes }) => {
   const { match, history } = useReactRouter()
   const selectedChannel = match.params.channelSlug
     ? decodeURIComponent(match.params.channelSlug)
@@ -39,9 +24,31 @@ const ChannelMenu = ({ classes, isFocused }) => {
   const { data, loading, error } = useQuery(GET_CHANNELS)
   const channels = data.channels ? data.channels : []
   const reorderChannels = useMutation(REORDER_CHANNELS)
+  const [localState, setLocalState] = useLocalState()
+  const ref = React.createRef()
 
-  // TODO: Figure out focussing element for keyboard shortcuts
+  // Set focused channel on url change
+  useEffect(() => {
+    if (selectedChannel !== focusedChannel) {
+      setFocusedChannel(selectedChannel)
+      setLocalState({ focusedComponent: 'timeline' })
+    }
+  }, [selectedChannel])
 
+  // Focus channels menu for shortcuts
+  useEffect(() => {
+    if (ref.current) {
+      const el = ref.current._domNode
+      if (
+        localState.focusedComponent === 'channels' &&
+        el !== document.activeElement
+      ) {
+        el.focus()
+      }
+    }
+  }, [localState.focusedComponent])
+
+  // Shortcut handler
   const handleShortcuts = action => {
     const channelIndex = channels.findIndex(
       channel => channel.uid === focusedChannel
@@ -59,14 +66,17 @@ const ChannelMenu = ({ classes, isFocused }) => {
         }
         break
       case 'SELECT_CHANNEL':
-        history.push(`/channel/${focusedChannel}`)
-        // setFocusedChannel(focusedChannel)
+        setLocalState({ focusedComponent: 'timeline' })
+        if (selectedChannel !== focusedChannel) {
+          history.push(`/channel/${focusedChannel}`)
+        }
         break
       default:
         break
     }
   }
 
+  // Just a little helper function for channel sorting
   const moveArray = (items, from, to) => {
     let array = [...items]
     const toMove = array[from]
@@ -75,6 +85,7 @@ const ChannelMenu = ({ classes, isFocused }) => {
     return array
   }
 
+  // Handle sorting channels
   const handleSort = ({ oldIndex, newIndex }) => {
     let uids = channels.map(channel => channel.uid)
     uids = moveArray(uids, oldIndex, newIndex)
@@ -97,48 +108,41 @@ const ChannelMenu = ({ classes, isFocused }) => {
     })
   }
 
-  if (error) {
-    return (
-      <div className={classes.drawer}>
-        <ListItem>
-          <ListItemText>Error loading channels 😢</ListItemText>
-        </ListItem>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div className={classes.drawer}>
+  return (
+    <Shortcuts
+      name="CHANNEL_LIST"
+      handler={handleShortcuts}
+      className={classes.drawer}
+      ref={ref}
+    >
+      {!!loading && (
         <ListItem>
           <ListItemText>Loading channels...</ListItemText>
         </ListItem>
-      </div>
-    )
-  }
+      )}
 
-  return (
-    <div className={classes.drawer}>
-      {/*  <Shortcuts
-       name="CHANNEL_LIST"
-       handler={handleShortcuts}
-       className={classes.drawer}
-     > */}
-      <SortableList lockAxis="y" distance={2} onSortEnd={handleSort}>
-        {channels.map((channel, index) => (
-          <ChannelMenuItem
-            key={`channel-menu-item-${index}`}
-            index={index}
-            channel={channel}
-            isFocused={isFocused}
-          />
-        ))}
-      </SortableList>
+      {!!error && (
+        <ListItem>
+          <ListItemText>Error loading channels 😢</ListItemText>
+        </ListItem>
+      )}
+
+      {!!channels && (
+        <SortableList lockAxis="y" distance={2} onSortEnd={handleSort}>
+          {channels.map((channel, index) => (
+            <ChannelMenuItem
+              key={`channel-menu-item-${index}`}
+              index={index}
+              channel={channel}
+              isFocused={focusedChannel === channel.uid}
+            />
+          ))}
+        </SortableList>
+      )}
 
       <div style={{ flexGrow: 1 }} />
       <NewChannelForm classes={classes} />
-      {/* </Shortcuts> */}
-    </div>
+    </Shortcuts>
   )
 }
 

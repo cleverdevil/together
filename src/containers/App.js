@@ -1,5 +1,5 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { Component } from 'react'
+
 import {
   BrowserRouter as Router,
   Route,
@@ -7,7 +7,6 @@ import {
   Redirect,
 } from 'react-router-dom'
 import { withStyles } from '@material-ui/core/styles'
-import { ShortcutManager } from 'react-shortcuts'
 import Meta from '../components/Meta'
 import Grid from '@material-ui/core/Grid'
 import { SnackbarProvider } from 'notistack'
@@ -24,10 +23,27 @@ import ErrorBoundary from '../components/ErrorBoundary'
 import GlobalShortcuts from '../components/GlobalShotcuts'
 import ShortcutHelp from '../components/ShortcutHelp'
 import TestMe from '../components/TestMe'
-import keymap from '../modules/keymap'
 import style from './style'
+import PropTypes from 'prop-types'
+
+import { ShortcutManager } from 'react-shortcuts'
+import keymap from '../modules/keymap'
 
 const shortcutManager = new ShortcutManager(keymap)
+
+class ShortcutProvider extends Component {
+  static childContextTypes = {
+    shortcuts: PropTypes.object.isRequired,
+  }
+
+  getChildContext() {
+    return { shortcuts: shortcutManager }
+  }
+
+  render() {
+    return this.props.children
+  }
+}
 
 const AuthedRoute = ({ component: Component, ...routeProps }) => {
   const [localState] = useLocalState()
@@ -52,9 +68,6 @@ const AuthedRoute = ({ component: Component, ...routeProps }) => {
 }
 
 const App = ({ classes }) => {
-  // getChildContext() {
-  //   return { shortcuts: shortcutManager }
-  // }
   const [localState] = useLocalState()
 
   return (
@@ -63,65 +76,66 @@ const App = ({ classes }) => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Router>
-          {/* <GlobalShortcuts> */}
-          <Grid container spacing={0} className={classes.appWrapper}>
-            <Meta />
-            <Switch>
-              <Route path="/channel/:channelSlug" component={AppBar} />
-              <Route path="/" component={AppBar} />
-            </Switch>
-            <Grid
-              item
-              container
-              spacing={0}
-              className={
-                localState.channelsMenuOpen
-                  ? classes.root + ' ' + classes.channelMenuOpen
-                  : classes.root
-              }
-            >
-              <Grid
-                item
-                className={
-                  localState.channelsMenuOpen
-                    ? classes.channelMenu + ' ' + classes.channelMenuClasses
-                    : classes.channelMenu
-                }
-              >
+          <ShortcutProvider>
+            <GlobalShortcuts className={classes.appWrapper}>
+              <Grid container spacing={0} className={classes.appWrapper}>
+                <Meta />
                 <Switch>
-                  <Route path="/channel/:channelSlug" component={ChannelMenu} />
-                  <Route path="/" component={ChannelMenu} />
+                  <Route path="/channel/:channelSlug" component={AppBar} />
+                  <Route path="/" component={AppBar} />
                 </Switch>
+                <Grid
+                  item
+                  container
+                  spacing={0}
+                  className={
+                    localState.channelsMenuOpen
+                      ? classes.root + ' ' + classes.channelMenuOpen
+                      : classes.root
+                  }
+                >
+                  <Grid
+                    item
+                    className={
+                      localState.channelsMenuOpen
+                        ? classes.channelMenu + ' ' + classes.channelMenuClasses
+                        : classes.channelMenu
+                    }
+                  >
+                    <Switch>
+                      <Route
+                        path="/channel/:channelSlug"
+                        component={ChannelMenu}
+                      />
+                      <Route path="/" component={ChannelMenu} />
+                    </Switch>
+                  </Grid>
+                  <Grid item className={classes.main}>
+                    <AuthedRoute exact path="/" component={MainPosts} />
+                    <AuthedRoute
+                      path="/channel/:channelSlug"
+                      component={MainPosts}
+                    />
+                    <AuthedRoute path="/me/:postType" component={TestMe} />
+                    <AuthedRoute path="/me" component={TestMe} />
+                    <AuthedRoute
+                      path="/channel/:channelSlug/edit"
+                      component={ChannelSettings}
+                    />
+                    <AuthedRoute path="/editor" component={MicropubEditor} />
+                    <AuthedRoute path="/settings" component={AppSettings} />
+                    <ShortcutHelp />
+                  </Grid>
+                  <Route path="/login" component={Login} />
+                  <Route path="/auth" component={Auth} />
+                </Grid>
               </Grid>
-              <Grid item className={classes.main}>
-                <AuthedRoute exact path="/" component={MainPosts} />
-                <AuthedRoute
-                  path="/channel/:channelSlug"
-                  component={MainPosts}
-                />
-                <AuthedRoute path="/me/:postType" component={TestMe} />
-                <AuthedRoute path="/me" component={TestMe} />
-                <AuthedRoute
-                  path="/channel/:channelSlug/edit"
-                  component={ChannelSettings}
-                />
-                <AuthedRoute path="/editor" component={MicropubEditor} />
-                <AuthedRoute path="/settings" component={AppSettings} />
-                {/* <ShortcutHelp /> */}
-              </Grid>
-              <Route path="/login" component={Login} />
-              <Route path="/auth" component={Auth} />
-            </Grid>
-          </Grid>
-          {/* </GlobalShortcuts> */}
+            </GlobalShortcuts>
+          </ShortcutProvider>
         </Router>
       </SnackbarProvider>
     </ErrorBoundary>
   )
-}
-
-App.childContextTypes = {
-  shortcuts: PropTypes.object.isRequired,
 }
 
 export default withStyles(style)(App)

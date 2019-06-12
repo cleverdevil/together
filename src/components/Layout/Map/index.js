@@ -4,7 +4,7 @@ import Map from 'pigeon-maps'
 import Overlay from 'pigeon-overlay'
 import WebMercatorViewport from 'viewport-mercator-project'
 import useLocalState from '../../../hooks/use-local-state'
-// import Shortcuts from '../Shortcuts'
+import Shortcuts from '../Shortcuts'
 import MapMarker from '../../Map/Marker'
 
 // TODO: Keyboard controls
@@ -110,33 +110,28 @@ const CheckinMap = ({ posts, channel }) => {
   }
 
   return (
-    <>
-      {/* <Shortcuts
-        style={{ display: 'block', overflow: 'hidden' }}
-        onNext={() => {
-          if (focusedPost !== null) {
-            const index = markers.findIndex(
-              marker => marker._id === focusedPost
-            )
-            if (index > -1 && markers[index + 1]) {
-              this.focusPost(markers[index + 1]._id)
-            }
-          } else if (focusedPost === null && markers.length) {
-            this.focusPost(markers[0]._id)
+    <Shortcuts
+      style={{ display: 'block', overflow: 'hidden' }}
+      onNext={() => {
+        if (focusedPost !== null) {
+          const index = posts.findIndex(marker => marker._id === focusedPost)
+          if (index > -1 && posts[index + 1]) {
+            this.focusPost(posts[index + 1]._id)
           }
-        }}
-        onPrevious={() => {
-          if (focusedPost !== null) {
-            const index = markers.findIndex(
-              marker => marker._id === focusedPost
-            )
-            if (index > 0 && markers[index - 1]) {
-              this.focusPost(markers[index - 1]._id)
-            }
+        } else if (focusedPost === null && posts.length) {
+          this.focusPost(posts[0]._id)
+        }
+      }}
+      onPrevious={() => {
+        if (focusedPost !== null) {
+          const index = posts.findIndex(marker => marker._id === focusedPost)
+          if (index > 0 && posts[index - 1]) {
+            this.focusPost(posts[index - 1]._id)
           }
-        }}
-        onMarkRead={() => {}}
-      > */}
+        }
+      }}
+      onMarkRead={() => {}}
+    >
       <Map {...mapProps}>
         {posts.map((post, i) => (
           <Overlay anchor={getAnchor(post)} key={`marker-${i}`}>
@@ -148,8 +143,7 @@ const CheckinMap = ({ posts, channel }) => {
           </Overlay>
         ))}
       </Map>
-      {/* </Shortcuts> */}
-    </>
+    </Shortcuts>
   )
 }
 

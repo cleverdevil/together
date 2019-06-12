@@ -11,7 +11,7 @@ import {
   Button,
 } from '@material-ui/core/'
 import ReactList from 'react-list'
-// import Shortcuts from '../Shortcuts'
+import Shortcuts from '../Shortcuts'
 import AuthorAvatar from '../../AuthorAvatar'
 import GallerySlider from '../../GallerySlider'
 import authorToAvatarData from '../../../modules/author-to-avatar-data'
@@ -205,32 +205,30 @@ const Gallery = ({ classes, posts, channel, loadMore }) => {
   }
 
   return (
-    <>
-      {/* <Shortcuts
-        onNext={() => {
-          if (selectedMediaIndex === false) {
-            setSelectedMediaIndex(0)
-          } else {
-            setSelectedMediaIndex(selectedMediaIndex + 1)
-          }
-        }}
-        onPrevious={() => {
-          if (selectedMediaIndex > 0) {
-            setSelectedMediaIndex(selectedMediaIndex - 1)
-          }
-        }}
-        onMarkRead={() => {}}
-        className={classes.shortcuts}
-      > */}
-      <div className={classes.galleryWrapper}>
-        <ReactList
-          itemRenderer={renderRow}
-          length={Math.ceil(medias.length / columnCount)}
-          type="simple"
-          minSize={3}
-        />
-        {renderLoadMore()}
-      </div>
+    <Shortcuts
+      onNext={() => {
+        if (selectedMediaIndex === false) {
+          setSelectedMediaIndex(0)
+        } else {
+          setSelectedMediaIndex(selectedMediaIndex + 1)
+        }
+      }}
+      onPrevious={() => {
+        if (selectedMediaIndex > 0) {
+          setSelectedMediaIndex(selectedMediaIndex - 1)
+        }
+      }}
+      onMarkRead={() => {}}
+      className={classes.galleryWrapper}
+    >
+      <ReactList
+        itemRenderer={renderRow}
+        length={Math.ceil(medias.length / columnCount)}
+        type="simple"
+        minSize={3}
+      />
+
+      {renderLoadMore()}
 
       {selectedMediaIndex !== false && (
         <GallerySlider
@@ -247,8 +245,7 @@ const Gallery = ({ classes, posts, channel, loadMore }) => {
           open={true}
         />
       )}
-      {/* </Shortcuts> */}
-    </>
+    </Shortcuts>
   )
 }
 

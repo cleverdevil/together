@@ -2,14 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import useMarkRead from '../../../hooks/use-mark-read'
+import useLocalState from '../../../hooks/use-local-state'
 import 'intersection-observer'
 import Observer from '@researchgate/react-intersection-observer'
-import List from '@material-ui/core/List'
-import Button from '@material-ui/core/Button'
-import Toolbar from '@material-ui/core/Toolbar'
-import AppBar from '@material-ui/core/AppBar'
+import { List, Button, Toolbar, AppBar } from '@material-ui/core'
 import ReactList from 'react-list'
-// import Shortcuts from '../Shortcuts'
+import Shortcuts from '../Shortcuts'
 import Preview from './Preview'
 import Post from '../../Post'
 import styles from './style'
@@ -19,6 +17,7 @@ const ClassicView = ({ classes, posts, channel, loadMore }) => {
   const articleRef = useRef()
   const listRef = useRef()
   const markRead = useMarkRead()
+  const [_, setLocalState] = useLocalState()
 
   const infiniteScrollEnabled = channel._t_infiniteScroll
   const postIndex = selectedPostId
@@ -68,60 +67,66 @@ const ClassicView = ({ classes, posts, channel, loadMore }) => {
   const handleNextPost = () => {
     const nextIndex = selectedPostId
       ? posts.findIndex(post => post._id === selectedPostId) + 1
-      : false
-    if (nextIndex && posts[nextIndex]) {
-      setSelectedPostId(posts[nextIndex]._id)
+      : 0
+    if (nextIndex !== false && posts[nextIndex]) {
+      handlePostSelect(posts[nextIndex])
     }
   }
 
   const handlePreviousPost = () => {
     const previousIndex = selectedPostId
       ? posts.findIndex(post => post._id === selectedPostId) - 1
-      : false
+      : posts.length - 1
     if (previousIndex !== false && previousIndex > -1) {
-      setSelectedPostId(posts[previousIndex]._id)
+      handlePostSelect(posts[previousIndex])
     }
   }
 
   return (
     <div className={classes.wrapper}>
-      {/* <Shortcuts
-        className={classes.wrapper}
-        onNext={handleNextPost}
-        onPrevious={handlePreviousPost}
-        onMarkRead={() => {}}
-      > */}
-      <List className={classes.previewColumn} id="classic-view-previews">
-        <ReactList
-          itemRenderer={(index, key) => {
-            const post = posts[index]
-            return (
-              <Observer
-                key={key}
-                root={'#classic-view-previews'}
-                margin="0px"
-                threshold={0}
-                onChange={handleIntersection}
-              >
-                <Preview
-                  post={post}
-                  onClick={() => handlePostSelect(post)}
-                  highlighted={selectedPostId === post._id}
-                />
-              </Observer>
-            )
+      <div className={classes.previewColumn} id="classic-view-previews">
+        <Shortcuts
+          onNext={handleNextPost}
+          onPrevious={handlePreviousPost}
+          onSelectPost={() => {
+            handlePostSelect({ _id: selectedPostId })
+            setLocalState({ focusedComponent: 'post' })
           }}
-          length={posts.length}
-          type="simple"
-          minSize={3}
-          ref={listRef}
-        />
-        {!infiniteScrollEnabled && loadMore && (
-          <Button className={classes.loadMore} onClick={loadMore}>
-            Load More
-          </Button>
-        )}
-      </List>
+          onMarkRead={() => {}}
+        >
+          <List>
+            <ReactList
+              itemRenderer={(index, key) => {
+                const post = posts[index]
+                return (
+                  <Observer
+                    key={key}
+                    root={'#classic-view-previews'}
+                    margin="0px"
+                    threshold={0}
+                    onChange={handleIntersection}
+                  >
+                    <Preview
+                      post={post}
+                      onClick={() => handlePostSelect(post)}
+                      highlighted={selectedPostId === post._id}
+                    />
+                  </Observer>
+                )
+              }}
+              length={posts.length}
+              type="simple"
+              minSize={3}
+              ref={listRef}
+            />
+            {!infiniteScrollEnabled && loadMore && (
+              <Button className={classes.loadMore} onClick={loadMore}>
+                Load More
+              </Button>
+            )}
+          </List>
+        </Shortcuts>
+      </div>
       {!!selectedPostId && (
         <div ref={articleRef} className={classes.postColumn}>
           <Post
@@ -154,7 +159,6 @@ const ClassicView = ({ classes, posts, channel, loadMore }) => {
           </AppBar>
         </div>
       )}
-      {/* </Shortcuts> */}
     </div>
   )
 }

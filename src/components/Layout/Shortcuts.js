@@ -1,33 +1,37 @@
-import React, { Component } from 'react'
+import React, { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import { withStyles } from '@material-ui/core/styles'
 import { Shortcuts } from 'react-shortcuts'
-import { focusComponent } from '../../actions'
+import useLocalState from '../../hooks/use-local-state'
+import styles from './style'
 
-class LayoutShortcuts extends Component {
-  constructor(props) {
-    super(props)
-    this.handleShortcuts = this.handleShortcuts.bind(this)
-    this.ref = React.createRef()
-  }
+const LayoutShortcuts = ({
+  focusComponent,
+  onNext,
+  onPrevious,
+  onMarkRead,
+  onSelectPost,
+  children,
+  className,
+  classes,
+  ...props
+}) => {
+  const ref = useRef()
+  const [localState, setLocalState] = useLocalState()
 
-  componentWillReceiveProps(newProps) {
-    const el = this.ref.current._domNode
-    if (newProps.isFocused && el !== document.activeElement) {
+  // Focus the timeline when the focused component is set
+  useEffect(() => {
+    const el = ref.current._domNode
+    if (
+      localState.focusedComponent === 'timeline' &&
+      el !== document.activeElement
+    ) {
       el.focus()
     }
-  }
+  }, [localState.focusedComponent])
 
-  handleShortcuts(action) {
-    const {
-      focusComponent,
-      onNext,
-      onPrevious,
-      onMarkRead,
-      onSelectPost,
-    } = this.props
-
+  // Handle keypresses
+  const handleShortcuts = action => {
     switch (action) {
       case 'NEXT':
         onNext()
@@ -36,11 +40,11 @@ class LayoutShortcuts extends Component {
         onPrevious()
         break
       case 'SELECT_POST':
-        focusComponent('post')
+        setLocalState({ focusedComponent: 'post' })
         onSelectPost()
         break
       case 'FOCUS_CHANNEL_LIST':
-        focusComponent('channels')
+        setLocalState({ focusedComponent: 'channels' })
         break
       case 'MARK_READ':
         onMarkRead()
@@ -51,19 +55,26 @@ class LayoutShortcuts extends Component {
     }
   }
 
-  render() {
-    const { children, ...props } = this.props
-    return (
-      <Shortcuts
-        {...props}
-        name="TIMELINE"
-        handler={this.handleShortcuts}
-        ref={this.ref}
-      >
-        {children}
-      </Shortcuts>
-    )
+  // Add class names and is-focused
+  let shortcutsClassName = classes.shortcuts
+  if (className) {
+    shortcutsClassName += ' ' + className
   }
+  if (localState.focusedComponent === 'timeline') {
+    shortcutsClassName += ' is-focused'
+  }
+
+  return (
+    <Shortcuts
+      {...props}
+      name="TIMELINE"
+      handler={handleShortcuts}
+      ref={ref}
+      className={shortcutsClassName}
+    >
+      {children}
+    </Shortcuts>
+  )
 }
 
 LayoutShortcuts.defaultProps = {
@@ -74,26 +85,10 @@ LayoutShortcuts.defaultProps = {
 }
 
 LayoutShortcuts.propTypes = {
-  isFocused: PropTypes.bool.isRequired,
   onNext: PropTypes.func.isRequired,
   onPrevious: PropTypes.func.isRequired,
   onSelectPost: PropTypes.func.isRequired,
   onMarkRead: PropTypes.func.isRequired,
 }
 
-const mapStateToProps = state => ({
-  isFocused: state.app.get('focusedComponent') === 'timeline',
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      focusComponent,
-    },
-    dispatch
-  )
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(LayoutShortcuts)
+export default withStyles(styles)(LayoutShortcuts)
