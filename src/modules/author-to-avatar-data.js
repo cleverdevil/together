@@ -1,12 +1,16 @@
 import resizeImage from './get-image-proxy-url'
 
 function getDomain(string) {
-  const url = new URL(string)
-  let domain = url.hostname
-  if (domain.indexOf('www.') === 0) {
-    domain = domain.slice(4)
+  try {
+    const url = new URL(string)
+    let domain = url.hostname
+    if (domain.indexOf('www.') === 0) {
+      domain = domain.slice(4)
+    }
+    return domain
+  } catch (err) {
+    return string
   }
-  return domain
 }
 
 function stringToColor(string) {
