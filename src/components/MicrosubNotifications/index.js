@@ -89,7 +89,7 @@ const NotificationsList = ({ classes, buttonClass }) => {
             </Button>
           )}
         </div>
-        <TitleBar title={name} />
+        <TitleBar title={name} unread={unread} />
       </Popover>
     </Fragment>
   )

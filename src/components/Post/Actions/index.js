@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react'
-import useReactRouter from 'use-react-router'
 import { withStyles } from '@material-ui/core/styles'
 import { CardActions, IconButton, Menu } from '@material-ui/core'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import useUser from '../../../hooks/use-user'
+import useCurrentChannel from '../../../hooks/use-current-channel'
 import ActionLike from './Like'
 import ActionRepost from './Repost'
 import ActionReply from './Reply'
@@ -15,12 +15,17 @@ import ActionMute from './Mute'
 import ActionBlock from './Block'
 import style from './style'
 
-const TogetherCardActions = ({ post, shownActions, classes }) => {
+const TogetherCardActions = ({
+  post,
+  shownActions,
+  classes,
+  channel = null,
+}) => {
   const { user } = useUser()
   const [anchorEl, setAnchorEl] = useState(null)
-  const { match } = useReactRouter()
-  const channel = decodeURIComponent(match.params.channelSlug)
+  const currentChannel = useCurrentChannel()
   const hasMicropub = user && user.hasMicropub
+  const channelUid = channel || currentChannel.uid
 
   return (
     <Fragment>
@@ -37,7 +42,7 @@ const TogetherCardActions = ({ post, shownActions, classes }) => {
         {shownActions.includes('markRead') && (
           <ActionMarkRead
             _id={post._id}
-            channel={channel}
+            channel={channelUid}
             isRead={post._is_read}
           />
         )}
@@ -62,13 +67,13 @@ const TogetherCardActions = ({ post, shownActions, classes }) => {
             <ActionConsoleLog post={post} menuItem />
           )}
           {post._id && shownActions.includes('remove') && (
-            <ActionRemove _id={post._id} channel={channel} menuItem />
+            <ActionRemove _id={post._id} channel={channelUid} menuItem />
           )}
           {post.author && post.author.url && (
-            <ActionMute url={post.author.url} channel={channel} menuItem />
+            <ActionMute url={post.author.url} channel={channelUid} menuItem />
           )}
           {post.author && post.author.url && (
-            <ActionBlock url={post.author.url} channel={channel} menuItem />
+            <ActionBlock url={post.author.url} channel={channelUid} menuItem />
           )}
         </Menu>
       </CardActions>

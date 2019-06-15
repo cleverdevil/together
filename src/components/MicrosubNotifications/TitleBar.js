@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import {
   Tooltip,
@@ -8,13 +8,11 @@ import {
   Typography,
 } from '@material-ui/core'
 import { ClearAll as MarkAllReadIcon } from '@material-ui/icons'
+import useMarkChannelRead from '../../hooks/use-mark-channel-read'
 import styles from './style'
 
 const NotificationsTitleBar = ({ classes, unread, title }) => {
-  const handleMarkAllRead = e => {
-    const { notifications, markAllRead } = this.props
-    markAllRead('notifications', notifications[0]._id)
-  }
+  const markChannelRead = useMarkChannelRead()
 
   return (
     <AppBar position="sticky" color="default" style={{ bottom: 0 }}>
@@ -26,7 +24,7 @@ const NotificationsTitleBar = ({ classes, unread, title }) => {
           <Tooltip title={`Mark all read`} placement="top">
             <IconButton
               aria-label={`Mark all notifications as read`}
-              onClick={handleMarkAllRead}
+              onClick={() => markChannelRead('notifications')}
             >
               <MarkAllReadIcon />
             </IconButton>

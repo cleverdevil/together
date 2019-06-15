@@ -270,6 +270,15 @@ export const UPDATE_CHANNEL = gql`
   ${FRAGMENT_CHANNEL}
 `
 
+export const MARK_CHANNEL_READ = gql`
+  mutation MarkChannelRead($channel: String!, $post: String!) {
+    markChannelRead(channel: $channel, post: $post) {
+      uid
+      unread
+    }
+  }
+`
+
 export const MARK_POST_READ = gql`
   mutation MarkPostRead($channel: String!, $post: String!) {
     markPostRead(channel: $channel, post: $post) {

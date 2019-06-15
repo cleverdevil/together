@@ -25,6 +25,7 @@ const TogetherCard = ({
   scrollElement,
   shortcutOnNext,
   focus,
+  channel,
 }) => {
   // Parse author data
   const avatarData = authorToAvatarData(item.author)
@@ -172,7 +173,11 @@ const TogetherCard = ({
           <TogetherCardLocation location={location} author={item.author} />
         ))}
 
-        <TogetherCardActions post={item} shownActions={shownActions} />
+        <TogetherCardActions
+          post={item}
+          shownActions={shownActions}
+          channel={channel}
+        />
       </Shortcuts>
     </Card>
   )
@@ -193,6 +198,7 @@ TogetherCard.propTypes = {
   focus: PropTypes.bool.isRequired,
   scrollElement: PropTypes.element,
   shortcutOnNext: PropTypes.func,
+  channel: PropTypes.string,
 }
 
 export default withStyles(styles)(TogetherCard)
