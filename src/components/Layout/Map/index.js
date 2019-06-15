@@ -100,6 +100,7 @@ const CheckinMap = ({ posts, channel }) => {
     center: [viewport.latitude, viewport.longitude],
     zoom: viewport.zoom,
     style: {
+      display: 'block',
       width: '100%',
       height: '100%',
     },

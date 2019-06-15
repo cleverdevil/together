@@ -1,12 +1,9 @@
+import { darken } from '@material-ui/core/styles/colorManipulator'
+
 export default theme => {
-  const highlight =
-    theme.palette.type === 'dark'
-      ? theme.palette.secondary.main
-      : theme.palette.primary.main
-  const background =
-    theme.palette.type === 'dark'
-      ? theme.palette.primary.dark
-      : theme.palette.action.hover
+  const dark = theme.palette.type === 'dark'
+  const highlight = theme.palette.primary.main
+  const background = darken(theme.palette.background.default, dark ? 0.5 : 0.1)
 
   return {
     drawer: {
@@ -14,7 +11,7 @@ export default theme => {
       display: 'flex',
       flexDirection: 'column',
       overflow: 'auto',
-      background: background,
+      background,
       borderRight: '1px solid ' + theme.palette.divider,
       '&:focus, &.is-focused': {
         boxShadow: `0 0 4px inset ${highlight}`,
@@ -35,21 +32,18 @@ export default theme => {
       textOverflow: 'ellipsis',
       textDecoration: 'none',
     },
+    focused: {
+      color: theme.palette.text.primary,
+    },
     highlightedButton: {
       display: 'block',
       textAlign: 'left',
       textDecoration: 'none',
       color: theme.palette.primary.contrastText,
-      backgroundColor:
-        theme.palette.type === 'dark'
-          ? theme.palette.secondary.main
-          : theme.palette.primary.main,
+      backgroundColor: theme.palette.primary.main,
       overflow: 'hidden',
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis',
-    },
-    focused: {
-      color: theme.palette.text.primary,
     },
     addButton: {
       textAlign: 'center',
@@ -65,12 +59,11 @@ export default theme => {
       top: '50%',
       right: 8,
       marginTop: '-1em',
-      minWidth: '1em',
-      background:
-        theme.palette.type === 'dark'
-          ? theme.palette.secondary.dark
-          : theme.palette.primary.light,
-      color: theme.palette.secondary.contrastText,
+      minWidth: '2em',
+      background: dark
+        ? theme.palette.primary.dark
+        : theme.palette.primary.light,
+      color: theme.palette.primary.contrastText,
       fontWeight: 'bold',
       fontSize: '0.6em',
       textAlign: 'center',

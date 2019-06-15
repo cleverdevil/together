@@ -8,6 +8,13 @@ export default theme => ({
     flexWrap: 'nowrap',
     overflow: 'hidden',
 
+    '& a[href^=http]': {
+      color:
+        theme.palette.type === 'dark'
+          ? theme.palette.primary.light
+          : theme.palette.primary.main,
+    },
+
     '& *::-webkit-scrollbar': {
       width: scrollbarWidth,
     },

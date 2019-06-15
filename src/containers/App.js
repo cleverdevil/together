@@ -12,6 +12,7 @@ import Grid from '@material-ui/core/Grid'
 import { SnackbarProvider } from 'notistack'
 import useLocalState from '../hooks/use-local-state'
 import AppBar from '../components/AppBar'
+import LandingPage from '../components/LandingPage'
 import MainPosts from '../components/Layout'
 import ChannelMenu from '../components/ChannelMenu'
 import AppSettings from '../components/AppSettings'
@@ -57,7 +58,7 @@ const AuthedRoute = ({ component: Component, ...routeProps }) => {
         ) : (
           <Redirect
             to={{
-              pathname: '/login',
+              pathname: '/',
               state: { from: props.location },
             }}
           />
@@ -69,6 +70,15 @@ const AuthedRoute = ({ component: Component, ...routeProps }) => {
 
 const App = ({ classes }) => {
   const [localState] = useLocalState()
+  const authed = localState && localState.token
+
+  const rootClass = localState.channelsMenuOpen
+    ? classes.root + ' ' + classes.channelMenuOpen
+    : classes.root
+
+  const channelMenuClass = localState.channelsMenuOpen
+    ? classes.channelMenu + ' ' + classes.channelMenuClasses
+    : classes.channelMenu
 
   return (
     <ErrorBoundary>
@@ -77,60 +87,60 @@ const App = ({ classes }) => {
       >
         <Router>
           <ShortcutProvider>
-            <GlobalShortcuts className={classes.appWrapper}>
-              <Grid container spacing={0} className={classes.appWrapper}>
-                <Meta />
-                <Switch>
-                  <Route path="/channel/:channelSlug" component={AppBar} />
-                  <Route path="/" component={AppBar} />
-                </Switch>
-                <Grid
-                  item
-                  container
-                  spacing={0}
-                  className={
-                    localState.channelsMenuOpen
-                      ? classes.root + ' ' + classes.channelMenuOpen
-                      : classes.root
-                  }
-                >
-                  <Grid
-                    item
-                    className={
-                      localState.channelsMenuOpen
-                        ? classes.channelMenu + ' ' + classes.channelMenuClasses
-                        : classes.channelMenu
-                    }
-                  >
-                    <Switch>
-                      <Route
-                        path="/channel/:channelSlug"
-                        component={ChannelMenu}
-                      />
-                      <Route path="/" component={ChannelMenu} />
-                    </Switch>
-                  </Grid>
-                  <Grid item className={classes.main}>
-                    <AuthedRoute exact path="/" component={MainPosts} />
-                    <AuthedRoute
-                      path="/channel/:channelSlug"
-                      component={MainPosts}
-                    />
-                    <AuthedRoute path="/me/:postType" component={TestMe} />
-                    <AuthedRoute path="/me" component={TestMe} />
-                    <AuthedRoute
-                      path="/channel/:channelSlug/edit"
-                      component={ChannelSettings}
-                    />
-                    <AuthedRoute path="/editor" component={MicropubEditor} />
-                    <AuthedRoute path="/settings" component={AppSettings} />
-                    <ShortcutHelp />
-                  </Grid>
-                  <Route path="/login" component={Login} />
-                  <Route path="/auth" component={Auth} />
-                </Grid>
-              </Grid>
-            </GlobalShortcuts>
+            {authed ? (
+              <Switch>
+                <Route path="/about" component={LandingPage} />
+                <Route path="/">
+                  <GlobalShortcuts className={classes.appWrapper}>
+                    <Grid container spacing={0} className={classes.appWrapper}>
+                      <Meta />
+                      <AppBar />
+                      <Grid item container spacing={0} className={rootClass}>
+                        <Grid item className={channelMenuClass}>
+                          <ChannelMenu />
+                        </Grid>
+                        <Grid item className={classes.main}>
+                          <AuthedRoute exact path="/" component={MainPosts} />
+                          <AuthedRoute
+                            path="/channel/:channelSlug"
+                            component={MainPosts}
+                          />
+                          <AuthedRoute
+                            path="/me/:postType"
+                            component={TestMe}
+                          />
+                          <AuthedRoute path="/me" component={TestMe} />
+                          <AuthedRoute
+                            path="/channel/:channelSlug/edit"
+                            component={ChannelSettings}
+                          />
+                          <AuthedRoute
+                            path="/editor"
+                            component={MicropubEditor}
+                          />
+                          <AuthedRoute
+                            path="/settings"
+                            component={AppSettings}
+                          />
+                          <ShortcutHelp />
+                        </Grid>
+                        <Route path="/login" component={Login} />
+                        <Route path="/auth" component={Auth} />
+                      </Grid>
+                    </Grid>
+                  </GlobalShortcuts>
+                </Route>
+              </Switch>
+            ) : (
+              <>
+                <Route path="/" component={LandingPage} />
+                <Route path="/login" component={Login} />
+                <Route path="/auth" component={Auth} />
+                <Route>
+                  <Redirect to="/" />
+                </Route>
+              </>
+            )}
           </ShortcutProvider>
         </Router>
       </SnackbarProvider>

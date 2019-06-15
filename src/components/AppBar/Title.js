@@ -1,16 +1,18 @@
 import React, { Fragment } from 'react'
 import { Typography } from '@material-ui/core'
+import useCurrentChannel from '../../hooks/use-current-channel'
 import Meta from '../Meta'
 
 const AppBarTitle = ({ className }) => {
+  const channel = useCurrentChannel()
   let title = 'Together'
   let metaTitle = ''
-  // if (currentChannel) {
-  //   metaTitle = currentChannel.name
-  //   if (currentChannel.unread) {
-  //     metaTitle += ` (${currentChannel.unread})`
-  //   }
-  // }
+  if (channel.name) {
+    metaTitle = channel.name
+    if (channel.unread) {
+      metaTitle += ` (${channel.unread})`
+    }
+  }
   if (metaTitle) {
     title = metaTitle
   }

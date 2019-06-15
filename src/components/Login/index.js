@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { Redirect } from 'react-router-dom'
 import {
   Button,
@@ -10,7 +11,7 @@ import {
   LinearProgress,
 } from '@material-ui/core'
 import gql from 'graphql-tag'
-import { useMutation, useQuery } from 'react-apollo-hooks'
+import { useMutation } from 'react-apollo-hooks'
 import useLocalState from '../../hooks/use-local-state'
 
 const GET_AUTH_URL = gql`
@@ -19,7 +20,7 @@ const GET_AUTH_URL = gql`
   }
 `
 
-const Login = props => {
+const Login = ({ onClose }) => {
   const [localState] = useLocalState()
   const [me, setMe] = useState('')
   const [loading, setLoading] = useState(false)
@@ -54,7 +55,7 @@ const Login = props => {
   }
 
   return (
-    <Dialog open={true} onClose={() => {}}>
+    <Dialog open={true} onClose={onClose}>
       {loading ? <LinearProgress /> : null}
       <DialogTitle>Login</DialogTitle>
       <DialogContent>
@@ -90,8 +91,12 @@ const Login = props => {
   )
 }
 
-Login.defaultProps = {}
+Login.defaultProps = {
+  onClose: () => {},
+}
 
-Login.propTypes = {}
+Login.propTypes = {
+  onClose: PropTypes.func.isRequired,
+}
 
 export default Login

@@ -16,7 +16,7 @@ const TogetherAppBar = ({ classes }) => {
     setLocalState({ channelsMenuOpen: !localState.channelsMenuOpen })
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" className={classes.root}>
       <Toolbar>
         <Tooltip title="Channels" placement="bottom">
           <IconButton

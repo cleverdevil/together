@@ -136,7 +136,7 @@ const Gallery = ({ classes, posts, channel, loadMore }) => {
 
             return (
               <Observer
-                key={post._id + index}
+                key={'gallery-item-' + post._id + index}
                 root={null}
                 margin="0px"
                 threshold={0}

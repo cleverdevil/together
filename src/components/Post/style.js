@@ -1,14 +1,8 @@
 export default theme => ({
   card: {
     maxWidth: '100%',
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: theme.spacing.unit * 3,
+    marginBottom: theme.spacing.unit * 3,
     overflow: 'hidden',
-    '& a': {
-      color:
-        theme.palette.type === 'dark'
-          ? theme.palette.secondary.light
-          : theme.palette.secondary.main,
-    },
   },
 })

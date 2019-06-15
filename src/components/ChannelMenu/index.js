@@ -9,6 +9,7 @@ import NewChannelForm from './NewChannelForm'
 import styles from './style'
 import { useQuery, useMutation } from 'react-apollo-hooks'
 import useLocalState from '../../hooks/use-local-state'
+import useCurrentChannel from '../../hooks/use-current-channel'
 import { GET_CHANNELS, REORDER_CHANNELS } from '../../queries'
 
 const SortableList = SortableContainer(({ children }) => (
@@ -16,11 +17,9 @@ const SortableList = SortableContainer(({ children }) => (
 ))
 
 const ChannelMenu = ({ classes }) => {
-  const { match, history } = useReactRouter()
-  const selectedChannel = match.params.channelSlug
-    ? decodeURIComponent(match.params.channelSlug)
-    : null
-  const [focusedChannel, setFocusedChannel] = useState(selectedChannel)
+  const { history } = useReactRouter()
+  const selectedChannel = useCurrentChannel()
+  const [focusedChannel, setFocusedChannel] = useState(selectedChannel._t_slug)
   const { data, loading, error } = useQuery(GET_CHANNELS)
   const channels = data.channels ? data.channels : []
   const reorderChannels = useMutation(REORDER_CHANNELS)
@@ -29,8 +28,8 @@ const ChannelMenu = ({ classes }) => {
 
   // Set focused channel on url change
   useEffect(() => {
-    if (selectedChannel !== focusedChannel) {
-      setFocusedChannel(selectedChannel)
+    if (selectedChannel._t_slug !== focusedChannel) {
+      setFocusedChannel(selectedChannel._t_slug)
       setLocalState({ focusedComponent: 'timeline' })
     }
   }, [selectedChannel])
@@ -51,23 +50,23 @@ const ChannelMenu = ({ classes }) => {
   // Shortcut handler
   const handleShortcuts = action => {
     const channelIndex = channels.findIndex(
-      channel => channel.uid === focusedChannel
+      channel => channel._t_slug === focusedChannel
     )
 
     switch (action) {
       case 'NEXT':
         if (channels[channelIndex + 1]) {
-          setFocusedChannel(channels[channelIndex + 1].uid)
+          setFocusedChannel(channels[channelIndex + 1]._t_slug)
         }
         break
       case 'PREVIOUS':
         if (channelIndex > 0 && channels[channelIndex - 1]) {
-          setFocusedChannel(channels[channelIndex - 1].uid)
+          setFocusedChannel(channels[channelIndex - 1]._t_slug)
         }
         break
       case 'SELECT_CHANNEL':
         setLocalState({ focusedComponent: 'timeline' })
-        if (selectedChannel !== focusedChannel) {
+        if (selectedChannel._t_slug !== focusedChannel) {
           history.push(`/channel/${focusedChannel}`)
         }
         break
@@ -134,7 +133,8 @@ const ChannelMenu = ({ classes }) => {
               key={`channel-menu-item-${index}`}
               index={index}
               channel={channel}
-              isFocused={focusedChannel === channel.uid}
+              isFocused={focusedChannel === channel._t_slug}
+              current={selectedChannel._t_slug === channel._t_slug}
             />
           ))}
         </SortableList>

@@ -1,6 +1,11 @@
+import { darken } from '@material-ui/core/styles/colorManipulator'
+
 export default theme => ({
   replyContext: {
-    background: theme.palette.action.disabledBackground,
+    background:
+      theme.palette.type === 'dark'
+        ? darken(theme.palette.background.paper, 0.2)
+        : darken(theme.palette.background.paper, 0.07),
   },
   replyUrl: {
     whiteSpace: 'nowrap',
