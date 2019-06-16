@@ -31,7 +31,6 @@ export default function(queryOptions = {}) {
   // Refetch the timeline if going back to a cached channel timeline
   useEffect(() => {
     if (query.refetch && channel.uid && !query.loading) {
-      console.log('refetching')
       setTimeout(query.refetch, 200)
     }
   }, [channel])

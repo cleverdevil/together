@@ -7,19 +7,18 @@ export default theme => ({
   popup: {
     boxSizing: 'border-box',
     display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100vw',
     height: '100vh',
     overflow: 'hidden',
     background: '#111',
   },
-  popupImage: {
+  popupMedia: {
     display: 'block',
-    margin: 'auto',
-    maxWidth: '100%',
-    maxHeight: '100%',
-    width: 'auto',
-    height: 'auto',
-    boxShadow: '0 0 3em rgba(0,0,0,.5)',
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
   },
   button: {
     color: 'white',

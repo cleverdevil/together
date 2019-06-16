@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import CardContent from '@material-ui/core/CardContent'
 import Collapse from '@material-ui/core/Collapse'
@@ -10,36 +10,23 @@ import CollapseIcon from '@material-ui/icons/ExpandLess'
 import TruncatedContentLoader from './TruncatedContentLoader'
 import style from './style'
 
-class TogetherCardContent extends Component {
-  constructor(props) {
-    super(props)
-    const { post } = props
+const TogetherCardContent = ({ classes, post, expandable = false }) => {
+  const [expanded, setExpanded] = useState(false)
+
+  const isExpandable = () => {
     let contentLength = 0
     if (post.content && post.content.text) {
       contentLength = post.content.text.length
     } else if (post.content && post.content.html) {
       contentLength = post.content.html.length
     }
-
-    this.state = {
-      expandable:
-        typeof props.expandable !== 'undefined'
-          ? props.expandable && contentLength > 300
-          : contentLength > 300,
-      expanded: false,
+    if (contentLength > 300) {
+      return expandable
     }
-
-    this.toggleExpand = this.toggleExpand.bind(this)
-    this.getContent = this.getContent.bind(this)
+    return false
   }
 
-  toggleExpand() {
-    this.setState(state => ({ expanded: !state.expanded }))
-  }
-
-  getContent() {
-    const { post } = this.props
-
+  const getContent = () => {
     if (post.summary && !post.content) {
       return {
         component: 'p',
@@ -64,51 +51,47 @@ class TogetherCardContent extends Component {
     return null
   }
 
-  render() {
-    const { post, classes } = this.props
-    const { expandable, expanded } = this.state
-    const content = this.getContent()
+  const content = getContent()
 
-    return (
-      <CardContent>
-        {post.name && (
+  return (
+    <CardContent>
+      {!!post.name && (
+        <Typography
+          variant="h5"
+          component="h2"
+          dangerouslySetInnerHTML={{ __html: post.name }}
+        />
+      )}
+
+      {!!content && (
+        <Collapse
+          in={!expandable || expanded}
+          collapsedHeight={expandable ? '5em' : null}
+        >
           <Typography
-            variant="h5"
-            component="h2"
-            dangerouslySetInnerHTML={{ __html: post.name }}
+            className={classes.content}
+            component={content.component}
+            dangerouslySetInnerHTML={{ __html: content.content }}
           />
-        )}
+          <TruncatedContentLoader post={post} />
+        </Collapse>
+      )}
 
-        {!!content && (
-          <Collapse
-            in={!expandable || expanded}
-            collapsedHeight={expandable ? '5em' : null}
+      {isExpandable() && (
+        <Fragment>
+          <Divider className={classes.divider} />
+          <Button
+            size="small"
+            variant="text"
+            fullWidth={true}
+            onClick={() => setExpanded(!expanded)}
           >
-            <Typography
-              className={classes.content}
-              component={content.component}
-              dangerouslySetInnerHTML={{ __html: content.content }}
-            />
-            <TruncatedContentLoader post={post} />
-          </Collapse>
-        )}
-
-        {expandable && (
-          <Fragment>
-            <Divider className={classes.divider} />
-            <Button
-              size="small"
-              variant="text"
-              fullWidth={true}
-              onClick={this.toggleExpand}
-            >
-              {expanded ? 'Collapse' : 'Show Content'}
-              {expanded ? <CollapseIcon /> : <ExpandIcon />}
-            </Button>
-          </Fragment>
-        )}
-      </CardContent>
-    )
-  }
+            {expanded ? 'Collapse' : 'Show Content'}
+            {expanded ? <CollapseIcon /> : <ExpandIcon />}
+          </Button>
+        </Fragment>
+      )}
+    </CardContent>
+  )
 }
 export default withStyles(style)(TogetherCardContent)

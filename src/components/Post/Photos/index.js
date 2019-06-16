@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import GridList from '@material-ui/core/GridList'
 import GridListTile from '@material-ui/core/GridListTile'
@@ -6,24 +6,17 @@ import GallerySlider from '../../GallerySlider'
 import resizeImage from '../../../modules/get-image-proxy-url'
 import style from './style'
 
-class TogetherCardPhotos extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selectedPhoto: null,
-    }
-    this.renderPhotos = this.renderPhotos.bind(this)
-  }
+const TogetherCardPhotos = ({ classes, photos }) => {
+  const [selectedPhoto, setSelectedPhoto] = useState(null)
 
-  renderPhotos() {
-    const { photos, classes } = this.props
+  const Photos = ({}) => {
     if (photos.length === 1) {
       return (
         <img
           className={classes.fullImage}
           src={resizeImage(photos[0], { w: 600 })}
           alt=""
-          onClick={() => this.setState({ selectedPhoto: 0 })}
+          onClick={() => setSelectedPhoto(0)}
         />
       )
     } else if (Array.isArray(photos)) {
@@ -45,7 +38,7 @@ class TogetherCardPhotos extends Component {
             <GridListTile
               key={`card-photo-${i}`}
               cols={1}
-              onClick={() => this.setState({ selectedPhoto: i })}
+              onClick={() => setSelectedPhoto(i)}
             >
               <img
                 src={resizeImage(photo, {
@@ -63,22 +56,19 @@ class TogetherCardPhotos extends Component {
     return null
   }
 
-  render() {
-    const { photos } = this.props
-    return (
-      <Fragment>
-        {this.renderPhotos()}
-        {this.state.selectedPhoto !== null && (
-          <GallerySlider
-            medias={photos.map(photo => ({ photo }))}
-            startIndex={this.state.selectedPhoto}
-            onClose={() => this.setState({ selectedPhoto: null })}
-            open={true}
-          />
-        )}
-      </Fragment>
-    )
-  }
+  return (
+    <Fragment>
+      <Photos />
+      {selectedPhoto !== null && (
+        <GallerySlider
+          medias={photos.map(photo => ({ photo }))}
+          startIndex={selectedPhoto}
+          onClose={() => setSelectedPhoto(null)}
+          open={true}
+        />
+      )}
+    </Fragment>
+  )
 }
 
 export default withStyles(style)(TogetherCardPhotos)
