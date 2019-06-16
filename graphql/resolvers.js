@@ -1,5 +1,7 @@
 const { camelCase } = require('lodash')
 const jwt = require('./lib/jwt')
+const { PubSub, withFilter } = require('apollo-server')
+const pubsub = new PubSub()
 
 module.exports = {
   Query: {
@@ -236,4 +238,25 @@ module.exports = {
       return postUrl
     },
   },
+  Subscription: {
+    timelineSubscription: {
+      resolve: async (payload, { channel, before }, context, _info) => {
+        if (!channel || !before) {
+          return { channel, items: [] }
+        }
+        const Microsub = require('./datasources/microsub')
+        const microsub = new Microsub()
+        microsub.initialize({ context })
+        const timeline = await microsub.getTimeline({ channel, before })
+        return timeline
+        console.log(timeline)
+        return { channel, before: timeline.before, items: timeline.items }
+      },
+      subscribe: () => pubsub.asyncIterator('TIMELINE_SUBSCRIPTION'),
+    },
+  },
 }
+
+setInterval(() => {
+  pubsub.publish('TIMELINE_SUBSCRIPTION', null)
+}, 1000 * 60)

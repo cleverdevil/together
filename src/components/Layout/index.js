@@ -1,9 +1,8 @@
 import React from 'react'
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, LinearProgress } from '@material-ui/core'
-import useReactRouter from 'use-react-router'
-import { useQuery } from 'react-apollo-hooks'
-import { GET_TIMELINE, GET_CHANNELS } from '../../queries'
+import useCurrentChannel from '../../hooks/use-current-channel'
+import useTimeline from '../../hooks/use-timeline'
 import AddFeed from '../AddFeed'
 import Gallery from './Gallery'
 import Map from './Map'
@@ -13,36 +12,8 @@ import layouts from '../../modules/layouts'
 import styles from './style'
 
 const Layout = ({ classes }) => {
-  // Get a bunch of data - posts and channel
-  const { match } = useReactRouter()
-  const selectedChannel = decodeURIComponent(match.params.channelSlug)
-  const { data, networkStatus, fetchMore, loading } = useQuery(GET_TIMELINE, {
-    variables: { channel: selectedChannel },
-    pollInterval: 60 * 1000,
-    notifyOnNetworkStatusChange: true,
-  })
-  const channelQuery = useQuery(GET_CHANNELS)
-  const channel = (channelQuery.data.channels || []).find(
-    c => c.uid === selectedChannel
-  )
-
-  const loadMore = () =>
-    fetchMore({
-      query: GET_TIMELINE,
-      variables: { channel: selectedChannel, after: data.timeline.after },
-      updateQuery: (previousResult, { fetchMoreResult }) => ({
-        timeline: {
-          channel: fetchMoreResult.timeline.channel,
-          after: fetchMoreResult.timeline.after,
-          before: previousResult.timeline.before,
-          items: [
-            ...previousResult.timeline.items,
-            ...fetchMoreResult.timeline.items,
-          ],
-          __typename: previousResult.timeline.__typename,
-        },
-      }),
-    })
+  const channel = useCurrentChannel()
+  const { data, loading, fetchMore } = useTimeline()
 
   // Use the correct component for the channel view
   const layout = channel && channel._t_layout ? channel._t_layout : 'timeline'
@@ -72,9 +43,7 @@ const Layout = ({ classes }) => {
 
   return (
     <div style={{ height: '100%' }}>
-      {networkStatus && networkStatus < 7 && (
-        <LinearProgress className={classes.loading} />
-      )}
+      {loading && <LinearProgress className={classes.loading} />}
 
       {isEmpty ? (
         <div className={classes.noPosts}>
@@ -92,7 +61,7 @@ const Layout = ({ classes }) => {
         <View
           posts={data.timeline.items.filter(viewFilter)}
           channel={channel}
-          loadMore={loadMore}
+          loadMore={fetchMore}
         />
       )}
 

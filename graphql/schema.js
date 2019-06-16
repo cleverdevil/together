@@ -1,26 +1,6 @@
 const { gql } = require('apollo-server')
 
 const typeDefs = gql`
-  type Query {
-    channels: [Channel]
-    following(channel: String!): [SearchResult]
-    blocked(channel: String!): [SearchResult]
-    muted(channel: String!): [SearchResult]
-    # posts(channel: String!, limit: Int, before: String, after: String): [Post]!
-    timeline(
-      channel: String!
-      limit: Int
-      before: String
-      after: String
-    ): TimelineResult!
-    notifications: ChannelAndTimeline!
-    search(query: String!): [SearchResult]!
-    preview(url: String!): [Post]!
-    user: User
-    micropubPosts(postType: String): [Post]!
-    micropubQuery(query: String): String
-  }
-
   type ChannelAndTimeline {
     channel: Channel!
     timeline: TimelineResult!
@@ -131,6 +111,35 @@ const typeDefs = gql`
   type LoginResponse {
     token: String!
     user: User!
+  }
+
+  type Subscription {
+    timelineSubscription(
+      channel: String!
+      limit: Int
+      before: String
+      after: String
+    ): TimelineResult!
+  }
+
+  type Query {
+    channels: [Channel]
+    following(channel: String!): [SearchResult]
+    blocked(channel: String!): [SearchResult]
+    muted(channel: String!): [SearchResult]
+    # posts(channel: String!, limit: Int, before: String, after: String): [Post]!
+    timeline(
+      channel: String!
+      limit: Int
+      before: String
+      after: String
+    ): TimelineResult!
+    notifications: ChannelAndTimeline!
+    search(query: String!): [SearchResult]!
+    preview(url: String!): [Post]!
+    user: User
+    micropubPosts(postType: String): [Post]!
+    micropubQuery(query: String): String
   }
 
   type Mutation {

@@ -54,7 +54,7 @@ const LandingPage = ({ classes }) => {
         <Grid container justify="center" alignItems="flex-start">
           <Grid item className={classes.feature}>
             <SocialIcon className={classes.featureIcon} />
-            <Typography classeName={classes.featureText} variant="h5" paragraph>
+            <Typography className={classes.featureText} variant="h5" paragraph>
               Together is a social reader based on{' '}
               <Link href="https://indieweb.org">IndieWeb</Link> technologies.
             </Typography>

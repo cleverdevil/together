@@ -14,14 +14,14 @@ export default function() {
     // Get the most recent post id in the timeline or notifications
     let post = null
     if (channel === 'notifications') {
-      const { notifications } = client.proxy.readQuery({
+      const { notifications } = client.readQuery({
         query: GET_NOTIFICATIONS,
       })
       post = notifications.timeline.items[0]._id
     } else {
       const {
         timeline: { items },
-      } = client.proxy.readQuery({
+      } = client.readQuery({
         query: GET_TIMELINE,
         variables: { channel },
       })

@@ -133,12 +133,13 @@ const App = ({ classes }) => {
               </Switch>
             ) : (
               <>
-                <Route path="/" component={LandingPage} />
+                <Route path="/" exact component={LandingPage} />
                 <Route path="/login" component={Login} />
                 <Route path="/auth" component={Auth} />
-                <Route>
+                {/* TODO: Figure out redirect everthing else to home */}
+                {/* <Route>
                   <Redirect to="/" />
-                </Route>
+                </Route> */}
               </>
             )}
           </ShortcutProvider>

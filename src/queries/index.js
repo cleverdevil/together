@@ -132,6 +132,7 @@ export const GET_TIMELINE = gql`
     $limit: Int
   ) {
     timeline(channel: $channel, after: $after, before: $before, limit: $limit) {
+      channel
       after
       before
       items {
@@ -146,6 +147,33 @@ export const GET_TIMELINE = gql`
   ${FRAGMENT_POST}
 `
 
+export const TIMELINE_SUBSCRIPTION = gql`
+  subscription onTimeline(
+    $channel: String!
+    $limit: Int
+    $before: String
+    $after: String
+  ) {
+    timelineSubscription(
+      channel: $channel
+      limit: $limit
+      before: $before
+      after: $after
+    ) {
+      channel
+      after
+      before
+      items {
+        ...PostFragment
+        refs {
+          ...PostFragment
+        }
+      }
+    }
+  }
+
+  ${FRAGMENT_POST}
+`
 export const SEARCH = gql`
   query SearchQuery($query: String!) {
     search(query: $query) {
