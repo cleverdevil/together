@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Popover from '@material-ui/core/Popover'
@@ -10,25 +10,12 @@ const MapMarker = ({ classes, post, postOpen = false, author, left, top }) => {
   const [open, setOpen] = useState(postOpen)
   const [anchor, setAnchor] = useState(null)
 
-  // TODO: Check prop based open works too
-
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.postOpen !== this.props.postOpen) {
-  //     if (this.props.postOpen && !this.state.postOpen) {
-  //       this.setState({ postOpen: true })
-  //     } else if (!this.props.postOpen && this.state.postOpen) {
-  //       this.setState({ postOpen: false })
-  //     }
-  //   }
-  // }
-
-  // handleClick(e) {
-  //   e.preventDefault()
-  //   this.setState({
-  //     postOpen: true,
-  //     anchor: e.target,
-  //   })
-  // }
+  // Open / close on prop change
+  useEffect(() => {
+    if (postOpen !== open) {
+      setOpen(postOpen)
+    }
+  }, [postOpen])
 
   return (
     <Fragment>
@@ -46,7 +33,7 @@ const MapMarker = ({ classes, post, postOpen = false, author, left, top }) => {
       {!!post && (
         <Popover
           disableAutoFocus
-          open={postOpen || open}
+          open={open}
           className={classes.popover}
           anchorEl={anchor}
           anchorOrigin={{

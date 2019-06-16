@@ -8,6 +8,7 @@ export default theme => ({
     flexWrap: 'nowrap',
     overflow: 'hidden',
 
+    // TODO: Need to move to a global style because popovers are outside the wrapper
     '& a[href^=http]': {
       color:
         theme.palette.type === 'dark'

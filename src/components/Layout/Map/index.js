@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { withStyles } from '@material-ui/core/styles'
 import Map from 'pigeon-maps'
 import Overlay from 'pigeon-overlay'
 import WebMercatorViewport from 'viewport-mercator-project'
@@ -7,9 +8,17 @@ import useLocalState from '../../../hooks/use-local-state'
 import Shortcuts from '../Shortcuts'
 import MapMarker from '../../Map/Marker'
 
+const styles = {
+  main: {
+    display: 'block',
+    overflow: 'hidden',
+    height: '100%',
+  },
+}
+
 // TODO: Keyboard controls
 // TODO: Mark read on open
-const CheckinMap = ({ posts, channel }) => {
+const CheckinMap = ({ posts, channel, classes }) => {
   // TODO: No markers shown
   const [localState] = useLocalState()
   const [viewport, setViewport] = useState(
@@ -46,8 +55,8 @@ const CheckinMap = ({ posts, channel }) => {
     return [0, 0]
   }
 
-  const zoomToPosts = () => {
-    const markers = posts.map(getAnchor)
+  const zoomToPosts = (post = null) => {
+    const markers = post ? [getAnchor(post)] : posts.map(getAnchor)
     if (markers.length) {
       let maxLat = markers[0][0]
       let maxLng = markers[0][1]
@@ -86,13 +95,13 @@ const CheckinMap = ({ posts, channel }) => {
   useEffect(zoomToPosts, [posts])
 
   const focusPost = postId => {
-    // const index = markers.findIndex(marker => marker._id === postId)
-    // if (index > -1) {
-    //   setState({ focusedPost: postId })
-    //   zoomToPosts([markers[index]])
-    // } else {
-    //   setState({ focusedPost: null })
-    // }
+    const post = posts.find(p => p._id === postId)
+    if (post) {
+      setFocusedPost(post._id)
+      zoomToPosts(post)
+    } else {
+      setFocusedPost(null)
+    }
   }
 
   const theme = localState.theme
@@ -112,22 +121,22 @@ const CheckinMap = ({ posts, channel }) => {
 
   return (
     <Shortcuts
-      style={{ display: 'block', overflow: 'hidden' }}
+      className={classes.main}
       onNext={() => {
         if (focusedPost !== null) {
           const index = posts.findIndex(marker => marker._id === focusedPost)
           if (index > -1 && posts[index + 1]) {
-            this.focusPost(posts[index + 1]._id)
+            focusPost(posts[index + 1]._id)
           }
         } else if (focusedPost === null && posts.length) {
-          this.focusPost(posts[0]._id)
+          focusPost(posts[0]._id)
         }
       }}
       onPrevious={() => {
         if (focusedPost !== null) {
           const index = posts.findIndex(marker => marker._id === focusedPost)
           if (index > 0 && posts[index - 1]) {
-            this.focusPost(posts[index - 1]._id)
+            focusPost(posts[index - 1]._id)
           }
         }
       }}
@@ -156,4 +165,4 @@ CheckinMap.propTypes = {
   posts: PropTypes.array.isRequired,
 }
 
-export default CheckinMap
+export default withStyles(styles)(CheckinMap)

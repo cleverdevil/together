@@ -16,6 +16,5 @@ export default {
   },
   popover: {
     padding: '13px 20px',
-    maxWidth: 200,
   },
 }
