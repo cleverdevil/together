@@ -7,20 +7,20 @@ export default theme => ({
     flexDirection: 'column',
     flexWrap: 'nowrap',
     overflow: 'hidden',
-
-    // TODO: Need to move to a global style because popovers are outside the wrapper
-    '& a[href^=http]': {
+  },
+  '@global': {
+    'a[href^=http]': {
       color:
         theme.palette.type === 'dark'
           ? theme.palette.primary.light
           : theme.palette.primary.main,
     },
 
-    '& *::-webkit-scrollbar': {
+    '*::-webkit-scrollbar': {
       width: scrollbarWidth,
     },
 
-    '& *::-webkit-scrollbar-thumb': {
+    '*::-webkit-scrollbar-thumb': {
       backgroundColor: theme.palette.text.hint,
       borderRadius: scrollbarWidth / 2,
     },
