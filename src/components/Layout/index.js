@@ -13,7 +13,9 @@ import styles from './style'
 
 const Layout = ({ classes }) => {
   const channel = useCurrentChannel()
-  const { data, loading, fetchMore } = useTimeline()
+  const { data, fetchMore, networkStatus } = useTimeline({
+    notifyOnNetworkStatusChange: true,
+  })
 
   // Use the correct component for the channel view
   const layout = channel && channel._t_layout ? channel._t_layout : 'timeline'
@@ -43,7 +45,7 @@ const Layout = ({ classes }) => {
 
   return (
     <div style={{ height: '100%' }}>
-      {loading && <LinearProgress className={classes.loading} />}
+      {networkStatus < 7 && <LinearProgress className={classes.loading} />}
 
       {isEmpty ? (
         <div className={classes.noPosts}>
