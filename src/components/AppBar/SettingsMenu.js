@@ -1,22 +1,18 @@
 import React, { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
-import useReactRouter from 'use-react-router'
 import { useApolloClient } from 'react-apollo-hooks'
 import { IconButton, Menu, MenuItem, Tooltip } from '@material-ui/core'
 import SettingsIcon from '@material-ui/icons/Settings'
+import useCurrentChannel from '../../hooks/use-current-channel'
 import useLocalState from '../../hooks/use-local-state'
 import LayoutSwitcher from '../LayoutSwitcher'
 import { version } from '../../../package.json'
 
 const SettingsMenu = ({ classes }) => {
-  const [anchorEl, setAnchorEl] = useState(null)
-  const {
-    match: {
-      params: { channelSlug: currentChannel },
-    },
-  } = useReactRouter()
-  const [localState, setLocalState] = useLocalState()
   const client = useApolloClient()
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [localState, setLocalState] = useLocalState()
+  const channel = useCurrentChannel()
 
   const logout = e => {
     window.localStorage.removeItem('token')
@@ -49,9 +45,9 @@ const SettingsMenu = ({ classes }) => {
         onClose={e => setAnchorEl(null)}
       >
         <Fragment>
-          {!!currentChannel && (
+          {!!channel._t_slug && (
             <Link
-              to={`/channel/${currentChannel}/edit`}
+              to={`/channel/${channel._t_slug}/edit`}
               className={classes.menuItem}
             >
               <MenuItem>Channel Settings</MenuItem>

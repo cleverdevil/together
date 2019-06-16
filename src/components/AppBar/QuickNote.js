@@ -10,8 +10,6 @@ import styles from './style'
 import SnackbarLinkAction from '../SnackbarLinkAction'
 import { MICROPUB_CREATE } from '../../queries'
 
-// TODO: Auto focus content field
-
 const QuickNote = ({ classes }) => {
   const { user } = useUser()
   const [popoverAnchor, setPopoverAnchor] = useState(null)

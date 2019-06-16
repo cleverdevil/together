@@ -46,10 +46,12 @@ const TogetherCard = ({
     }
   }
 
-  let authorNameLink = (
+  const authorNameLink = avatarData.href ? (
     <a href={avatarData.href} target="_blank" rel="noopener noreferrer">
       {avatarData.alt}
     </a>
+  ) : (
+    avatarData.alt
   )
 
   const property = (name, El) => {

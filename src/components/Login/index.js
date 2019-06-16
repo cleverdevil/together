@@ -24,7 +24,6 @@ const Login = ({ onClose }) => {
   const [localState] = useLocalState()
   const [me, setMe] = useState('')
   const [loading, setLoading] = useState(false)
-  // TODO: Auto login using saved jwt?
 
   const getAuthUrl = useMutation(GET_AUTH_URL, {
     variables: { url: me },

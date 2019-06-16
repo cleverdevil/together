@@ -127,7 +127,12 @@ const ChannelMenu = ({ classes }) => {
       )}
 
       {!!channels && (
-        <SortableList lockAxis="y" distance={2} onSortEnd={handleSort}>
+        <SortableList
+          lockAxis="y"
+          // TODO: Mousepad touches don't seem to be fully registered
+          pressDelay={200}
+          onSortEnd={handleSort}
+        >
           {channels.map((channel, index) => (
             <ChannelMenuItem
               key={`channel-menu-item-${index}`}

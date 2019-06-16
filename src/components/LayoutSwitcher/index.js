@@ -4,6 +4,7 @@ import { IconButton, Tooltip } from '@material-ui/core'
 import { useMutation, useQuery } from 'react-apollo-hooks'
 import useReactRouter from 'use-react-router'
 import gql from 'graphql-tag'
+import useCurrentChannel from '../../hooks/use-current-channel'
 import layouts from '../../modules/layouts'
 import styles from './style'
 import { GET_CHANNELS } from '../../queries'
@@ -18,20 +19,12 @@ export const UPDATE_LAYOUT = gql`
 `
 
 const LayoutSwitcher = ({ classes, className }) => {
-  let channel = null
-  const { data } = useQuery(GET_CHANNELS)
-  const { match } = useReactRouter()
-  if (match.params && match.params.channelSlug && data && data.channels) {
-    channel = data.channels.find(
-      channel => channel._t_slug === match.params.channelSlug
-    )
-  }
+  const channel = useCurrentChannel()
+  const updateChannel = useMutation(UPDATE_LAYOUT)
 
-  if (!channel) {
+  if (!channel.uid) {
     return null
   }
-
-  const updateChannel = useMutation(UPDATE_LAYOUT)
 
   return (
     <div className={[classes.menu, className].join(' ')}>

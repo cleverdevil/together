@@ -11,7 +11,7 @@ import { GET_CHANNELS } from '../queries'
 
 // Create an http link:
 const httpLink = new HttpLink({
-  uri: 'http://localhost:4000',
+  uri: process.env.SERVER || 'http://localhost:4000',
   includeExtensions: true,
   headers: {
     authorization: localStorage.getItem('token'),
@@ -22,7 +22,7 @@ const httpLink = new HttpLink({
 
 // Create a WebSocket link:
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:4000/graphql`,
+  uri: process.env.SUBSCRIPTION_SERVER || 'ws://localhost:4000/graphql',
   options: {
     reconnect: true,
     timeout: 30000,
@@ -91,16 +91,6 @@ const typeDefs = gql`
     currentChannel: Channel!
   }
 `
-
-// const link = createHttpLink({
-//   uri: 'http://localhost:4000', // TODO: Do not hard code this
-//   includeExtensions: true,
-//   headers: {
-//     authorization: localStorage.getItem('token'),
-//     'client-name': 'Together [web]',
-//     'client-version': version,
-//   },
-// })
 
 const client = new ApolloClient({
   cache,

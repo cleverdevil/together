@@ -65,8 +65,8 @@ const TogetherCardContent = ({ classes, post, expandable = false }) => {
 
       {!!content && (
         <Collapse
-          in={!expandable || expanded}
-          collapsedHeight={expandable ? '5em' : null}
+          in={!isExpandable() || expanded}
+          collapsedHeight={isExpandable() ? '5em' : null}
         >
           <Typography
             className={classes.content}

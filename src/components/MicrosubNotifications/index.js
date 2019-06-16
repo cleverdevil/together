@@ -9,7 +9,6 @@ import Post from '../Post'
 import styles from './style'
 import { GET_NOTIFICATIONS } from '../../queries'
 
-// TODO: Mark notification unread not working
 // TODO: Check fetch more works
 
 const NotificationsList = ({ classes, buttonClass }) => {

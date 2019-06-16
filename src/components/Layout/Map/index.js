@@ -16,10 +16,7 @@ const styles = {
   },
 }
 
-// TODO: Keyboard controls
-// TODO: Mark read on open
 const CheckinMap = ({ posts, channel, classes }) => {
-  // TODO: No markers shown
   const [localState] = useLocalState()
   const [viewport, setViewport] = useState(
     new WebMercatorViewport({
